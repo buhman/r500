@@ -123,21 +123,31 @@ _opcodes = """
 121	debug	debug	0
 """
 
+_str_i_d = {
+    "reg": 0,
+    "ps": 1,
+    "ws": 2,
+    "fb": 3,
+    "id": 4,
+    "imm": 5,
+    "pll": 6,
+    "mc": 7,
+}
+_i_str_d = {
+    v: k for k, v in _str_i_d.items()
+}
+
 def str_to_i(s):
-    d = {
-        "reg": 0,
-        "ps": 1,
-        "ws": 2,
-        "fb": 3,
-        "id": 4,
-        "imm": 5,
-        "pll": 6,
-        "mc": 7,
-    }
-    if s in d:
-        return d[s]
+    if s in _str_i_d:
+        return _str_i_d[s]
     else:
         return s
+
+def i_to_str(i):
+    if i in _i_str_d:
+        return _i_str_d[i]
+    else:
+        return i
 
 opcodes = {
     int(k): (a, b, str_to_i(c))

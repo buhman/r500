@@ -1,6 +1,6 @@
 import sys
 import struct
-from opcodes import opcodes
+from opcodes import opcodes, i_to_str
 import types
 
 with open(sys.argv[1], 'rb') as f:
@@ -25,6 +25,15 @@ def u32(offset):
 def rstr(offset, length):
     global rom
     return bytes(rom[offset:offset + length])
+
+def uN(offset, N):
+    if N == 1:
+        return u8(offset)
+    if N == 2:
+        return u16(offset)
+    if N == 4:
+        return u32(offset)
+    assert False, N
 
 ATOM_BIOS_MAGIC = 0xaa55
 ATOM_ATI_MAGIC_OFFSET = 0x30
@@ -190,31 +199,64 @@ def dest_src_size(arg, src):
         case _:
             return 1
 
+def print_size(n, size):
+    if size == 1:
+        print(f"{n:02x}", end='')
+    elif size == 2:
+        print(f"{n:04x}", end='')
+    else:
+        assert False, size
+
 def opcode_type_dest_src(offset, dest_type):
     attr = u8(offset)
     arg = (attr >> 0) & 0b111
     src = (attr >> 3) & 0b111
-    return (
-        1
-        + dest_arg_size(dest_type)
-        + dest_src_size(arg, src)
-    )
+
+    arg_size = dest_arg_size(dest_type)
+    src_size = dest_src_size(arg, src)
+    arg_value = uN(offset + 1, arg_size)
+    src_value = uN(offset + 1 + arg_size, src_size)
+
+    print_size(arg_value, arg_size)
+    print(" <- ", end='')
+    print_size(src_value, src_size)
+
+    return 1 + arg_size + src_size
 
 def opcode_type_1x16(offset, dest_type):
+    arg = u16(offset)
+    print_size(arg, 2)
     return 2
 
 def opcode_type_setregblock(offset, dest_type):
+    arg = u16(offset)
+    print_size(arg, 2)
     return 2
 
 def opcode_type_dest(offset, dest_type):
     attr = u8(offset)
     src = (attr >> 3) & 0b111
-    return 1 + dest_src_size(dest_type, src)
+    src_size = dest_src_size(dest_type, src)
+    src_arg = uN(offset + 1, src_size)
+
+    print_size(src_arg, src_size)
+
+    return 1 + src_size
 
 def opcode_type_shift(offset, dest_type):
     attr = u8(offset)
     src = (attr >> 3) & 0b111
-    return 1 + dest_src_size(dest_type, src)
+    src_size = dest_src_size(dest_type, src)
+    src_arg = uN(offset + 1, src_size)
+
+    print_size(src_arg, src_size)
+
+    shift_arg = u8(offset + 1 + src_size)
+
+    print(" by ", end='')
+    print_size(shift_arg, 1)
+
+    return 1 + src_size + 1
 
 def opcode_0(offset, dest_type):
     return 0
@@ -237,10 +279,12 @@ def disassemble(start, length):
         opcode = u8(offset)
         arg_type, name, dest_type = opcodes[opcode]
         pc = (offset - start) + 6
-        print(f"{pc:04x} opcode {opcode:02x} {name}:{dest_type}")
         offset += 1
         handler = argument_handlers[arg_type]
-        offset += handler(offset, dest_type)
+        print(f"{pc:04x} opcode {opcode:02x} {name.rjust(12)}  {i_to_str(dest_type).ljust(8)} ", end='')
+        length = handler(offset, dest_type)
+        offset += length
+        print()
 
 def parse_table(names, table):
     structure_size = u16(table + 0)
