@@ -1,0 +1,70 @@
+Field Name       Bits   Default Description
+ADDR0            7:0    0x0     Specifies the identity of source operands a0, a1, and a2.
+                                If the const field is set, this number ranges from 0 to 255
+                                and specifies a location within the constant register bank.
+                                Otherwise: If the most significant bit is cleared, this field
+                                specifies a location within the current pixel stack frame
+                                (ranging from 0 to 127). If the most significant bit is set,
+                                then the lower 7 bits specify an inline unsigned floating-
+                                point constant with 4 bit exponent (bias 7) and 3 bit
+                                mantissa, including denormals but excluding
+                                infinite/NaN.
+ADDR0_CONST      8      0x0     Specifies whether the associated address is a constant
+                                register address or a temporary address / inline constant.
+                                POSSIBLE VALUES:
+                                00 - TEMPORARY: Address temporary register or inline constant value.
+                                01 - CONSTANT: Address constant register.
+ADDR0_REL        9      0x0     Specifies whether the loop register is added to the value
+                                of the associated address before it is used. This
+                                implements relative addressing.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not modify source address.
+                                01 - RELATIVE: Add aL before lookup.
+ADDR1            17:10  0x0     Specifies the identity of source operands a0, a1, and a2.
+                                If the const field is set, this number ranges from 0 to 255
+                                and specifies a location within the constant register bank.
+                                Otherwise: If the most significant bit is cleared, this field
+                                specifies a location within the current pixel stack frame
+                                (ranging from 0 to 127). If the most significant bit is set,
+                                then the lower 7 bits specify an inline unsigned floating-
+                                point constant with 4 bit exponent (bias 7) and 3 bit
+                                mantissa, including denormals but excluding
+                                infinite/NaN.
+ADDR1_CONST      18     0x0     Specifies whether the associated address is a constant
+                                register address or a temporary address / inline constant.
+                                POSSIBLE VALUES:
+                                00 - TEMPORARY: Address temporary register or inline constant value.
+                                01 - CONSTANT: Address constant register.
+ADDR1_REL        19     0x0     Specifies whether the loop register is added to the value
+                                of the associated address before it is used. This
+                                implements relative addressing.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not modify source address.
+                                01 - RELATIVE: Add aL before lookup.
+ADDR2            27:20  0x0     Specifies the identity of source operands a0, a1, and a2.
+                                If the const field is set, this number ranges from 0 to 255
+                                and specifies a location within the constant register bank.
+                                Otherwise: If the most significant bit is cleared, this field
+                                specifies a location within the current pixel stack frame
+                                (ranging from 0 to 127). If the most significant bit is set,
+                                then the lower 7 bits specify an inline unsigned floating-
+                                point constant with 4 bit exponent (bias 7) and 3 bit
+                                mantissa, including denormals but excluding
+                                infinite/NaN.
+ADDR2_CONST      28     0x0     Specifies whether the associated address is a constant
+                                register address or a temporary address / inline constant.
+                                POSSIBLE VALUES:
+                                00 - TEMPORARY: Address temporary register or inline constant value.
+                                01 - CONSTANT: Address constant register.
+ADDR2_REL        29     0x0     Specifies whether the loop register is added to the value
+                                of the associated address before it is used. This
+                                implements relative addressing.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not modify source address.
+                                01 - RELATIVE: Add aL before lookup.
+SRCP_OP          31:30  0x0     Specifies how the pre-subtract value (SRCP) is computed.
+                                POSSIBLE VALUES:
+                                00 - 1.0-2.0*A0
+                                01 - A1-A0
+                                02 - A1+A0
+                                03 - 1.0-A0

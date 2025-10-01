@@ -1,0 +1,8 @@
+Field Name       Bits   Default Description
+BOOL_ADDR        4:0    0x0     The address of the static boolean register to use in the jump function.
+INT_ADDR         12:8   0x0     The address of the static integer register to use for loop/rep and endloop/endrep.
+JUMP_ADDR        24:16  0x0     The address to jump to if the jump function evaluates to true.
+JUMP_GLOBAL      31     0x0     Specifies whether to interpret JUMP_ADDR as a global address.
+                                POSSIBLE VALUES:
+                                00 - Add the shader program offset in US_CODE_OFFSET.OFFSET_ADDR when calculating the destination address of a jump
+                                01 - Don`t use the shader program offset when calculating the destination address jump

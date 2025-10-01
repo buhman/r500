@@ -1,0 +1,26 @@
+Field Name       Bits   Default Description
+TEX_ID           19:16  0x0     Specifies the id of the texture map used for this instruction
+INST             24:22  0x0     Specifies the operation taking place for this instruction
+                                POSSIBLE VALUES:
+                                00 - NOP: Do nothing
+                                01 - LD: Do Texture Lookup (S,T,R)
+                                02 - TEXKILL: Kill pixel if any component is < 0
+                                03 - PROJ: Do projected texture lookup (S/Q,T/Q,R/Q)
+                                04 - LODBIAS: Do texture lookup with lod bias
+                                05 - LOD: Do texture lookup with explicit lod
+                                06 - DXDY: Do texture lookup with lod calculated from DX and DY
+TEX_SEM_ACQUIRE  25     0x0     Whether to hold the texture semaphore until the data is
+                                written to the temporary register.
+                                POSSIBLE VALUES:
+                                00 - Don`t hold the texture semaphore
+                                01 - Hold the texture semaphore until the data is written to the temporary register.
+IGNORE_UNCOVERED 26     0x0     If set, US will not request data for pixels which are
+                                uncovered. Clear this bit for indirect texture lookups.
+                                POSSIBLE VALUES:
+                                00 - Fetch texels for uncovered pixels
+                                01 - Don`t fetch texels for uncovered pixels
+UNSCALED         27     0x0     Whether to scale texture coordinates when sending them
+                                to the texture unit.
+                                POSSIBLE VALUES:
+                                00 - Scale the S, T, R texture coordinates from [0.0,1.0] to the dimensions of the target texture
+                                01 - Use the unscaled S, T, R texture coordates.

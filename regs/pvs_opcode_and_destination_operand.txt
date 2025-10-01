@@ -1,0 +1,18 @@
+Field Name            Bits  Description
+PVS_DST_OPCODE        5:0   Selects the Operation which is to be performed.
+PVS_DST_MATH_INST     6     Specifies a Math Engine Operation
+PVS_DST_MACRO_INST    7     Specifies a Macro Operation
+PVS_DST_REG_TYPE      11:8  Defines the Memory Select (Register Type) for the Dest Operand.
+PVS_DST_ADDR_MODE_1   12    Combine ADDR_MODE_1 (msb) with ADDR_MODE_0 (lsb) to form 2-bit ADDR_MODE
+PVS_DST_OFFSET        20    Vector Offset into the Selected Memory
+PVS_DST_WE_X          21    Write Enable for X Component
+PVS_DST_WE_Y          22    Write Enable for Y Component
+PVS_DST_WE_Z          23    Write Enable for Z Component
+PVS_DST_WE_W          24    Write Enable for W Component
+PVS_DST_VE_SAT        19:13 Vector engine operation is saturate clamped between 0 and 1 (all components)
+PVS_DST_ME_SAT        25    Math engine operation is saturate clamped between 0 and 1 (all components)
+PVS_DST_PRED_ENABLE   26    Operation is predicated – Operation writes if predicate bit matches predicate sense.
+PVS_DST_PRED_SENSE    27    Operation predication sense – If set, operation writes if predicate bit is set. If reset, operation writes if predicate bit is reset.
+PVS_DST_DUAL_MATH_OP  28    Set to describe a dual-math op.
+PVS_DST_ADDR_SEL      30:29 When PVS_DST_ADDR_MODE is set, this selects which component of the 4-component address register to use.
+PVS_DST_ADDR_MODE_0   31    Combine ADDR_MODE_1 (msb) with ADDR_MODE_0 (lsb) to form 2-bit ADDR_MODE

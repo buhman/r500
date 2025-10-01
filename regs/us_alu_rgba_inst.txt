@@ -1,0 +1,92 @@
+Field Name       Bits   Default Description
+RGB_OP           3:0    0x0     Specifies the opcode for this instruction.
+                                POSSIBLE VALUES:
+                                00 - OP_MAD: Result = A*B + C
+                                01 - OP_DP3: Result = A.r*B.r + A.g*B.g + A.b*B.b
+                                02 - OP_DP4: Result = A.r*B.r + A.g*B.g + A.b*B.b + A.a*B.a
+                                03 - OP_D2A: Result = A.r*B.r + A.g*B.g + C.b
+                                04 - OP_MIN: Result = min(A,B)
+                                05 - OP_MAX: Result = max(A,B)
+                                06 - reserved
+                                07 - OP_CND: Result = cnd(A,B,C) = (C>0.5)?A:B
+                                08 - OP_CMP: Result = cmp(A,B,C) = (C>=0.0)?A:B
+                                09 - OP_FRC: Result = A-floor(A)
+                                10 - OP_SOP: Result = ex2,ln2,rcp,rsq,sin,cos from Alpha ALU
+                                11 - OP_MDH: Result = A*B + C; A is always topleft.src0, C is always topright.src0 (source select and swizzles ignored). Input modifiers are respected for all inputs.
+                                12 - OP_MDV: Result = A*B + C; A is always topleft.src0, C is always bottomleft.src0 (source select and swizzles ignored). Input modifiers are respected for all inputs.
+RGB_ADDRD        10:4   0x0     Specifies the address of the pixel stack frame register to
+                                which the RGB result of this instruction is to be written.
+                                RGB_ADDRD_REL110x0Specifies whether the loop register is added to the value
+                                of RGB_ADDRD before it is used. This implements
+                                relative addressing.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not modify destination address.
+                                01 - RELATIVE: Add aL to address before write.
+RGB_SEL_C        13:12  0x0     Specifies the operands for RGB and Alpha input C.
+                                POSSIBLE VALUES:
+                                00 - src0
+                                01 - src1
+                                02 - src2
+                                03 - srcp
+RED_SWIZ_C       16:14  0x0     Specifies, per channel, the sources for RGB and Alpha
+                                input C.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+GREEN_SWIZ_C     19:17  0x0     Specifies, per channel, the sources for RGB and Alpha
+                                input C.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+BLUE_SWIZ_C      22:20  0x0     Specifies, per channel, the sources for RGB and Alpha
+                                input C.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+RGB_MOD_C        24:23  0x0     Specifies the input modifiers for RGB and Alpha input C.
+                                POSSIBLE VALUES:
+                                00 - NOP: Do not modify input
+                                01 - NEG: Negate input
+                                02 - ABS: Take absolute value of input
+                                03 - NAB: Take negative absolute value of input
+ALPHA_SEL_C      26:25  0x0     Specifies the operands for RGB and Alpha input C.
+                                POSSIBLE VALUES:
+                                00 - src0
+                                01 - src1
+                                02 - src2
+                                03 - srcp
+ALPHA_SWIZ_C     29:27  0x0     Specifies, per channel, the sources for RGB and Alpha
+                                input C.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+ALPHA_MOD_C      31:30  0x0     Specifies the input modifiers for RGB and Alpha input C.
+                                POSSIBLE VALUES:
+                                00 - NOP: Do not modify input
+                                01 - NEG: Negate input
+                                02 - ABS: Take absolute value of input
+                                03 - NAB: Take negative absolute value of input

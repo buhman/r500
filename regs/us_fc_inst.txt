@@ -1,0 +1,51 @@
+Field Name       Bits   Default Description
+OP               2:0    0x0     Specifies the type of flow control instruction.
+                                POSSIBLE VALUES:
+                                00 - US_FC_OP_JUMP: (if, endif, call, etc)
+                                01 - US_FC_OP_LOOP: same as jump except always take the jump if the static counter is 0. If we don`t take the jump, push initial loop counter and loop register (aL) values onto the loop stack.
+                                02 - US_FC_OP_ENDLOOP: same as jump but decrement the loop counter and increment the loop register (aL), and don`t take the jump if the loop counter becomes zero.
+                                03 - US_FC_OP_REP: same as loop but don`t push the loop register aL.
+                                04 - US_FC_OP_ENDREP: same as endloop but don`t update/pop the loop register aL.
+                                05 - US_FC_OP_BREAKLOOP: same as jump but pops the loop stacks if a pixel stops being active.
+                                06 - US_FC_OP_BREAKREP: same as breakloop but don`t pop the loop register if it jumps.
+                                07 - US_FC_OP_CONTINUE: used to disable pixels that are ready to jump to the ENDLOOP/ENDREP instruction.
+B_ELSE           4      0x0     Specifies whether to perform an else operation on the
+                                active and branch-inactive pixels before executing the
+                                instruction.
+                                POSSIBLE VALUES:
+                                00 - Don`t alter the branch state before executing the instruction.
+                                01 - Perform an else operation on the branch state before executing the instruction; pixels in the active state are moved to the branch inactive state with zero counter, and vice versa.
+JUMP_ANY         5      0x0     If set, jump if any active pixels want to take the jump
+                                (otherwise the instruction jumps only if all active pixels
+                                want to).
+                                POSSIBLE VALUES:
+                                00 - Jump if ALL active pixels want to take the jump (for if and else). If no pixels are active, jump.
+                                01 - Jump if ANY active pixels want to take the jump (for call, loop/rep and endrep/endloop). If no pixels are active, do not jump.
+A_OP             7:6    0x0     The address stack operation to perform if we take the jump.
+                                POSSIBLE VALUES:
+                                00 - US_FC_A_OP_NONE: Don`t change the address stack
+                                01 - US_FC_A_OP_POP: If we jump, pop the address stack and use that value for the jump target
+                                02 - US_FC_A_OP_PUSH: If we jump, push the current address onto the address stack
+JUMP_FUNC        15:8   0x0     A 2x2x2 table of boolean values indicating whether to
+                                take the jump. The table index is indexed by {ALU
+                                Compare Result, Predication Result, Boolean Value
+                                (from the static boolean address in
+                                US_FC_ADDR.BOOL)}. To determine whether to jump,
+                                look at bit ((alu_result<<2) | (predicate<<1) | bool).
+B_POP_CNT        20:16  0x0     The amount to decrement the branch counter by if
+                                US_FC_B_OP_DECR operation is performed.
+B_OP0            25:24  0x0     The branch state operation to perform if we don`t take
+                                the jump.
+                                POSSIBLE VALUES:
+                                00 - US_FC_B_OP_NONE: If we don`t jump, don`t alter the branch counter for any pixel.
+                                01 - US_FC_B_OP_DECR: If we don`t jump, decrement branch counter by B_POP_CNT for inactive ixels. Activate pixels with negative counters.
+                                02 - US_FC_B_OP_INCR: If we don`t jump, increment branch counter by 1 for inactive pixels. Deactivate pixels that decided to jump and set their counter to zero.
+B_OP1            27:26  0x0     The branch state operation to perform if we do take the jump.
+                                POSSIBLE VALUES:
+                                00 - US_FC_B_OP_NONE: If we do jump, don`t alter the branch counter for any pixel.
+                                01 - US_FC_B_OP_DECR: If we do jump, decrement branch counter by B_POP_CNT for inactive pixels. Activate pixels with negative counters.
+                                02 - US_FC_B_OP_INCR: If we do jump, increment branch counter by 1 for inactive pixels. Deactivate pixels that decided not to jump and set their counter to zero.
+IGNORE_UNCOVERED 28     0x0     If set, uncovered pixels will not participate in flow control decisions.
+                                POSSIBLE VALUES:
+                                00 - Include uncovered pixels in jump decisions
+                                01 - Ignore uncovered pixels in making jump decisions

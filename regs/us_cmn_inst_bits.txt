@@ -1,0 +1,128 @@
+Field Name       Bits   Default Description
+TYPE             1:0    0x0     Specifies the type of instruction. Note that output instructions
+                                write to render targets.
+                                POSSIBLE VALUES:
+                                00 - US_INST_TYPE_ALU: This instruction is an ALU instruction.
+                                01 - US_INST_TYPE_OUT: This instruction is an output instruction.
+                                02 - US_INST_TYPE_FC: This instruction is a flow control instruction.
+                                03 - US_INST_TYPE_TEX: This instruction is a texture instruction.
+TEX_SEM_WAIT     2      0x0     Specifies whether to wait for the texture semaphore.
+                                POSSIBLE VALUES:
+                                00 - This instruction may issue immediately.
+                                01 - This instruction will not issue until the texture semaphore is available.
+RGB_PRED_SEL     5:3    0x0     Specifies whether the instruction uses predication. For
+                                ALU/TEX/Output this specifies predication for the RGB
+                                channels only. For FC this specifies the predicate for the
+                                entire instruction.
+                                POSSIBLE VALUES:
+                                00 - US_PRED_SEL_NONE: No predication
+                                01 - US_PRED_SEL_RGBA: Independent Channel Predication
+                                02 - US_PRED_SEL_RRRR: R-Replicate Predication
+                                03 - US_PRED_SEL_GGGG: G-Replicate Predication
+                                04 - US_PRED_SEL_BBBB: B-Replicate Predication
+                                05 - US_PRED_SEL_AAAA: A-Replicate Predication
+RGB_PRED_INV     6      0x0     Specifies whether the predicate should be inverted. For
+                                ALU/TEX/Output this specifies predication for the RGB
+                                channels only. For FC this specifies the predicate for the
+                                entire instruction.
+                                POSSIBLE VALUES:
+                                00 - Normal predication
+                                01 - Invert the value of the predicate
+WRITE_INACTIVE   7      0x0     Specifies which pixels to write to.
+                                POSSIBLE VALUES:
+                                00 - Only write to channels of active pixels
+                                01 - Write to channels of all pixels, including inactive pixels
+LAST             8      0x0     Specifies whether this is the last instruction.
+                                POSSIBLE VALUES:
+                                00 - Do not terminate the shader after executing this instruction (unless this instruction is at END_ADDR).
+                                01 - All active pixels are willing to terminate after executing this instruction. There is no guarantee that the shader will actually terminate here. This feature is provided as a performance optimization for tests where pixels can conditionally terminate early.
+NOP              9      0x0     Specifies whether to insert a NOP instruction after this.
+                                This would get specified in order to meet dependency
+                                requirements for the pre-subtract inputs, and dependency
+                                requirements for src0 of an MDH/MDV instruction.
+                                POSSIBLE VALUES:
+                                00 - Do not insert NOP instruction after this one.
+                                01 - Insert a NOP instruction after this one.
+ALU_WAIT         10     0x0     Specifies whether to wait for pending ALU instructions
+                                to complete before issuing this instruction.
+                                POSSIBLE VALUES:
+                                00 - Do not wait for pending ALU instructions to complete before issuing the current instruction.
+                                01 - Wait for pending ALU instructions to complete before issuing the current instruction.
+RGB_WMASK        13:11  0x0     Specifies which components of the result of the RGB
+                                instruction are written to the pixel stack frame.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not write any output.
+                                01 - R: Write the red channel only.
+                                02 - G: Write the green channel only.
+                                03 - RG: Write the red and green channels.
+                                04 - B: Write the blue channel only.
+                                05 - RB: Write the red and blue channels.
+                                06 - GB: Write the green and blue channels.
+                                07 - RGB: Write the red, green, and blue channels.
+ALPHA_WMASK      14     0x0     Specifies whether the result of the Alpha instruction is
+                                written to the pixel stack frame.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not write register.
+                                01 - A: Write the alpha channel only.
+RGB_OMASK        17:15  0x0     Specifies which components of the result of the RGB
+                                instruction are written to the output fifo if this is an
+                                output instruction, and which predicate bits should be
+                                modified if this is an ALU instruction.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not write any output.
+                                01 - R: Write the red channel only.
+                                02 - G: Write the green channel only.
+                                03 - RG: Write the red and green channels.
+                                04 - B: Write the blue channel only.
+                                05 - RB: Write the red and blue channels.
+                                06 - GB: Write the green and blue channels.
+                                07 - RGB: Write the red, green, and blue channels.
+ALPHA_OMASK      18     0x0     Specifies whether the result of the Alpha instruction is
+                                written to the output fifo if this is an output instruction,
+                                and whether the Alpha predicate bit should be modified
+                                if this is an ALU instruction.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not write output.
+                                01 - A: Write the alpha channel only.
+RGB_CLAMP        19     0x0     Specifies RGB and Alpha clamp mode for this
+                                instruction.
+                                POSSIBLE VALUES:
+                                00 - Do not clamp output.
+                                01 - Clamp output to the range [0,1].
+ALPHA_CLAMP      20     0x0     Specifies RGB and Alpha clamp mode for this
+                                instruction.
+                                POSSIBLE VALUES:
+                                00 - Do not clamp output.
+                                01 - Clamp output to the range [0,1].
+ALU_RESULT_SEL   21     0x0     Specifies which component of the result of this
+                                instruction should be used as the `ALU result` by a
+                                subsequent flow control instruction.
+                                POSSIBLE VALUES:
+                                00 - RED: Use red as ALU result for FC.
+                                01 - ALPHA: Use alpha as ALU result for FC.
+ALPHA_PRED_INV   22     0x0     Specifies whether the predicate should be inverted. For
+                                ALU/TEX/Output this specifies predication for the alpha
+                                channel only. This field has no effect on FC instructions.
+                                POSSIBLE VALUES:
+                                00 - Normal predication
+                                01 - Invert the value of the predicate
+ALU_RESULT_OP    24:23  0x0     Specifies how to compare the ALU result against zero
+                                for the `alu_result` bit in a subsequent flow control
+                                instruction.
+                                POSSIBLE VALUES:
+                                00 - Equal to
+                                01 - Less than
+                                02 - Greater than or equal to
+                                03 - Not equal
+ALPHA_PRED_SEL   27:25  0x0     Specifies whether the instruction uses predication. For
+                                ALU/TEX/Output this specifies predication for the alpha
+                                channel only. This field has no effect on FC instructions.
+                                POSSIBLE VALUES:
+                                00 - US_PRED_SEL_NONE: No predication
+                                01 - US_PRED_SEL_RGBA: A predication (identical to US_PRED_SEL_AAAA)
+                                02 - US_PRED_SEL_RRRR: R Predication
+                                03 - US_PRED_SEL_GGGG: G Predication
+                                04 - US_PRED_SEL_BBBB: B Predication
+                                05 - US_PRED_SEL_AAAA: A Predication
+STAT_WE          31:28  0x0     Specifies which components (R,G,B,A) contribute to the
+                                stat count

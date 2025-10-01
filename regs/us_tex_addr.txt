@@ -1,0 +1,73 @@
+Field Name       Bits   Default Description
+SRC_ADDR         6:0    0x0     Specifies the location (within the shader pixel stack
+                                frame) of the texture address for this instruction
+SRC_ADDR_REL     7      0x0     Specifies whether the loop register is added to the value
+                                of the associated address before it is used. This
+                                implements relative addressing.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not modify source address
+                                01 - RELATIVE: Add aL before lookup.
+SRC_S_SWIZ       9:8    0x0     Specify which colour channel of src_addr to use for S
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as S coordinate
+                                01 - Use G channel as S coordinate
+                                02 - Use B channel as S coordinate
+                                03 - Use A channel as S coordinate
+SRC_T_SWIZ       11:10  0x0     Specify which colour channel of src_addr to use for T
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as T coordinate
+                                01 - Use G channel as T coordinate
+                                02 - Use B channel as T coordinate
+                                03 - Use A channel as T coordinate
+SRC_R_SWIZ       13:12  0x0     Specify which colour channel of src_addr to use for R
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as R coordinate
+                                01 - Use G channel as R coordinate
+                                02 - Use B channel as R coordinate
+                                03 - Use A channel as R coordinate
+SRC_Q_SWIZ       15:14  0x0     Specify which colour channel of src_addr to use for Q
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as Q coordinate
+                                01 - Use G channel as Q coordinate
+                                02 - Use B channel as Q coordinate
+                                03 - Use A channel as Q coordinate
+DST_ADDR         22:16  0x0     Specifies the location (within the shader pixel stack
+                                frame) of the returned texture data for this instruction
+DST_ADDR_REL     23     0x0     Specifies whether the loop register is added to the value
+                                of the associated address before it is used. This
+                                implements relative addressing.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not modify destination address
+                                01 - RELATIVE: Add aL before lookup.
+DST_R_SWIZ       25:24  0x0     Specify which colour channel of the returned texture data
+                                to write to the red channel of dst_addr
+                                POSSIBLE VALUES:
+                                00 - Write R channel to R channel
+                                01 - Write G channel to R channel
+                                02 - Write B channel to R channel
+                                03 - Write A channel to R channel
+DST_G_SWIZ       27:26  0x0     Specify which colour channel of the returned texture data
+                                to write to the green channel of dst_addr
+                                POSSIBLE VALUES:
+                                00 - Write R channel to G channel
+                                01 - Write G channel to G channel
+                                02 - Write B channel to G channel
+                                03 - Write A channel to G channel
+DST_B_SWIZ       29:28  0x0     Specify which colour channel of the returned texture data
+                                to write to the blue channel of dst_addr
+                                POSSIBLE VALUES:
+                                00 - Write R channel to B channel
+                                01 - Write G channel to B channel
+                                02 - Write B channel to B channel
+                                03 - Write A channel to B channel
+DST_A_SWIZ       31:30  0x0     Specify which colour channel of the returned texture data
+                                to write to the alpha channel of dst_addr
+                                POSSIBLE VALUES:
+                                00 - Write R channel to A channel
+                                01 - Write G channel to A channel
+                                02 - Write B channel to A channel
+                                03 - Write A channel to A channel

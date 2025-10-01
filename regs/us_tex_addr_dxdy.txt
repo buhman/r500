@@ -1,0 +1,73 @@
+Field Name       Bits   Default Description
+DX_ADDR          6:0    0x0     Specifies the location (within the shader pixel stack
+                                frame) of the DX value for this instruction
+DX_ADDR_REL      7      0x0     Specifies whether the loop register is added to the value
+                                of the associated address before it is used. This
+                                implements relative addressing.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not modify source address
+                                01 - RELATIVE: Add aL before lookup.
+DX_S_SWIZ        9:8    0x0     Specify which colour channel of dx_addr to use for S
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as S coordinate
+                                01 - Use G channel as S coordinate
+                                02 - Use B channel as S coordinate
+                                03 - Use A channel as S coordinate
+DX_T_SWIZ        11:10  0x0     Specify which colour channel of dx_addr to use for T
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as T coordinate
+                                01 - Use G channel as T coordinate
+                                02 - Use B channel as T coordinate
+                                03 - Use A channel as T coordinate
+DX_R_SWIZ        13:12  0x0     Specify which colour channel of dx_addr to use for R
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as R coordinate
+                                01 - Use G channel as R coordinate
+                                02 - Use B channel as R coordinate
+                                03 - Use A channel as R coordinate
+DX_Q_SWIZ        15:14  0x0     Specify which colour channel of dx_addr to use for Q
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as Q coordinate
+                                01 - Use G channel as Q coordinate
+                                02 - Use B channel as Q coordinate
+                                03 - Use A channel as Q coordinate
+DY_ADDR          22:16  0x0     Specifies the location (within the shader pixel stack
+                                frame) of the DY value for this instruction
+DY_ADDR_REL      23     0x0     Specifies whether the loop register is added to the value
+                                of the associated address before it is used. This
+                                implements relative addressing.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not modify source address
+                                01 - RELATIVE: Add aL before lookup.
+DY_S_SWIZ        25:24  0x0     Specify which colour channel of dy_addr to use for S
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as S coordinate
+                                01 - Use G channel as S coordinate
+                                02 - Use B channel as S coordinate
+                                03 - Use A channel as S coordinate
+DY_T_SWIZ        27:26  0x0     Specify which colour channel of dy_addr to use for T
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as T coordinate
+                                01 - Use G channel as T coordinate
+                                02 - Use B channel as T coordinate
+                                03 - Use A channel as T coordinate
+DY_R_SWIZ        29:28  0x0     Specify which colour channel of dy_addr to use for R
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as R coordinate
+                                01 - Use G channel as R coordinate
+                                02 - Use B channel as R coordinate
+                                03 - Use A channel as R coordinate
+DY_Q_SWIZ        31:30  0x0     Specify which colour channel of dy_addr to use for Q
+                                coordinate
+                                POSSIBLE VALUES:
+                                00 - Use R channel as Q coordinate
+                                01 - Use G channel as Q coordinate
+                                02 - Use B channel as Q coordinate
+                                03 - Use A channel as Q coordinate

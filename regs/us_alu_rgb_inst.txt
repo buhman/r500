@@ -1,0 +1,108 @@
+Field Name       Bits   Default Description
+RGB_SEL_A        1:0    0x0     Specifies the operands for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - src0
+                                01 - src1
+                                02 - src2
+                                03 - srcp
+RED_SWIZ_A       4:2    0x0     Specifies, per channel, the sources for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+GREEN_SWIZ_A     7:5    0x0     Specifies, per channel, the sources for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+BLUE_SWIZ_A      10:8   0x0     Specifies, per channel, the sources for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+RGB_MOD_A        12:11  0x0     Specifies the input modifiers for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - NOP: Do not modify input
+                                01 - NEG: Negate input
+                                02 - ABS: Take absolute value of input
+                                03 - NAB: Take negative absolute value of input
+RGB_SEL_B        14:13  0x0     Specifies the operands for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - src0
+                                01 - src1
+                                02 - src2
+                                03 - srcp
+RED_SWIZ_B       17:15  0x0     Specifies, per channel, the sources for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+GREEN_SWIZ_B     20:18  0x0     Specifies, per channel, the sources for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+BLUE_SWIZ_B      23:21  0x0     Specifies, per channel, the sources for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+RGB_MOD_B        25:24  0x0     Specifies the input modifiers for RGB inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - NOP: Do not modify input
+                                01 - NEG: Negate input
+                                02 - ABS: Take absolute value of input
+                                03 - NAB: Take negative absolute value of input
+OMOD             28:26  0x0     Specifies the output modifier for this instruction.
+                                POSSIBLE VALUES:
+                                00 - Result * 1
+                                01 - Result * 2
+                                02 - Result * 4
+                                03 - Result * 8
+                                04 - Result / 2
+                                05 - Result / 4
+                                06 - Result / 8
+                                07 - Disable output modifier and clamping (result is copied exactly; only valid for MIN/MAX/CMP/CND)
+TARGET           30:29  0x0     This specifies which (cached) frame buffer target to write
+                                to. For non-output ALU instructions, this specifies how
+                                to compare the results against zero when setting the
+                                predicate bits.
+                                POSSIBLE VALUES:
+                                00 - A: Output to render target A. Predicate == (ALU)
+                                01 - B: Output to render target B. Predicate < (ALU)
+                                02 - C: Output to render target C. Predicate >= (ALU)
+                                03 - D: Output to render target D. Predicate != (ALU)
+ALU_WMASK        31     0x0     Specifies whether to update the current ALU result.
+                                POSSIBLE VALUES:
+                                00 - Do not modify the current ALU result.
+                                01 - Modify the current ALU result based on the settings of ALU_RESULT_SEL and ALU_RESULT_OP.

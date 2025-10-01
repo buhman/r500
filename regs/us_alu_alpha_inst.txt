@@ -1,0 +1,95 @@
+Field Name       Bits   Default Description
+ALPHA_OP         3:0    0x0     Specifies the opcode for this instruction.
+                                POSSIBLE VALUES:
+                                00 - OP_MAD: Result = A*B + C
+                                01 - OP_DP: Result = dot product from RGB ALU
+                                02 - OP_MIN: Result = min(A,B)
+                                03 - OP_MAX: Result = max(A,B)
+                                04 - reserved
+                                05 - OP_CND: Result = cnd(A,B,C) = (C>0.5)?A:B
+                                06 - OP_CMP: Result = cmp(A,B,C) = (C>=0.0)?A:B
+                                07 - OP_FRC: Result = A-floor(A)
+                                08 - OP_EX2: Result = 2^^A
+                                09 - OP_LN2: Result = log2(A)
+                                10 - OP_RCP: Result = 1/A
+                                11 - OP_RSQ: Result = 1/sqrt(A)
+                                12 - OP_SIN: Result = sin(A*2pi)
+                                13 - OP_COS: Result = cos(A*2pi)
+                                14 - OP_MDH: Result = A*B + C; A is always topleft.src0, C is always topright.src0 (source select and swizzles ignored). Input modifiers are respected for all inputs.
+                                15 - OP_MDV: Result = A*B + C; A is always topleft.src0, C is always bottomleft.src0 (source select and swizzles ignored). Input modifiers are respected for all inputs.
+ALPHA_ADDRD      10:4   0x0     Specifies the address of the pixel stack frame register to
+                                which the Alpha result of this instruction is to be written.
+ALPHA_ADDRD_REL  11     0x0     Specifies whether the loop register is added to the value
+                                of ALPHA_ADDRD before it is used. This implements
+                                relative addressing.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not modify destination address.
+                                01 - RELATIVE: Add aL to address before write.
+ALPHA_SEL_A      13:12  0x0     Specifies the operands for Alpha inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - src0
+                                01 - src1
+                                02 - src2
+                                03 - srcp
+ALPHA_SWIZ_A     16:14  0x0     Specifies the channel sources for Alpha inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+ALPHA_MOD_A      18:17  0x0     Specifies the input modifiers for Alpha inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - NOP: Do not modify input
+                                01 - NEG: Negate input
+                                02 - ABS: Take absolute value of input
+                                03 - NAB: Take negative absolute value of input
+ALPHA_SEL_B      20:19  0x0     Specifies the operands for Alpha inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - src0
+                                01 - src1
+                                02 - src2
+                                03 - srcp
+ALPHA_SWIZ_B     23:21  0x0     Specifies the channel sources for Alpha inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - Red
+                                01 - Green
+                                02 - Blue
+                                03 - Alpha
+                                04 - Zero
+                                05 - Half
+                                06 - One
+                                07 - Unused
+ALPHA_MOD_B      25:24  0x0     Specifies the input modifiers for Alpha inputs A and B.
+                                POSSIBLE VALUES:
+                                00 - NOP: Do not modify input
+                                01 - NEG: Negate input
+                                02 - ABS: Take absolute value of input
+                                03 - NAB: Take negative absolute value of input
+OMOD             28:26  0x0     Specifies the output modifier for this instruction.
+                                POSSIBLE VALUES:
+                                00 - Result * 1
+                                01 - Result * 2
+                                02 - Result * 4
+                                03 - Result * 8
+                                04 - Result / 2
+                                05 - Result / 4
+                                06 - Result / 8
+                                07 - Disable output modifier and clamping (result is copied exactly; only valid for MIN/MAX/CMP/CND)
+TARGET           30:29  0x0     This specifies which (cached) frame buffer target to write
+                                to. For non-output ALU instructions, this specifies how
+                                to compare the results against zero when setting the
+                                predicate bits.
+                                POSSIBLE VALUES:
+                                00 - A: Output to render target A. Predicate == (ALU)
+                                01 - B: Output to render target B. Predicate < (ALU)
+                                02 - C: Output to render target C. Predicate >= (ALU)
+                                03 - D: Output to render target D. Predicate != (ALU)
+W_OMASK          31     0x0     Specifies whether or not to write the Alpha component of
+                                the result of this instuction to the depth output fifo.
+                                POSSIBLE VALUES:
+                                00 - NONE: Do not write output to w.
+                                01 - A: Write the alpha channel only to w.

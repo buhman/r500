@@ -1,0 +1,16 @@
+PVS_SRC_OFFSET:
+PVS_SRC_REG_TEMPORARY     = 0 Intermediate storage
+PVS_SRC_REG_INPUT         = 1 Input Vertex Storage
+PVS_SRC_REG_CONSTANT      = 2 Constant State Storage
+PVS_SRC_REG_ALT_TEMPORARY = 3 Alternate Intermediate Storage
+PVS_SRC_ADDR_SEL:
+PVS_SRC_SELECT_X       = 0 Select X Component
+PVS_SRC_SELECT_Y       = 1 Select Y Component
+PVS_SRC_SELECT_Z       = 2 Select Z Component
+PVS_SRC_SELECT_W       = 3 Select W Component
+PVS_SRC_SELECT_FORCE_0 = 4 Force Component to 0.0
+PVS_SRC_SELECT_FORCE_1 = 5 Force Component to 1.0
+PVS_SRC_ADDR_MODE:
+Absolute addressing = 0
+Relative addressing using A0 register = 1
+Relative addressing using I0 register = 2
