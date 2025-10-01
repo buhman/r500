@@ -2,11 +2,12 @@
 #include <linux/module.h>
 #include <linux/pci.h>
 #include <linux/delay.h>
+#include <linux/aperture.h>
 
 #define R500 "r500"
 
 static struct pci_device_id r500_id_table[] = {
-  { PCI_DEVICE(0x121a, 0x0002) },
+  { PCI_DEVICE(0x1002, 0x71c1) },
   { 0,}
 };
 
@@ -48,61 +49,49 @@ void release_device(struct pci_dev *pdev)
   pci_disable_device(pdev);
 }
 
+static inline void wreg(void __iomem * rmmio, uint32_t reg, uint32_t v)
+{
+  writel(v, ((void __iomem *)rmmio) + reg);
+}
+
+static inline uint32_t rreg(void __iomem * rmmio, uint32_t reg)
+{
+  return readl(((void __iomem *)rmmio) + reg);
+}
+
 /* This function is called by the kernel */
 static int r500_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 {
-  int bar, err;
   u16 vendor, device;
-  unsigned long mmio_start, mmio_len;
-
-  struct r500_priv *drv_priv;
-
   pci_read_config_word(pdev, PCI_VENDOR_ID, &vendor);
   pci_read_config_word(pdev, PCI_DEVICE_ID, &device);
+  printk(KERN_INFO "[r500] VENDOR_ID: %04x DEVICE_ID: %04x\n", vendor, device);
 
-  printk(KERN_INFO "vid: %04x pid: %04x\n", vendor, device);
+  struct resource mem;
+  int ret;
 
-  /* Request IO BAR */
-  bar = pci_select_bars(pdev, IORESOURCE_MEM);
+  ret = aperture_remove_conflicting_pci_devices(pdev, "R500");
+  if (ret)
+    return ret;
 
-  /* Enable device memory */
-  err = pci_enable_device_mem(pdev);
-  if (err) {
-    printk(KERN_INFO "pci_enable_device_mem error\n");
-    return err;
-  }
+  ret = pci_enable_device(pdev);
+  if (ret)
+    goto err_free;
 
-  /* Request memory region for the BAR */
-  err = pci_request_region(pdev, bar, R500);
-  if (err) {
-    printk(KERN_INFO "pci_request_region error\n");
-    pci_disable_device(pdev);
-    return err;
-  }
+  resource_size_t rmmio_base = pci_resource_start(pdev, 2);
+  resource_size_t rmmio_size = pci_resource_len(pdev, 2);
 
-  /* Get start and stop memory offsets */
-  mmio_start = pci_resource_start(pdev, 0);
-  mmio_len = pci_resource_len(pdev, 0);
-  printk(KERN_INFO "mmio_start %p mmio_len %p\n", (void*)mmio_start, (void*)mmio_len);
+  void __iomem * rmmio = ioremap(rmmio_base, rmmio_size);
+  printk(KERN_INFO "[r500] rmmio base: %08x ; rmmio size: %08x\n", rmmio_base, rmmio_size);
 
-  /* Allocate memory for the module private data */
-  drv_priv = kzalloc(sizeof(struct r500_priv), GFP_KERNEL);
-  if (!drv_priv) {
-    release_device(pdev);
-    return -ENOMEM;
-  }
+  uint32_t value1 = rreg(rmmio, 0x6080);
+  printk(KERN_INFO "[r500] D1CRTC_CONTROL %08x\n", value1);
+  uint32_t value2 = rreg(rmmio, 0x6880);
+  printk(KERN_INFO "[r500] D2CRTC_CONTROL %08x\n", value2);
 
-  /* Remap BAR to the local pointer */
-  drv_priv->hwmem = ioremap(mmio_start, mmio_len);
-  if (!drv_priv->hwmem) {
-    release_device(pdev);
-    return -EIO;
-  }
+  wreg(rmmio, 0x6080, 1);
 
-  /* Set module private data */
-  /* Now we can access mapped "hwmem" from the any module's function */
-  pci_set_drvdata(pdev, drv_priv);
-
+ err_free:
   return 0;
 }
 
