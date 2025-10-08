@@ -5,6 +5,7 @@
 #include <linux/aperture.h>
 
 #include "3d_registers.h"
+#include "3d_registers2.h"
 #include "undocumented_3d_registers.h"
 
 #define R500 "r500"
@@ -63,6 +64,8 @@ static inline uint32_t rreg(void __iomem * rmmio, uint32_t reg)
 }
 
 #define bswap32 __builtin_bswap32
+
+#include "triangle.c"
 
 static const uint8_t _cp_data[] __attribute__((aligned (4))) = {
   0x00,0x00,0x00,0x00,0x42,0x00,0xe0,0x00,0x00,0x00,0x00,0x00,0x40,0x00,0xe0,0x00,
@@ -370,10 +373,27 @@ static int r500_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
   mb();
   wreg(rmmio, 0x1000, 0xdeadbeef);
   mb();
+  for (int i = 0; i < 3; i++) {
+    wreg(rmmio, 0x1000, 0xc0001000); // NOP
+    mb();
+    wreg(rmmio, 0x1000, 0);
+    mb();
+  }
+
   mdelay(1);
 
   scratch = rreg(rmmio, SCRATCH_REG0);
   printk(KERN_INFO "[r500] SCRATCH_REG0 2 %08x\n", scratch);
+
+  mdelay(100);
+
+  triangle(rmmio);
+
+  mdelay(100);
+
+  RM(GA_IDLE);
+  RM(VAP_CNTL_STATUS);
+  RM(CP_STAT);
 
   if (0) {
     wreg(rmmio, CP_CSQ_CNTL, 1); // Primary PIO, Indirect Disabled
@@ -403,12 +423,12 @@ static int r500_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
     (void)rreg(rmmio, CP_RB_WPTR);
 
     udelay(500);
+
+    uint32_t scratch_reg0_2 = rreg(rmmio, SCRATCH_REG0);
+    printk(KERN_INFO "[r500] SCRATCH_REG0 2 %08x\n", scratch_reg0_2);
   }
 
-  uint32_t scratch_reg0_2 = rreg(rmmio, SCRATCH_REG0);
-  printk(KERN_INFO "[r500] SCRATCH_REG0 2 %08x\n", scratch_reg0_2);
-
-  if (1) {
+  if (0) {
     // GB_PIPE_SELECT
     // GB_TILE_CONFIG
     // GA_SOFT_RESET
@@ -455,7 +475,7 @@ static int r500_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
     printk(KERN_INFO "[r500] SCRATCH_REG0 3 %08x\n", scratch_reg03);
   }
 
-  if (0) {
+  if (1) {
     uint32_t tmp;
     tmp = rreg(rmmio, 0xf8);
     printk(KERN_INFO "CONFIG_MEMSIZE 0x%08x\n", tmp);

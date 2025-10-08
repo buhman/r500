@@ -16,3 +16,5 @@
 #define RBBM_SOFT_RESET_IDCT (1 << 14)
 
 #define SCRATCH_REG0 0x15e0
+
+#define VAP_VSM_VTX_ASSM 0x2184
