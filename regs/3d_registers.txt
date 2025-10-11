@@ -214,7 +214,7 @@ VAP:VAP_VTE_CNTL · [R/W] · 32 bits · Access: 32 · MMReg:0x20b0
 VAP:VAP_VTX_AOS_ADDR[0-15] · [R/W] · 32 bits · Access: 32 · MMReg:0x20c8-0x2120
 VAP:VAP_VTX_AOS_ATTR[01-1415] · [R/W] · 32 bits · Access: 32 · MMReg:0x20c4-0x2118
 VAP:VAP_VTX_NUM_ARRAYS · [R/W] · 32 bits · Access: 32 · MMReg:0x20c0
-VAP:VAP_VTX_SIZE · [R/W] · 32 bits · Access: 32 · MMReg:0x204b
+VAP:VAP_VTX_SIZE · [R/W] · 32 bits · Access: 32 · MMReg:0x20b4
 VAP:VAP_VTX_STATE_CNTL · [R/W] · 32 bits · Access: 32 · MMReg:0x2180
 VAP:VAP_VTX_ST_BLND_WT_[0-3] · [R/W] · 32 bits · Access: 32 · MMReg:0x2430-0x243c
 VAP:VAP_VTX_ST_CLR_[0-7]_A · [R/W] · 32 bits · Access: 32 · MMReg:0x232c-0x239c
