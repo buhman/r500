@@ -1,4 +1,6 @@
-with open('3d_registers.txt') as f:
+import sys
+
+with open(sys.argv[1]) as f:
     lines = f.read().split('\n')
 
 def parse_reg_value(value):
