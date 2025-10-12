@@ -3,6 +3,7 @@ from typing import Union
 import re
 from dataclasses import dataclass
 from pprint import pprint
+from collections import OrderedDict
 
 def split_line_fields(line):
     fields = [0, 17, 24, 32]
@@ -87,11 +88,22 @@ def aggregate(fields):
                 yield description
                 ix += 1
 
+    def parse_possible_value_num(s):
+        num, description = s.split(' - ')
+        num = int(num, 10)
+        if ": " in description:
+            name, description = description.split(": ")
+        else:
+            name = None
+        return num, (name, description)
+
     while ix < len(fields):
         field_name, bits, default, description = fields[ix]
         description_lines = [description]
         description_lines.extend(parse_description_lines())
-        possible_values = list(parse_possible_values())
+        possible_values = OrderedDict(
+            map(parse_possible_value_num, parse_possible_values())
+        )
 
         assert default.startswith('0x'), default
         yield Descriptor(
@@ -105,6 +117,7 @@ def aggregate(fields):
         ix += 1
         next_nonempty()
 
-l = list(parse_file_fields(sys.argv[1]))
-for descriptor in aggregate(l):
-    pprint(descriptor, width=200)
+if __name__ == "__main__":
+    l = list(parse_file_fields(sys.argv[1]))
+    for descriptor in aggregate(l):
+        pprint(descriptor, width=200)
