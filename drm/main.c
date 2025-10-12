@@ -361,6 +361,19 @@ int main()
   assert(write_length == mmap_args.size);
   close(out_fd);
 
+  int mm_fd = open("/sys/kernel/debug/radeon_vram_mm", O_RDONLY);
+  assert(mm_fd >= 0);
+  char buf[4096];
+  while (true) {
+    ssize_t read_length = read(mm_fd, buf, 4096);
+    assert(read_length >= 0);
+    write(STDOUT_FILENO, buf, read_length);
+    if (read_length < 4096) {
+      break;
+    }
+  }
+  close(mm_fd);
+
   munmap(ptr, mmap_args.size);
 
   close(fd);
