@@ -8,7 +8,7 @@ with open(sys.argv[1]) as f:
     ]
 
 undocumented_registers = {
-    0x1720: "RADEON_WAIT_UNTIL",
+    0x1720: "WAIT_UNTIL",
     0x2184: "VAP_VSM_VTX_ASSM",
 }
 
