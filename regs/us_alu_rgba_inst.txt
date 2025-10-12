@@ -16,7 +16,7 @@ RGB_OP           3:0    0x0     Specifies the opcode for this instruction.
                                 12 - OP_MDV: Result = A*B + C; A is always topleft.src0, C is always bottomleft.src0 (source select and swizzles ignored). Input modifiers are respected for all inputs.
 RGB_ADDRD        10:4   0x0     Specifies the address of the pixel stack frame register to
                                 which the RGB result of this instruction is to be written.
-                                RGB_ADDRD_REL110x0Specifies whether the loop register is added to the value
+RGB_ADDRD_REL    11     0x0     Specifies whether the loop register is added to the value
                                 of RGB_ADDRD before it is used. This implements
                                 relative addressing.
                                 POSSIBLE VALUES:
