@@ -1,4 +1,4 @@
-Field Name            Bit(s)   Description
+Field Name            Bits     Description
 PVS_SRC_REG_TYPE      1:0      Defines the Memory Select (Register Type) for the Source Operand. See Below.
 PVS_DST_OPCODE_MSB    2        Math Opcode MSB for Dual Math Inst.
 PVS_SRC_ABS_XYZW      3        If set, Take absolute value of both components of Dual Math input vector.

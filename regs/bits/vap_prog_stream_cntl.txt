@@ -43,6 +43,6 @@ NORMALIZE_0            15     0x0     Determines whether the fixed to floating p
 DATA_TYPE_1            19:16  0x0     Similar to DATA_TYPE_0
 SKIP_DWORDS_1          23:20  0x0     See SKIP_DWORDS_0
 DST_VEC_LOC_1          28:24  0x0     See DST_VEC_LOC_0
-LAST_VEC_1             29  0x0        See LAST_VEC_0
-SIGNED_1               30  0x0        See SIGNED_0
-NORMALIZE_1            31  0x0        See NORMALIZE_0
+LAST_VEC_1             29     0x0     See LAST_VEC_0
+SIGNED_1               30     0x0     See SIGNED_0
+NORMALIZE_1            31     0x0     See NORMALIZE_0

@@ -14,8 +14,8 @@ PIPE_COUNT             3:1    0x0     Specifies the number of active pipes and c
                                       POSSIBLE VALUES:
                                       00 - RV350 (1 pipe, 1 ctx)
                                       03 - R300 (2 pipes, 1 ctx)
-                                      06 – R420-3P (3 pipes, 1 ctx)
-                                      07 – R420 (4 pipes, 1 ctx)
+                                      06 - R420-3P (3 pipes, 1 ctx)
+                                      07 - R420 (4 pipes, 1 ctx)
 TILE_SIZE              5:4    0x1     Specifies width & height (square), in pixels (only 16, 32
                                       available).
                                       POSSIBLE VALUES:

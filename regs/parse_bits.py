@@ -5,26 +5,42 @@ from dataclasses import dataclass
 from pprint import pprint
 from collections import OrderedDict
 
-def split_line_fields(line):
-    fields = [0, 17, 24, 32]
+def split_line_fields(line, fields):
     a = line[fields[0]:fields[1]]
     b = line[fields[1]:fields[2]]
     c = line[fields[2]:fields[3]]
     d = line[fields[3]:]
+    assert a[-1] == ' '
+    assert b[-1] == ' '
+    assert c[-1] == ' ' or len(line) < fields[3]
     return a, b, c, d
+
+def find_line_fields(line):
+    field_name_ix = line.index('Field Name')
+    bits_ix = line.index('Bits')
+    default_ix = line.index('Default')
+    description_ix = line.index('Description')
+    assert field_name_ix == 0
+    assert bits_ix > field_name_ix
+    assert default_ix > bits_ix
+    assert description_ix > default_ix
+    return field_name_ix, bits_ix, default_ix, description_ix
 
 def parse_file_fields(filename):
     with open(filename) as f:
         lines = f.read().split('\n')
     first, *rest = lines
-    a, b, c, d = split_line_fields(first)
-    assert a == 'Field Name       ', a
-    assert b == 'Bits   ', b
-    assert c == 'Default ', c
+    fields = find_line_fields(first)
+    a, b, c, d = split_line_fields(first, fields)
+    assert a.rstrip() == 'Field Name', a
+    assert b.rstrip() == 'Bits', b
+    assert c.rstrip() == 'Default', c
     assert d.rstrip() == 'Description', d
 
     for line in rest:
-        a, b, c, d = split_line_fields(line)
+        if not line.strip():
+            continue
+        a, b, c, d = split_line_fields(line, fields)
         yield a.strip(), b.strip(), c.strip(), d.strip()
 
 def parse_bits(s):
@@ -60,8 +76,6 @@ def aggregate(fields):
         nonlocal ix
         if ix + 1 >= len(fields):
             return
-        if not fields[ix+1][0] == '':
-            return
         if not fields[ix+1][3] == 'POSSIBLE VALUES:':
             return
         ix += 1
@@ -89,7 +103,7 @@ def aggregate(fields):
                 ix += 1
 
     def parse_possible_value_num(s):
-        num, description = s.split(' - ')
+        num, description = s.split(' - ', maxsplit=1)
         num = int(num, 10)
         if ": " in description:
             name, description = description.split(": ")
@@ -99,17 +113,21 @@ def aggregate(fields):
 
     while ix < len(fields):
         field_name, bits, default, description = fields[ix]
-        description_lines = [description]
-        description_lines.extend(parse_description_lines())
+        if description == 'POSSIBLE VALUES:':
+            description_lines = []
+            ix -= 1
+        else:
+            description_lines = [description]
+            description_lines.extend(parse_description_lines())
         possible_values = OrderedDict(
             map(parse_possible_value_num, parse_possible_values())
         )
 
-        assert default.startswith('0x'), default
+        assert default.startswith('0x') or default == 'none', default
         yield Descriptor(
             field_name = field_name,
             bits = parse_bits(bits),
-            default = int(default, 16),
+            default = 0 if default == 'none' else int(default, 16),
             description = ' '.join(description_lines),
             possible_values = possible_values
         )

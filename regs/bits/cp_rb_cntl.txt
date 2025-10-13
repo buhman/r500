@@ -35,7 +35,7 @@ RB_NO_UPDATE          27     0x0     Ring Buffer No Write to Read Pointer. The p
                                      POSSIBLE VALUES:
                                      00 - Write to Host`s copy of Read Pointer in system memory.
                                      01 - Do not write to Host`s copy of Read pointer.
-RB_RPTR_WR_ENA        31     0bx0    Ring Buffer Read Pointer Write Transfer Enable. When
+RB_RPTR_WR_ENA        31     0x0     Ring Buffer Read Pointer Write Transfer Enable. When
                                      set the contents of the CP_RB_RPTR_WR register is
                                      transferred to the active read pointer (CP_RB_RPTR)
                                      whenever the CP_RB_WPTR register is written.
