@@ -13,8 +13,14 @@
 
 #include "3d_registers.h"
 #include "3d_registers_undocumented.h"
+#include "3d_registers_bits.h"
 
-static uint32_t ib[16384];
+union u32_f32 {
+  uint32_t u32;
+  float f32;
+};
+
+static union u32_f32 ib[16384];
 
 #define TYPE_0_COUNT(c) (((c) & 0x3fff) << 16)
 #define TYPE_0_ONE_REG (1 << 15)
@@ -25,35 +31,55 @@ static uint32_t ib[16384];
 
 #define T0(address, count)                                              \
   do {                                                                  \
-    ib[ix++] = TYPE_0_COUNT(count) | TYPE_0_BASE_INDEX(address >> 2);   \
+    ib[ix++].u32 = TYPE_0_COUNT(count) | TYPE_0_BASE_INDEX(address >> 2);   \
   } while (0);
 
 #define T0_ONE_REG(address, count)                                      \
   do {                                                                  \
-    ib[ix++] = TYPE_0_COUNT(count) | TYPE_0_ONE_REG | TYPE_0_BASE_INDEX(address >> 2);   \
+    ib[ix++].u32 = TYPE_0_COUNT(count) | TYPE_0_ONE_REG | TYPE_0_BASE_INDEX(address >> 2); \
   } while (0);
 
 #define T0V(address, value)                                             \
   do {                                                                  \
-    ib[ix++] = TYPE_0_COUNT(0) | TYPE_0_BASE_INDEX(address >> 2);       \
-    ib[ix++] = value;                                                   \
+    ib[ix++].u32 = TYPE_0_COUNT(0) | TYPE_0_BASE_INDEX(address >> 2);   \
+    ib[ix++].u32 = value;                                               \
+  } while (0);
+
+#define T0Vf(address, value)                                            \
+  do {                                                                  \
+    ib[ix++].u32 = TYPE_0_COUNT(0) | TYPE_0_BASE_INDEX(address >> 2);   \
+    ib[ix++].f32 = value;                                               \
   } while (0);
 
 #define T3(opcode, count)                                               \
   do {                                                                  \
-    ib[ix++] = (0b11 << 30) | TYPE_3_COUNT(count) | TYPE_3_OPCODE(opcode);  \
+    ib[ix++].u32 = (0b11 << 30) | TYPE_3_COUNT(count) | TYPE_3_OPCODE(opcode); \
   } while (0);
+
+#define _3D_DRAW_IMMD_2 0x35
 
 int indirect_buffer()
 {
   int ix = 0;
 
-  T0V(SC_SCISSOR0, 0x0);
-  T0V(SC_SCISSOR1, ((1200 - 1) << 13) | ((1600 - 1) << 0));
+  T0V(SC_SCISSOR0
+      , SC_SCISSOR0__XS0(0)
+      | SC_SCISSOR0__YS0(0)
+      );
+  T0V(SC_SCISSOR1
+      , SC_SCISSOR1__XS1(1600 - 1)
+      | SC_SCISSOR1__YS1(1200 - 1)
+      );
 
-  T0V(RB3D_DSTCACHE_CTLSTAT, 0x0000000a);
+  T0V(RB3D_DSTCACHE_CTLSTAT
+      , RB3D_DSTCACHE_CTLSTAT__DC_FLUSH(0x2) // Flush dirty 3D data
+      | RB3D_DSTCACHE_CTLSTAT__DC_FREE(0x2)  // Free 3D tags
+      );
 
-  T0V(ZB_ZCACHE_CTLSTAT, 0x00000003);
+  T0V(ZB_ZCACHE_CTLSTAT
+      , ZB_ZCACHE_CTLSTAT__ZC_FLUSH(1)
+      | ZB_ZCACHE_CTLSTAT__ZC_FREE(1)
+      );
 
   T0V(WAIT_UNTIL, 0x00020000);
 
@@ -61,21 +87,28 @@ int indirect_buffer()
 
   T0V(RB3D_AARESOLVE_CTL, 0x00000000);
 
-  T0V(RB3D_CCTL, 0x00004000);
+  T0V(RB3D_CCTL
+      , RB3D_CCTL__INDEPENDENT_COLORFORMAT_ENABLE(1)
+      );
 
-  T0V(RB3D_COLOROFFSET0, 0x00000000);
-  ib[ix++] = 0xc0001000;
-  ib[ix++] = 0x0;
+  T0V(RB3D_COLOROFFSET0, 0x00000000); // value replaced by kernel from relocs
+  ib[ix++].u32 = 0xc0001000;
+  ib[ix++].u32 = 0x0;
 
-  T0V(RB3D_COLORPITCH0, (6 << 21) | (1600 << 0));
-  ib[ix++] = 0xc0001000;
-  ib[ix++] = 0x0;
+  T0V(RB3D_COLORPITCH0
+      , RB3D_COLORPITCH__COLORPITCH(1600 >> 1)
+      | RB3D_COLORPITCH__COLORFORMAT(6) // ARGB8888
+      );
+  ib[ix++].u32 = 0xc0001000;
+  ib[ix++].u32 = 0x0;
 
   T0V(ZB_BW_CNTL, 0x00000000);
   T0V(ZB_DEPTHCLEARVALUE, 0x00000000);
   T0V(SC_HYPERZ_EN, 0x00000000);
   T0V(GB_Z_PEQ_CONFIG, 0x00000000);
-  T0V(ZB_ZTOP, 0x00000001);
+  T0V(ZB_ZTOP
+      , ZB_ZTOP__ZTOP(1)
+      );
   T0V(FG_ALPHA_FUNC, 0x00000000);
   T0V(ZB_CNTL, 0x00000000);
   T0V(ZB_ZSTENCILCNTL, 0x00000000);
@@ -86,116 +119,276 @@ int indirect_buffer()
   T0V(RB3D_ROPCNTL, 0x00000000);
   T0V(RB3D_BLENDCNTL, 0x00000000);
   T0V(RB3D_ABLENDCNTL, 0x00000000);
-  T0V(RB3D_COLOR_CHANNEL_MASK, 0x0000000f);
+  T0V(RB3D_COLOR_CHANNEL_MASK
+      , RB3D_COLOR_CHANNEL_MASK__BLUE_MASK(1)
+      | RB3D_COLOR_CHANNEL_MASK__GREEN_MASK(1)
+      | RB3D_COLOR_CHANNEL_MASK__RED_MASK(1)
+      | RB3D_COLOR_CHANNEL_MASK__ALPHA_MASK(1)
+      );
   T0V(RB3D_DITHER_CTL, 0x00000000);
   T0V(RB3D_CONSTANT_COLOR_AR, 0x00000000);
   T0V(RB3D_CONSTANT_COLOR_GB, 0x00000000);
 
   T0V(SC_CLIP_0_A, 0x00000000);
   T0V(SC_CLIP_0_B, 0xffffffff);
-
   T0V(SC_SCREENDOOR, 0x00ffffff);
+
   T0V(GB_SELECT, 0x00000000);
   T0V(FG_FOG_BLEND, 0x00000000);
   T0V(GA_OFFSET, 0x00000000);
   T0V(SU_TEX_WRAP, 0x00000000);
-  T0V(SU_DEPTH_SCALE, 0x4b7fffff);
+  T0Vf(SU_DEPTH_SCALE, 16777215.0f);
   T0V(SU_DEPTH_OFFSET, 0x00000000);
-  T0V(SC_EDGERULE, 0x2da49525);
-  T0V(RB3D_DISCARD_SRC_PIXEL_LTE_THRESHOLD, 0x01010101);
-  T0V(RB3D_DISCARD_SRC_PIXEL_GTE_THRESHOLD, 0xfefefefe);
+  T0V(SC_EDGERULE
+      , SC_EDGERULE__ER_TRI(5)      // L-in,R-out,HT-in,HB-in
+      | SC_EDGERULE__ER_POINT(9)    // L-out,R-in,HT-in,HB-out
+      | SC_EDGERULE__ER_LINE_LR(5)  // L-in,R-out,HT-in,HB-out
+      | SC_EDGERULE__ER_LINE_RL(9)  // L-out,R-in,HT-in,HB-out
+      | SC_EDGERULE__ER_LINE_TB(26) // T-in,B-out,VL-out,VR-in
+      | SC_EDGERULE__ER_LINE_BT(22) // T-out,B-in,VL-out,VR-in
+      );
+  T0V(RB3D_DISCARD_SRC_PIXEL_LTE_THRESHOLD
+      , RB3D_DISCARD_SRC_PIXEL_LTE_THRESHOLD__BLUE(1)
+      | RB3D_DISCARD_SRC_PIXEL_LTE_THRESHOLD__GREEN(1)
+      | RB3D_DISCARD_SRC_PIXEL_LTE_THRESHOLD__RED(1)
+      | RB3D_DISCARD_SRC_PIXEL_LTE_THRESHOLD__ALPHA(1)
+      );
+  T0V(RB3D_DISCARD_SRC_PIXEL_GTE_THRESHOLD
+      , RB3D_DISCARD_SRC_PIXEL_GTE_THRESHOLD__BLUE(254)
+      | RB3D_DISCARD_SRC_PIXEL_GTE_THRESHOLD__GREEN(254)
+      | RB3D_DISCARD_SRC_PIXEL_GTE_THRESHOLD__RED(254)
+      | RB3D_DISCARD_SRC_PIXEL_GTE_THRESHOLD__ALPHA(254)
+      );
   T0V(GA_COLOR_CONTROL_PS3, 0x00000000);
   T0V(SU_TEX_WRAP_PS3, 0x00000000);
-  T0V(VAP_VPORT_XSCALE, 0x44480000);
-  T0V(VAP_VPORT_XOFFSET, 0x44480000);
-  T0V(VAP_VPORT_YSCALE, 0xc4160000);
-  T0V(VAP_VPORT_YOFFSET, 0x44160000);
-  T0V(VAP_VPORT_ZSCALE, 0x3f000000);
-  T0V(VAP_VPORT_ZOFFSET, 0x3f000000);
-  T0V(VAP_VTE_CNTL, 0x0000043f);
+  T0Vf(VAP_VPORT_XSCALE,   800.0f);
+  T0Vf(VAP_VPORT_XOFFSET,  800.0f);
+  T0Vf(VAP_VPORT_YSCALE,  -600.0f);
+  T0Vf(VAP_VPORT_YOFFSET,  600.0f);
+  T0Vf(VAP_VPORT_ZSCALE,     0.5f);
+  T0Vf(VAP_VPORT_ZOFFSET,    0.5f);
+  T0V(VAP_VTE_CNTL
+      , VAP_VTE_CNTL__VPORT_X_SCALE_ENA(1)
+      | VAP_VTE_CNTL__VPORT_X_OFFSET_ENA(1)
+      | VAP_VTE_CNTL__VPORT_Y_SCALE_ENA(1)
+      | VAP_VTE_CNTL__VPORT_Y_OFFSET_ENA(1)
+      | VAP_VTE_CNTL__VPORT_Z_SCALE_ENA(1)
+      | VAP_VTE_CNTL__VPORT_Z_OFFSET_ENA(1)
+      | VAP_VTE_CNTL__VTX_XY_FMT(0)
+      | VAP_VTE_CNTL__VTX_Z_FMT(0)
+      | VAP_VTE_CNTL__VTX_W0_FMT(1)
+      | VAP_VTE_CNTL__SERIAL_PROC_ENA(0)
+      );
   T0V(VAP_PVS_STATE_FLUSH_REG, 0x00000000);
-  T0V(VAP_PVS_VTX_TIMEOUT_REG, 0x0000ffff);
-  T0V(VAP_GB_VERT_CLIP_ADJ, 0x3f800000);
-  T0V(VAP_GB_VERT_DISC_ADJ, 0x3f800000);
-  T0V(VAP_GB_HORZ_CLIP_ADJ, 0x3f800000);
-  T0V(VAP_GB_HORZ_DISC_ADJ, 0x3f800000);
-  T0V(VAP_PSC_SGN_NORM_CNTL, 0xaaaaaaaa);
+  T0V(VAP_PVS_VTX_TIMEOUT_REG
+      , VAP_PVS_VTX_TIMEOUT_REG__CLK_COUNT(0xffff)
+      );
+  T0Vf(VAP_GB_VERT_CLIP_ADJ, 1.0f);
+  T0Vf(VAP_GB_VERT_DISC_ADJ, 1.0f);
+  T0Vf(VAP_GB_HORZ_CLIP_ADJ, 1.0f);
+  T0Vf(VAP_GB_HORZ_DISC_ADJ, 1.0f);
+  T0V(VAP_PSC_SGN_NORM_CNTL
+      , VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_0(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_1(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_2(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_3(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_4(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_5(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_6(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_7(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_8(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_9(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_10(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_11(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_12(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_13(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_14(2)
+      | VAP_PSC_SGN_NORM_CNTL__SGN_NORM_METHOD_15(2)
+      );
   T0V(VAP_TEX_TO_COLOR_CNTL, 0x00000000);
-  T0V(VAP_PROG_STREAM_CNTL_0, 0x00002002);
-  T0V(VAP_PROG_STREAM_CNTL_EXT_0, 0x0000fa88);
+  T0V(VAP_PROG_STREAM_CNTL_0
+      , VAP_PROG_STREAM_CNTL__DATA_TYPE_0(2)
+      | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_0(0)
+      | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_0(0)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_0(1)
+      | VAP_PROG_STREAM_CNTL__SIGNED_0(0)
+      | VAP_PROG_STREAM_CNTL__NORMALIZE_0(0)
+      );
+  T0V(VAP_PROG_STREAM_CNTL_EXT_0
+      , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0(0)
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_0(1)
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0(2)
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0(5)
+      | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(15)
+      );
   T0V(VAP_PVS_CODE_CNTL_0, 0x00000000);
   T0V(VAP_PVS_CODE_CNTL_1, 0x00000000);
   T0V(VAP_PVS_VECTOR_INDX_REG, 0x00000000);
 
   T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, 3);
-  ib[ix++] = 0x00f00203;
-  ib[ix++] = 0x00d10001;
-  ib[ix++] = 0x01248001;
-  ib[ix++] = 0x01248001;
+  ib[ix++].u32 = 0x00f00203;
+  ib[ix++].u32 = 0x00d10001;
+  ib[ix++].u32 = 0x01248001;
+  ib[ix++].u32 = 0x01248001;
 
-  T0V(VAP_CNTL, 0x00b0055a);
+  T0V(VAP_CNTL
+      , VAP_CNTL__PVS_NUM_SLOTS(10)
+      | VAP_CNTL__PVS_NUM_CNTLRS(5)
+      | VAP_CNTL__PVS_NUM_FPUS(5)
+      | VAP_CNTL__VAP_NO_RENDER(0)
+      | VAP_CNTL__VF_MAX_VTX_NUM(12)
+      | VAP_CNTL__DX_CLIP_SPACE_DEF(0)
+      | VAP_CNTL__TCL_STATE_OPTIMIZATION(1)
+      );
   T0V(VAP_PVS_FLOW_CNTL_OPC, 0x00000000);
 
   T0(VAP_PVS_FLOW_CNTL_ADDRS_LW_0, 31);
   for (int i = 0; i < 32; i++)
-    ib[ix++] = 0x00000000;
+    ib[ix++].u32 = 0x00000000;
 
   T0(VAP_PVS_FLOW_CNTL_LOOP_INDEX_0, 15);
   for (int i = 0; i < 16; i++)
-    ib[ix++] = 0x00000000;
+    ib[ix++].u32 = 0x00000000;
 
   T0V(VAP_PVS_VECTOR_INDX_REG, 0x00000600);
   T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, 23);
   for (int i = 0; i < 24; i++)
-    ib[ix++] = 0x00000000;
+    ib[ix++].u32 = 0x00000000;
 
-  T0V(VAP_VTX_STATE_CNTL, 0x00005555);
-  T0V(VAP_VSM_VTX_ASSM, 0x00000001);
-  T0V(VAP_OUT_VTX_FMT_0, 0x00000001);
-  T0V(VAP_OUT_VTX_FMT_1, 0x00000000);
+  T0V(VAP_VTX_STATE_CNTL
+      , VAP_VTX_STATE_CNTL__COLOR_0_ASSEMBLY_CNTL(1)
+      | VAP_VTX_STATE_CNTL__COLOR_1_ASSEMBLY_CNTL(1)
+      | VAP_VTX_STATE_CNTL__COLOR_2_ASSEMBLY_CNTL(1)
+      | VAP_VTX_STATE_CNTL__COLOR_3_ASSEMBLY_CNTL(1)
+      | VAP_VTX_STATE_CNTL__COLOR_4_ASSEMBLY_CNTL(1)
+      | VAP_VTX_STATE_CNTL__COLOR_5_ASSEMBLY_CNTL(1)
+      | VAP_VTX_STATE_CNTL__COLOR_6_ASSEMBLY_CNTL(1)
+      | VAP_VTX_STATE_CNTL__COLOR_7_ASSEMBLY_CNTL(1)
+      | VAP_VTX_STATE_CNTL__UPDATE_USER_COLOR_0_ENA(0)
+      );
+  T0V(VAP_VSM_VTX_ASSM
+      , 0x00000001); // undocumented
+  T0V(VAP_OUT_VTX_FMT_0
+      , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
+  T0V(VAP_OUT_VTX_FMT_1
+      , 0x0);
+
   T0V(GB_ENABLE, 0x00000000);
-  T0V(RS_IP_0, 0x30000000);
-  T0V(RS_COUNT, 0x00040080);
+  T0V(RS_IP_0
+      , RS_IP__TEX_PTR_S(0)
+      | RS_IP__TEX_PTR_T(0)
+      | RS_IP__TEX_PTR_R(0)
+      | RS_IP__TEX_PTR_Q(0)
+      | RS_IP__COL_PTR(0)
+      | RS_IP__COL_FMT(6) // Zero components (0,0,0,1)
+      | RS_IP__OFFSET_EN(0)
+      );
+  T0V(RS_COUNT
+      , RS_COUNT__IT_COUNT(0)
+      | RS_COUNT__IC_COUNT(1)
+      | RS_COUNT__W_ADDR(0)
+      | RS_COUNT__HIRES_EN(1)
+      );
   T0V(RS_INST_COUNT, 0x00000000);
   T0V(RS_INST_0, 0x00000000);
   T0V(VAP_CNTL_STATUS, 0x00000000);
-  T0V(VAP_CLIP_CNTL, 0x0000c000);
-  T0V(GA_POINT_SIZE, 0x00060006);
-  T0V(GA_POINT_MINMAX, 0x00060006);
-  T0V(GA_LINE_CNTL, 0x00020006);
+  T0V(VAP_CLIP_CNTL
+      , VAP_CLIP_CNTL__PS_UCP_MODE(3)
+      );
+  T0V(GA_POINT_SIZE
+      , GA_POINT_SIZE__HEIGHT(6)
+      | GA_POINT_SIZE__WIDTH(6)
+      );
+  T0V(GA_POINT_MINMAX
+      , GA_POINT_MINMAX__MIN_SIZE(6)
+      | GA_POINT_MINMAX__MAX_SIZE(6)
+      );
+  T0V(GA_LINE_CNTL
+      , GA_LINE_CNTL__WIDTH(6)
+      | GA_LINE_CNTL__END_TYPE(2)
+      | GA_LINE_CNTL__SORT(0)
+      );
   T0V(SU_POLY_OFFSET_ENABLE, 0x00000000);
   T0V(SU_CULL_MODE, 0x00000000);
   T0V(GA_LINE_STIPPLE_CONFIG, 0x00000000);
   T0V(GA_LINE_STIPPLE_VALUE, 0x00000000);
   T0V(GA_POLY_MODE, 0x00000000);
-  T0V(GA_ROUND_MODE, 0x00000031);
-  T0V(SC_CLIP_RULE, 0x0000ffff);
-  T0V(GA_POINT_S0, 0x00000000);
-  T0V(GA_POINT_T0, 0x3f800000);
-  T0V(GA_POINT_S1, 0x3f800000);
-  T0V(GA_POINT_T1, 0x00000000);
-  T0V(US_OUT_FMT_0, 0x00001b00);
-  T0V(US_OUT_FMT_1, 0x0000000f);
-  T0V(US_OUT_FMT_2, 0x0000000f);
-  T0V(US_OUT_FMT_3, 0x0000000f);
-  T0V(GB_MSPOS0, 0x66666666);
-  T0V(GB_MSPOS1, 0x06666666);
-  T0V(US_CONFIG, 0x00000002);
-  T0V(US_PIXSIZE, 0x00000001);
-  T0V(US_FC_CTRL, 0x00000000);
-  T0V(US_CODE_RANGE, 0x00000000);
-  T0V(US_CODE_OFFSET, 0x00000000);
-  T0V(US_CODE_ADDR, 0x00000000);
-
+  T0V(GA_ROUND_MODE
+      , GA_ROUND_MODE__GEOMETRY_ROUND(1)
+      | GA_ROUND_MODE__COLOR_ROUND(0)
+      | GA_ROUND_MODE__RGB_CLAMP(1)
+      | GA_ROUND_MODE__ALPHA_CLAMP(1)
+      | GA_ROUND_MODE__GEOMETRY_MASK(0)
+      );
+  T0V(SC_CLIP_RULE
+      , SC_CLIP_RULE__CLIP_RULE(0xffff));
+  T0Vf(GA_POINT_S0, 0.0f);
+  T0Vf(GA_POINT_T0, 1.0f);
+  T0Vf(GA_POINT_S1, 1.0f);
+  T0Vf(GA_POINT_T1, 0.0f);
+  T0V(US_OUT_FMT_0
+      , US_OUT_FMT__OUT_FMT(0)  // C4_8
+      | US_OUT_FMT__C0_SEL(3)   // Blue
+      | US_OUT_FMT__C1_SEL(2)   // Green
+      | US_OUT_FMT__C2_SEL(1)   // Red
+      | US_OUT_FMT__C3_SEL(0)   // Alpha
+      | US_OUT_FMT__OUT_SIGN(0)
+      );
+  T0V(US_OUT_FMT_1
+      , US_OUT_FMT__OUT_FMT(15) // render target is not used
+      );
+  T0V(US_OUT_FMT_2
+      , US_OUT_FMT__OUT_FMT(15) // render target is not used
+      );
+  T0V(US_OUT_FMT_2
+      , US_OUT_FMT__OUT_FMT(15) // render target is not used
+      );
+  T0V(GB_MSPOS0
+      , GB_MSPOS0__MS_X0(6)
+      | GB_MSPOS0__MS_Y0(6)
+      | GB_MSPOS0__MS_X1(6)
+      | GB_MSPOS0__MS_Y1(6)
+      | GB_MSPOS0__MS_X2(6)
+      | GB_MSPOS0__MS_Y2(6)
+      | GB_MSPOS0__MSBD0_Y(6)
+      | GB_MSPOS0__MSBD0_X(6)
+      );
+  T0V(GB_MSPOS1
+      , GB_MSPOS1__MS_X3(6)
+      | GB_MSPOS1__MS_Y3(6)
+      | GB_MSPOS1__MS_X4(6)
+      | GB_MSPOS1__MS_Y4(6)
+      | GB_MSPOS1__MS_X5(6)
+      | GB_MSPOS1__MS_Y5(6)
+      | GB_MSPOS1__MSBD1(6)
+      );
+  T0V(US_CONFIG
+      , US_CONFIG__ZERO_TIMES_ANYTHING_EQUALS_ZERO(1)
+      );
+  T0V(US_PIXSIZE
+      , US_PIXSIZE__PIX_SIZE(1)
+      );
+  T0V(US_FC_CTRL, 0);
+  T0V(US_CODE_RANGE
+      , US_CODE_RANGE__CODE_ADDR(0)
+      | US_CODE_RANGE__CODE_SIZE(0)
+      );
+  T0V(US_CODE_OFFSET
+      , US_CODE_OFFSET__OFFSET_ADDR(0)
+      );
+  T0V(US_CODE_ADDR
+      , US_CODE_ADDR__START_ADDR(0)
+      | US_CODE_ADDR__END_ADDR(0)
+      );
   T0V(GA_US_VECTOR_INDEX, 0x00000000);
 
   T0_ONE_REG(GA_US_VECTOR_DATA, 5);
-  ib[ix++] = 0x00078005;
-  ib[ix++] = 0x08020080;
-  ib[ix++] = 0x08020080;
-  ib[ix++] = 0x1c9b04d8;
-  ib[ix++] = 0x1c810003;
-  ib[ix++] = 0x00000005;
+  ib[ix++].u32 = 0x00078005;
+  ib[ix++].u32 = 0x08020080;
+  ib[ix++].u32 = 0x08020080;
+  ib[ix++].u32 = 0x1c9b04d8;
+  ib[ix++].u32 = 0x1c810003;
+  ib[ix++].u32 = 0x00000005;
 
   T0V(FG_DEPTH_SRC, 0x00000000);
   T0V(US_W_FMT, 0x00000000);
@@ -203,25 +396,49 @@ int indirect_buffer()
   T0V(TX_INVALTAGS, 0x00000000);
   T0V(TX_ENABLE, 0x00000000);
   T0V(VAP_INDEX_OFFSET, 0x00000000);
-  T0V(GA_COLOR_CONTROL, 0x0003aaaa);
-  T0V(VAP_VF_MAX_VTX_INDX, 0x00000002);
-  T0V(VAP_VF_MIN_VTX_INDX, 0x00000000);
-  T0V(VAP_VTX_SIZE, 0x00000003);
+  T0V(GA_COLOR_CONTROL
+      , GA_COLOR_CONTROL__RGB0_SHADING(2)
+      | GA_COLOR_CONTROL__ALPHA0_SHADING(2)
+      | GA_COLOR_CONTROL__RGB1_SHADING(2)
+      | GA_COLOR_CONTROL__ALPHA1_SHADING(2)
+      | GA_COLOR_CONTROL__RGB2_SHADING(2)
+      | GA_COLOR_CONTROL__ALPHA2_SHADING(2)
+      | GA_COLOR_CONTROL__RGB3_SHADING(2)
+      | GA_COLOR_CONTROL__ALPHA3_SHADING(2)
+      | GA_COLOR_CONTROL__PROVOKING_VERTEX(3)
+      );
+  T0V(VAP_VF_MAX_VTX_INDX
+      , VAP_VF_MAX_VTX_INDX__MAX_INDX(2)
+      );
+  T0V(VAP_VF_MIN_VTX_INDX
+      , VAP_VF_MIN_VTX_INDX__MIN_INDX(0)
+      );
+  T0V(VAP_VTX_SIZE
+      , VAP_VTX_SIZE__DWORDS_PER_VTX(3)
+      );
 
-  T3(0x35, 9);
-  ib[ix++] = 0x00030034;
-  ib[ix++] = 0x3f000000;
-  ib[ix++] = 0xbf800000; //0xbf000000;
-  ib[ix++] = 0x00000000;
-  ib[ix++] = 0xbf800000; //0xbf000000
-  ib[ix++] = 0xbf800000; //0xbf000000
-  ib[ix++] = 0x00000000;
-  ib[ix++] = 0x00000000;
-  ib[ix++] = 0x3f000000;
-  ib[ix++] = 0x00000000;
+  const float vertices[] = {
+     0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+     0.0f,  0.5f, 0.0f,  // top
+  };
+
+  T3(_3D_DRAW_IMMD_2, 9);
+  ib[ix++].u32
+    = VAP_VF_CNTL__PRIM_TYPE(4)
+    | VAP_VF_CNTL__PRIM_WALK(3)
+    | VAP_VF_CNTL__INDEX_SIZE(0)
+    | VAP_VF_CNTL__VTX_REUSE_DIS(0)
+    | VAP_VF_CNTL__DUAL_INDEX_MODE(0)
+    | VAP_VF_CNTL__USE_ALT_NUM_VERTS(0)
+    | VAP_VF_CNTL__NUM_VERTICES(3)
+    ;
+  for (int i = 0; i < 9; i++) {
+    ib[ix++].f32 = vertices[i];
+  }
 
   while ((ix % 8) != 0) {
-    ib[ix++] = 0x80000000;
+    ib[ix++].u32 = 0x80000000;
   }
 
   return ix;
@@ -232,13 +449,15 @@ int main()
   int ret;
   int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
 
+  const int colorbuffer_size = 1600 * 1200 * 4;
   int colorbuffer_handle;
+  void * colorbuffer_ptr;
   int flush_handle;
 
   // colorbuffer
   {
     struct drm_radeon_gem_create args = {
-      .size = 1600 * 1200 * 4,
+      .size = colorbuffer_size,
       .alignment = 4096,
       .handle = 0,
       .initial_domain = 4, // RADEON_GEM_DOMAIN_VRAM
@@ -252,6 +471,28 @@ int main()
     assert(args.handle != 0);
 
     colorbuffer_handle = args.handle;
+  }
+
+  {
+    struct drm_radeon_gem_mmap mmap_args = {
+      .handle = colorbuffer_handle,
+      .offset = 0,
+      .size = colorbuffer_size,
+    };
+    ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_MMAP, &mmap_args, (sizeof (struct drm_radeon_gem_mmap)));
+    if (ret != 0) {
+      perror("drmCommandWriteRead(DRM_RADEON_GEM_MMAP)");
+    }
+
+    colorbuffer_ptr = mmap(0, mmap_args.size, PROT_READ|PROT_WRITE, MAP_SHARED,
+                           fd, mmap_args.addr_ptr);
+  }
+
+  { // clear colorbuffer
+    for (int i = 0; i < colorbuffer_size / 4; i++) {
+      ((uint32_t*)colorbuffer_ptr)[i] = 0;
+    }
+    asm volatile ("" ::: "memory");
   }
 
   // flush
@@ -341,24 +582,10 @@ int main()
   };
   while (drmCommandWrite(fd, DRM_RADEON_GEM_WAIT_IDLE, &args, (sizeof (struct drm_radeon_gem_wait_idle))) == -EBUSY);
 
-  struct drm_radeon_gem_mmap mmap_args = {
-    .handle = colorbuffer_handle,
-    .offset = 0,
-    .size = 1600 * 1200 * 4,
-  };
-  ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_MMAP, &mmap_args, (sizeof (struct drm_radeon_gem_mmap)));
-  if (ret != 0) {
-    perror("drmCommandWriteRead(DRM_RADEON_GEM_MMAP)");
-  }
-
-  void * ptr;
-  ptr = mmap(0, mmap_args.size, PROT_READ|PROT_WRITE, MAP_SHARED,
-             fd, mmap_args.addr_ptr);
-
   int out_fd = open("colorbuffer.data", O_RDWR|O_CREAT);
   assert(out_fd >= 0);
-  ssize_t write_length = write(out_fd, ptr, mmap_args.size);
-  assert(write_length == mmap_args.size);
+  ssize_t write_length = write(out_fd, colorbuffer_ptr, colorbuffer_size);
+  assert(write_length == colorbuffer_size);
   close(out_fd);
 
   int mm_fd = open("/sys/kernel/debug/radeon_vram_mm", O_RDONLY);
@@ -374,7 +601,7 @@ int main()
   }
   close(mm_fd);
 
-  munmap(ptr, mmap_args.size);
+  munmap(colorbuffer_ptr, colorbuffer_size);
 
   close(fd);
 }
