@@ -1,0 +1,16 @@
+Field Name             Bits   Default Description
+MS_X3                  3:0    0x0     Specifies the x and y position (in subpixels) of
+                                      multisample 3
+MS_Y3                  7:4    0x0     Specifies the x and y position (in subpixels) of
+                                      multisample 3
+MS_X4                  11:8   0x0     Specifies the x and y position (in subpixels) of
+                                      multisample 4
+MS_Y4                  15:12  0x0     Specifies the x and y position (in subpixels) of
+                                      multisample 4
+MS_X5                  19:16  0x0     Specifies the x and y position (in subpixels) of
+                                      multisample 5
+MS_Y5                  23:20  0x0     Specifies the x and y position (in subpixels) of
+                                      multisample 5
+MSBD1                  27:24  0x0     Specifies the minimum distance (in subpixels) between
+                                      the pixel edge and the multisamples. This value is used
+                                      in the second (quad) scan converter

@@ -1,0 +1,18 @@
+Field Name            Bits   Default Description
+ME_STAT               15:0   none    Status of MicroEngine internal registers. This value
+                                     depends on the current value of the ME_STATMUX
+                                     field. Read Only.
+ME_STATMUX            20:16  0x0     Selects which status is to be returned on the ME_STAT
+                                     field.
+ME_BUSY               29     none    Busy indicator for the MicroEngine. Read Only.
+                                     POSSIBLE VALUES:
+                                     00 - MicroEngine not busy.
+                                     01 - MicroEngine is active.
+ME_MODE               30     0x1     Run-Mode of MicroEngine.
+                                     POSSIBLE VALUES:
+                                     00 - Single-Step Mode.
+                                     01 - Free-running Mode.
+ME_STEP               31     0x0     Step the MicroEngine by one instruction. Writing a `1` to
+                                     this field causes the MicroEngine to step by one
+                                     instruction, if and only if the ME_MODE bit is a `0`.
+                                     Write Only.

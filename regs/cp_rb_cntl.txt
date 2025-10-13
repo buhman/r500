@@ -1,0 +1,41 @@
+Field Name            Bits   Default Description
+RB_BUFSZ              5:0    0x0     Ring Buffer Size. This size is expressed in log2 of the
+                                     actual size. Values 0 and 1 are clamped to an 8 DWORD
+                                     ring buffer. A value of 2 to 22 will give a ring buffer:
+                                     2^(RB_BUFSZ+1). Values greater than 22 will clamp to
+                                     22. Default = 0
+RB_BLKSZ              13:8   0x0     Ring Buffer Block Size. This defines the number of
+                                     quadwords that the Command Processor will read
+                                     between updates to the host`s copy of the Read Pointer.
+                                     This size is expressed in log2 of the actual size (in 64-bit
+                                     quadwords). For example, for a block of 1024
+                                     quadwords, you would program this field to 10(decimal).
+                                     Default = 0
+BUF_SWAP              17:16  0x0     Endian Swap Control for Ring Buffer and Indirect
+                                     Buffer. Only affects the chip behavior if the buffer
+                                     resides in system memory.
+                                     POSSIBLE VALUES:
+                                     00 - No swap
+                                     01 - 16-bit swap: 0xAABBCCDD becomes 0xBBAADDCC
+                                     02 - 32-bit swap: 0xAABBCCDD becomes 0xDDCCBBAA
+                                     03 - Half-dword swap: 0xAABBCCDD becomes 0xCCDDAABB
+MAX_FETCH             19:18  0x0     Maximum Fetch Size for any read request that the CP
+                                     makes to memory.
+                                     POSSIBLE VALUES:
+                                     00 - 1 double octword. (32 bytes)
+                                     01 - 2 double octwords. (64 bytes)
+                                     02 - 4 double octwords. (128 bytes)
+                                     03 - 8 double octwords. (256 bytes).
+RB_NO_UPDATE          27     0x0     Ring Buffer No Write to Read Pointer. The purpose of this
+                                     control bit is to have a fall-back position if the bus-
+                                     mastered write to system memory doesn`t work, in which
+                                     case the driver will have to read the Graphics
+                                     Controller`s copy of the Read Pointer directly, with some
+                                     performance penalty.
+                                     POSSIBLE VALUES:
+                                     00 - Write to Host`s copy of Read Pointer in system memory.
+                                     01 - Do not write to Host`s copy of Read pointer.
+RB_RPTR_WR_ENA        31     0bx0    Ring Buffer Read Pointer Write Transfer Enable. When
+                                     set the contents of the CP_RB_RPTR_WR register is
+                                     transferred to the active read pointer (CP_RB_RPTR)
+                                     whenever the CP_RB_WPTR register is written.

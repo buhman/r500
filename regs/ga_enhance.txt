@@ -1,0 +1,17 @@
+Field Name             Bits   Default Description
+DEADLOCK_CNTL          0      0x0     TCL/GA Deadlock control.
+                                      POSSIBLE VALUES:
+                                      00 - No effect.
+                                      01 - Prevents TCL interface from deadlocking on GA side.
+FASTSYNC_CNTL          1      0x1     Enables Fast register/primitive switching
+                                      POSSIBLE VALUES:
+                                      00 - No effect.
+                                      01 - Enables high-performance register/primitive switching.
+REG_READWRITE          2      0x0     R520+: When set, GA supports simultaneous register
+                                      reads & writes
+                                      POSSIBLE VALUES:
+                                      00 - No effect.
+                                      01 - Enables GA support of simultaneous register reads and writes.
+REG_NOSTALL            3      0x0     POSSIBLE VALUES:
+                                      00 - No effect.
+                                      01 - Enables GA support of no-stall reads for register read back.

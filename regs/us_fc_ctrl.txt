@@ -1,0 +1,11 @@
+Field Name             Bits   Default Description
+TEST_EN                30     0x0     Specifies whether test mode is enabled. This flag
+                                      currently has no effect in hardware.
+                                      POSSIBLE VALUES:
+                                      00 - Normal mode
+                                      01 - Test mode (currently unused)
+FULL_FC_EN             31     0x0     Specifies whether full flow control functionality is
+                                      enabled.
+                                      POSSIBLE VALUES:
+                                      00 - Use partial flow-control (enables twice the contexts). Loops and subroutines are not available in partial flow-control mode, and the nesting depth of branch statements is limited.
+                                      01 - Use full pixel shader 3.0 flow control, including loops and subroutines.

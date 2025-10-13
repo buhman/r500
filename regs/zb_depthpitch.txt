@@ -1,0 +1,20 @@
+Field Name             Bits   Default   Description
+DEPTHPITCH             13:2   0x0       Z buffer pitch in multiples of 4 pixels.
+DEPTHMACROTILE         16     0x0       Specifies whether Z buffer is macro-tiled. macro-tiles are
+                                        2K aligned
+                                        POSSIBLE VALUES:
+                                        00 - macro tiling disabled
+                                        01 - macro tiling enabled
+DEPTHMICROTILE         18:17  0x0       Specifies whether Z buffer is micro-tiled. micro-tiles is
+                                        32 bytes
+                                        POSSIBLE VALUES:
+                                        00 - 32 byte cache line is linear
+                                        01 - 32 byte cache line is tiled
+                                        02 - 32 byte cache line is tiled square (only applies to 16-bit pixels)
+                                        03 - Reserved
+DEPTHENDIAN            20:19  0x0       Specifies endian control for the Z buffer.
+                                        POSSIBLE VALUES:
+                                        00 - No swap
+                                        01 - Word swap
+                                        02 - Dword swap
+                                        03 - Half Dword swap

@@ -1,0 +1,12 @@
+Field Name            Bits   Default Description
+DITHER_MODE           1:0    0x0     Dither mode
+                                     POSSIBLE VALUES:
+                                     00 - Truncate
+                                     01 - Round
+                                     02 - LUT dither
+                                     03 - (reserved)
+ALPHA_DITHER_MODE     3:2    0x0     POSSIBLE VALUES:
+                                     00 - Truncate
+                                     01 - Round
+                                     02 - LUT dither
+                                     03 - (reserved)

@@ -1,0 +1,2 @@
+Field Name             Bits   Default   Description
+VTX_AOS_ADDR0          31:2   0x0       Base Address of the Array of Structures.

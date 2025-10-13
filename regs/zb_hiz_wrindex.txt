@@ -1,0 +1,7 @@
+Field Name             Bits   Default   Description
+HIZ_WRINDEX            17:2   0x0       Self-incrementing write index into the HiZ RAM.
+                                        Starting write index must start on a DWORD boundary.
+                                        Each time ZB_HIZ_DWORD is written, this index will
+                                        autoincrement. HIZ_OFFSET and HIZ_PITCH are not
+                                        used to compute read/write address to HIZ ram, when it
+                                        is accessed through WRINDEX and DWORD

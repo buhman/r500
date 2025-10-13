@@ -1,0 +1,22 @@
+Field Name             Bits   Default Description
+TXPITCH                13:0   none    Used instead of TXWIDTH for image addressing when
+                                      TXPITCH_EN is asserted. Pitch is given as number of
+                                      texels minus one. Maximum pitch is 16K texels.
+TXFORMAT_MSB           14     none    Specifies the MSB of the texture format to extend the
+                                      number of formats to 64.
+TXWIDTH_11             15     none    Specifies bit 11 of TXWIDTH to extend the largest
+                                      image to 4096 texels.
+TXHEIGHT_11            16     none    Specifies bit 11 of TXHEIGHT to extend the largest
+                                      image to 4096 texels.
+POW2FIX2FLT            17     none    Optionally divide by 256 instead of 255 during fix2float.
+                                      Can only be asserted for 8-bit components.
+                                      POSSIBLE VALUES:
+                                      00 - Divide by pow2-1 for fix2float (default)
+                                      01 - Divide by pow2 for fix2float
+SEL_FILTER4            19:18  none    If filter4 is enabled, specifies which texture component
+                                      to apply filter4 to.
+                                      POSSIBLE VALUES:
+                                      00 - Select Texture Component0.
+                                      01 - Select Texture Component1.
+                                      02 - Select Texture Component2.
+                                      03 - Select Texture Component3.

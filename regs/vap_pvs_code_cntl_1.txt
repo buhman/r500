@@ -1,0 +1,5 @@
+Field Name             Bits   Default Description
+PVS_LAST_VTX_SRC_INST  9:0    0x0     The PVS Instruction which uses the Input Vertex
+                                      Memory for the last time. This value is used to free up
+                                      the Input Vertex Slots ASAP. This field must be set to a
+                                      valid instruction.

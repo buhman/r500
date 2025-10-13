@@ -1,0 +1,15 @@
+Field Name                  Bits   Default Description
+PVS_FC_LOOP_INIT_VAL_0      7:0    0x0     This field stores the automatic loop index register init
+                                           value. This is an 8-bit unsigned value 0-255. This field
+                                           is only used if the corresponding control flow
+                                           instruction is a loop.
+PVS_FC_LOOP_STEP_VAL_0      15:8   0x0     This field stores the automatic loop index register step
+                                           value. This is an 8-bit 2`s comp signed value -128-127.
+                                           This field is only used if the corresponding control
+                                           flow instruction is a loop.
+PVS_FC_LOOP_REPEAT_NO_FLI_0 31     0x0     When this field is set, the automatic loop index register
+                                           init value is not used at loop activation. The intial loop
+                                           index is inherited from outer loop. The loop index
+                                           register step value is used at the end of each loop
+                                           iteration ; after loop completion, the outer loop index
+                                           register is restored

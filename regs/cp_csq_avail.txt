@@ -1,0 +1,7 @@
+Field Name          Bits   Default Description
+CSQ_CNT_PRIMARY     9:0    none    Count of available dwords in the queue for the Primary
+                                   Stream. Read Only.
+CSQ_CNT_INDIRECT    19:10  none    Count of available dwords in the queue for the Indirect
+                                   Stream. Read Only.
+CSQ_CNT_INDIRECT2   29:20  none    Count of available dwords in the queue for the Indirect
+                                   Stream. Read Only.

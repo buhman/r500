@@ -1,0 +1,8 @@
+Field Name            Bits   Default Description
+LINE_RESET            1:0    0x0     Specify type of reset to use for stipple accumulation.
+                                     POSSIBLE VALUES:
+                                     00 - No reseting
+                                     01 - Reset per line
+                                     02 - Reset per packet
+STIPPLE_SCALE         31:2   0x0     Specifies, in truncated (30b) floating point, scale to apply
+                                     to generated texture coordinates.

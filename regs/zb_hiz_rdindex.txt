@@ -1,0 +1,2 @@
+Field Name             Bits   Default   Description
+HIZ_RDINDEX            17:2   0x0       Read index into HiZ RAM.

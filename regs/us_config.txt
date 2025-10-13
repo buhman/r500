@@ -1,0 +1,7 @@
+Field Name                       Bits   Default Description
+ZERO_TIMES_ANYTHING_EQUALS_ZERO  1      0x0     Control how ALU multiplier behaves when one
+                                                argument is zero. This affects the multiplier used in
+                                                MAD and dot product calculations.
+                                                POSSIBLE VALUES:
+                                                00 - Default behaviour (0*inf=nan,0*nan=nan)
+                                                01 - Legacy behaviour for shader model 1 (0*anything=0)

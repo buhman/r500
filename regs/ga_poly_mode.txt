@@ -1,0 +1,18 @@
+Field Name             Bits   Default Description
+POLY_MODE              1:0    0x0     Polygon mode enable.
+                                      POSSIBLE VALUES:
+                                      00 - Disable poly mode (render triangles).
+                                      01 - Dual mode (send 2 sets of 3 polys with specified poly type).
+                                      02 - Reserved
+FRONT_PTYPE            6:4    0x0     Specifies how to render front-facing polygons.
+                                      POSSIBLE VALUES:
+                                      00 - Draw points.
+                                      01 - Draw lines.
+                                      02 - Draw triangles.
+                                      03 - Reserved 3 - 7.
+BACK_PTYPE             9:7    0x0     Specifies how to render back-facing polygons.
+                                      POSSIBLE VALUES:
+                                      00 - Draw points.
+                                      01 - Draw lines.
+                                      02 - Draw triangles.
+                                      03 - Reserved 3 - 7.

@@ -1,0 +1,4 @@
+Field Name          Bits   Default Description
+CSQ_WPTR_INDIRECT   9:0    none    Current Write Pointer into the Indirect Queue. Default = 0.
+CSQ_RPTR_INDIRECT2  19:10  none    Current Read Pointer into the Indirect Queue. Default = 0.
+CSQ_WPTR_INDIRECT2  29:20  none    Current Write Pointer into the Indirect Queue. Default = 0.

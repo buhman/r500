@@ -1,0 +1,8 @@
+Field Name             Bits   Default Description
+KR                     7:0    0x0     Specifies the number of iterations. Unsigned 8-bit integer
+                                      in [0, 255].
+KG                     15:8   0x0     Specifies the initial value of the loop register (aL).
+                                      Unsigned 8-bit integer in [0, 255].
+KB                     23:16  0x0     Specifies the increment used to change the loop register
+                                      (aL) on each iteration. Signed 7-bit integer in [-128,
+                                      127].

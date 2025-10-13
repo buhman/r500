@@ -1,0 +1,49 @@
+Field Name             Bits   Default Description
+PRIM_TYPE              3:0    0x0     Primitive Type
+                                      *Encoding 7 indicates whether a 16-bit word of wFlags
+                                      is present in the stream of indices arriving when the
+                                      VTX_AMODE is programmed as a `0`. The Setup
+                                      Engine just steps over the wFlags word; ignoring it.
+                                      0 = Stream contains just indices, as:
+                                      [ Index1, Index0]
+                                      [ Index3, Index2]
+                                      [ Index5, Index4 ]
+                                      etc...
+                                      1 = Stream contains indices and wFlags:
+                                      [ Index1, Index0]
+                                      [ wFlags,Index 2 ]
+                                      [ Index4, Index3]
+                                      [ wFlags, Index5 ]
+                                      etc...
+                                      POSSIBLE VALUES:
+                                      00 - None (will not trigger Setup Engine to run)
+                                      01 - Point List
+                                      02 - Line List
+                                      03 - Line Strip
+                                      04 - Triangle List
+                                      05 - Triangle Fan
+                                      06 - Triangle Strip
+                                      07 - Triangle with wFlags (aka, Rage128 `Type-2` triangles) *
+                                      12 - Line Loop
+                                      13 - Quad List
+                                      14 - Quad Strip
+                                      15 - Polygon
+PRIM_WALK              5:4    0x0     Method of Passing Vertex Data.
+                                      POSSIBLE VALUES:
+                                      00 - State-Based Vertex Data. (Vertex data and tokens embedded in command stream.)
+                                      01 - Indexes (Indices embedded in command stream; vertex data to be fetched from memory.)
+                                      02 - Vertex List (Vertex data to be fetched from memory.)
+                                      03 - Vertex Data (Vertex data embedded in command stream.)
+INDEX_SIZE             11     0x0     When set, vertex indices are 32-bits/indx, otherwise, 16-
+                                      bits/indx.
+VTX_REUSE_DIS          12     0x0     When set, vertex reuse is disabled. DO NOT SET unless
+                                      PRIM_WALK is Indexes.
+DUAL_INDEX_MODE        13     0x0     When set, the incoming index is treated as two separate
+                                      indices. Bits 23-16 are used as the index for AOS 0
+                                      (These are 0 for 16-bit indices) Bits 15-0 are used as the
+                                      index for AOS 1-15. This mode was added specifically
+                                      for HOS usage
+USE_ALT_NUM_VERTS      14     0x0     When set, the number of vertices in the command packet
+                                      is taken from VAP_ALT_NUM_VERTICES register
+                                      instead of bits 31:16 of VAP_VF_CNTL
+NUM_VERTICES           31:16  0x0     Number of vertices in the command packet.

@@ -1,0 +1,2 @@
+Field Name            Bits   Default Description
+AARESOLVE_PITCH       13:1   none    3D destination pitch in multiples of 2-pixels.

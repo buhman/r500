@@ -1,0 +1,31 @@
+Field Name             Bits   Default Description
+PVS_NUM_SLOTS          3:0    0x0     Specifies the number of vertex slots to be used in the
+                                      VAP PVS process. A slot represents a single vertex
+                                      storage location1 across multiple engines (one vertex per
+                                      engine). By decreasing the number of slots, there is more
+                                      memory for each vertex, but less parallel processing.
+                                      Similarly, by increasing the number of slots, there is less
+                                      memory per vertex but more vertices being processed in
+                                      parallel.
+PVS_NUM_CNTLRS         7:4    0x0     Specifies the maximum number of controllers to be
+                                      processing in parallel. In general should be set to max
+                                      value of TBD. Can be changed for performance analysis.
+PVS_NUM_FPUS           11:8   0x0     Specifies the number of Floating Point Units
+                                      (Vector/Math Engines) to use when processing vertices.
+VAP_NO_RENDER          17     0x0     If set, VAP will not process any draw commands (i.e.
+                                      writes to VAP_VF_CNTL, the INDX and DATAPORT
+                                      and Immediate mode writes are ignored.
+VF_MAX_VTX_NUM         21:18  0x9     This field controls the number of vertices that the vertex
+                                      fetcher manages for the TCL and Setup Vertex Storage
+                                      memories (and therefore the number of vertices that can
+                                      be re-used). This value should be set to 12 for most
+                                      operation, This number may be modified for
+                                      performance evaluation. The value is the maximum
+                                      vertex number used which is one less than the number of
+                                      vertices (i.e. a 12 means 13 vertices will be used)
+DX_CLIP_SPACE_DEF      22     0x0     Clip space is defined as:
+                                      0: -W < X < W, -W < Y < W, -W < Z < W (OpenGL Definition)
+                                      1: -W < X < W, -W < Y < W, 0 < Z < W (DirectX Definition)
+TCL_STATE_OPTIMIZATION 23     0x0     If set, enables the TCL state optimization, and the new
+                                      state is used only if there is a change in TCL state,
+                                      between VF_CNTL (triggers)

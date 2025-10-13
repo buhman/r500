@@ -1,0 +1,28 @@
+Field Name             Bits   Default Description
+PIPE3_Z_IDLE           0      0x0     Idle status of physical pipe 3 Z unit
+PIPE2_Z_IDLE           1      0x0     Idle status of physical pipe 2 Z unit
+PIPE3_CB_IDLE          2      0x0     Idle status of physical pipe 3 CB unit
+PIPE2_CB_IDLE          3      0x0     Idle status of physical pipe 2 CB unit
+PIPE3_FG_IDLE          4      0x0     Idle status of physical pipe 3 FG unit
+PIPE2_FG_IDLE          5      0x0     Idle status of physical pipe 2 FG unit
+PIPE3_US_IDLE          6      0x0     Idle status of physical pipe 3 US unit
+PIPE2_US_IDLE          7      0x0     Idle status of physical pipe 2 US unit
+PIPE3_SC_IDLE          8      0x0     Idle status of physical pipe 3 SC unit
+PIPE2_SC_IDLE          9      0x0     Idle status of physical pipe 2 SC unit
+PIPE3_RS_IDLE          10     0x0     Idle status of physical pipe 3 RS unit
+PIPE2_RS_IDLE          11     0x0     Idle status of physical pipe 2 RS unit
+PIPE1_Z_IDLE           12     0x0     Idle status of physical pipe 1 Z unit
+PIPE0_Z_IDLE           13     0x0     Idle status of physical pipe 0 Z unit
+PIPE1_CB_IDLE          14     0x0     Idle status of physical pipe 1 CB unit
+PIPE0_CB_IDLE          15     0x0     Idle status of physical pipe 0 CB unit
+PIPE1_FG_IDLE          16     0x0     Idle status of physical pipe 1 FG unit
+PIPE0_FG_IDLE          17     0x0     Idle status of physical pipe 0 FG unit
+PIPE1_US_IDLE          18     0x0     Idle status of physical pipe 1 US unit
+PIPE0_US_IDLE          19     0x0     Idle status of physical pipe 0 US unit
+PIPE1_SC_IDLE          20     0x0     Idle status of physical pipe 1 SC unit
+PIPE0_SC_IDLE          21     0x0     Idle status of physical pipe 0 SC unit
+PIPE1_RS_IDLE          22     0x0     Idle status of physical pipe 1 RS unit
+PIPE0_RS_IDLE          23     0x0     Idle status of physical pipe 0 RS unit
+SU_IDLE                24     0x0     Idle status of SU unit
+GA_IDLE                25     0x0     Idle status of GA unit
+GA_UNIT2_IDLE          26     0x0     Idle status of GA unit2

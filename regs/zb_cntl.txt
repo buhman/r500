@@ -1,0 +1,40 @@
+Field Name                              Bits   Default   Description
+STENCIL_ENABLE                          0      0x0       Enables stenciling.
+                                                         POSSIBLE VALUES:
+                                                         00 - Disabled
+                                                         01 - Enabled
+Z_ENABLE                                1      0x0       Enables Z functions.
+                                                         POSSIBLE VALUES:
+                                                         00 - Disabled
+                                                         01 - Enabled
+ZWRITEENABLE                            2      0x0       Enables writing of the Z buffer.
+                                                         POSSIBLE VALUES:
+                                                         00 - Disable
+                                                         01 - Enable
+ZSIGNED_COMPARE                         3      0x0       Enable signed Z buffer comparison , for W-buffering.
+                                                         POSSIBLE VALUES:
+                                                         00 - Disable
+                                                         01 - Enable
+STENCIL_FRONT_BACK                      4      0x0       When STENCIL_ENABLE is set, setting
+                                                         STENCIL_FRONT_BACK bit to one specifies that
+                                                         stencilfunc/stencilfail/stencilzpass/stencilzfail registers are
+                                                         used if the quad is generated from front faced primitive
+                                                         and
+                                                         stencilfunc_bf/stencilfail_bf/stencilzpass_bf/stencilzfail_bf
+                                                         are used if the quad is generated from a back faced
+                                                         primitive. If the STENCIL_FRONT_BACK is not set,
+                                                         then stencilfunc/stencilfail/stencilzpass/stencilzfail
+                                                         registers determine the operation independent of the
+                                                         front/back face state of the quad.
+                                                         POSSIBLE VALUES:
+                                                         00 - Disable
+                                                         01 - Enable
+ZSIGNED_MAGNITUDE                       5      0x0       Specifies the signed number type to use for the Z buffer
+                                                         comparison. This only has an effect when
+                                                         ZSIGNED_COMPARE is enabled.
+                                                         POSSIBLE VALUES:
+                                                         00 - Twos complement
+                                                         01 - Signed magnitude
+STENCIL_REFMASK_FRONT_BACK              6      0x0       POSSIBLE VALUES:
+                                                         00 - Disable
+                                                         01 - Enable

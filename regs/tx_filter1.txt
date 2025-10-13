@@ -1,0 +1,37 @@
+Field Name             Bits   Default Description
+CHROMA_KEY_MODE        1:0    none    Chroma Key Mode
+                                      POSSIBLE VALUES:
+                                      00 - Disable
+                                      01 - ChromaKey (kill pixel if any sample matches chroma key)
+                                      02 - ChromaKeyBlend (set sample to 0 if it matches chroma key)
+MC_ROUND               2      none    Bilinear rounding mode
+                                      POSSIBLE VALUES:
+                                      00 - Normal rounding on all components (+0.5)
+                                      01 - MPEG4 rounding on all components (+0.25)
+LOD_BIAS               12:3   none    (s4.5). Ranges from -16.0 to 15.99. Mipmap LOD bias
+                                      measured in mipmap levels. Added to the signed,
+                                      computed LOD before the LOD is clamped.
+MC_COORD_TRUNCATE      14     none    MPEG coordinate truncation mode
+                                      POSSIBLE VALUES:
+                                      00 - Dont truncate coordinate fractions.
+                                      01 - Truncate coordinate fractions to 0.0 and 0.5 for MPEG
+TRI_PERF               16:15  none    Apply slope and bias to trilerp fraction to reduce the
+                                      number of 2-level fetches for trilinear. Should only be
+                                      used if MIP_FILTER is LINEAR.
+                                      POSSIBLE VALUES:
+                                      00 - Breakpoint=0/8. lfrac_out = lfrac_in
+                                      01 - Breakpoint=1/8. lfrac_out = clamp(4/3*lfrac_in - 1/6)
+                                      02 - Breakpoint=1/4. lfrac_out = clamp(2*lfrac_in - 1/2)
+                                      03 - Breakpoint=3/8. lfrac_out = clamp(4*lfrac_in - 3/2)
+MACRO_SWITCH           22     none    If enabled, addressing switches to macro-linear when
+                                      image width is <= 8 micro-tiles. If disabled, functionality
+                                      is same as RV350, switch to macro-linear when image
+                                      width is < 8 micro-tiles.
+                                      POSSIBLE VALUES:
+                                      00 - RV350 mode
+                                      01 - Switch from macro-tiled to macro-linear when (width <= 8 micro-tiles)
+BORDER_FIX             31     none    To fix issues when using non-square mipmaps, with
+                                      border_color, and extreme minification.
+                                      POSSIBLE VALUES:
+                                      00 - R3xx R4xx mode
+                                      01 - Stop right shifting coord once mip size is pinned to one

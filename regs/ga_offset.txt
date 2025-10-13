@@ -1,0 +1,5 @@
+Field Name             Bits   Default Description
+X_OFFSET               15:0   0x0     Specifies X offset in S15 format (subpixels -- 1/12 or
+                                      1/16, even in 8b subprecision).
+Y_OFFSET               31:16  0x0     Specifies Y offset in S15 format (subpixels -- 1/12 or
+                                      1/16, even in 8b subprecision).

@@ -1,0 +1,58 @@
+Field Name             Bits   Default Description
+SC_IFIFO_SIZE          1:0    0x0     Size of scan converter input FIFO (XYZ)
+                                      POSSIBLE VALUES:
+                                      00 - 32 words
+                                      01 - 64 words
+                                      02 - 128 words
+                                      03 - 256 words
+SC_TZFIFO_SIZE         3:2    0x0     Size of scan converter top-of-pipe Z FIFO
+                                      POSSIBLE VALUES:
+                                      00 - 16 words
+                                      01 - 32 words
+                                      02 - 64 words
+                                      03 - 128 words
+SC_BFIFO_SIZE          5:4    0x0     Size of scan converter input FIFO (B)
+                                      POSSIBLE VALUES:
+                                      00 - 32 words
+                                      01 - 64 words
+                                      02 - 128 words
+                                      03 - 256 words
+RS_TFIFO_SIZE          7:6    0x0     Size of ras input FIFO (Texture)
+                                      POSSIBLE VALUES:
+                                      00 - 64 words
+                                      01 - 128 words
+                                      02 - 256 words
+                                      03 - 512 words
+RS_CFIFO_SIZE          9:8    0x0     Size of ras input FIFO (Color)
+                                      POSSIBLE VALUES:
+                                      00 - 64 words
+                                      01 - 128 words
+                                      02 - 256 words
+                                      03 - 512 words
+US_RAM_SIZE            11:10  0x0     Size of us RAM
+                                      POSSIBLE VALUES:
+                                      00 - 64 words
+                                      01 - 128 words
+                                      02 - 256 words
+                                      03 - 512 words
+US_OFIFO_SIZE          13:12  0x0     Size of us output FIFO (RGBA)
+                                      POSSIBLE VALUES:
+                                      00 - 16 words
+                                      01 - 32 words
+                                      02 - 64 words
+                                      03 - 128 words
+US_WFIFO_SIZE          15:14  0x0     Size of us output FIFO (W)
+                                      POSSIBLE VALUES:
+                                      00 - 16 words
+                                      01 - 32 words
+                                      02 - 64 words
+                                      03 - 128 words
+RS_HIGHWATER_COL       18:16  0x0     High water mark for RS colors` fifo -- NOT USED
+RS_HIGHWATER_TEX       21:19  0x0     High water mark for RS textures` fifo -- NOT USED
+US_OFIFO_HIGHWATER     23:22  0x0     High water mark for US output fifo
+                                      POSSIBLE VALUES:
+                                      00 - 0 words
+                                      01 - 4 words
+                                      02 - 8 words
+                                      03 - 12 words
+US_CUBE_FIFO_HIGHWATER 28:24  0x0     High water mark for US cube map fifo

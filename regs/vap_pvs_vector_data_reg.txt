@@ -1,0 +1,3 @@
+Field Name             Bits   Default Description
+DATA_REGISTER          31:0   0x0     32-bit data to write to Vector Memory. Used for PVS
+                                      code and Constant updates.

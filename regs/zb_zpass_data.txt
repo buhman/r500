@@ -1,0 +1,4 @@
+Field Name             Bits   Default   Description
+ZPASS_DATA             31:0   0x0       Contains the number of Z passed pixels since the last
+                                        write to this location. Writing this location resets the
+                                        count to the value written.

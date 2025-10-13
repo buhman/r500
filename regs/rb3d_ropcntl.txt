@@ -1,0 +1,7 @@
+Field Name            Bits   Default Description
+ROP_ENABLE            2      0x0     POSSIBLE VALUES:
+                                     00 - Disable ROP. (Forces ROP2 to be 0xC).
+                                     01 - Enabled
+ROP                   11:8   none    ROP2 code for 3D fragments. This value is replicated
+                                     into 2 nibbles to form the equivalent ROP3 code to
+                                     control the ROP3 logic. These are the GDI ROP2 codes.

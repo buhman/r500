@@ -1,0 +1,56 @@
+Field Name             Bits   Default   Description
+ZFUNC                  2:0    0x0       Specifies the Z function.
+                                        POSSIBLE VALUES:
+                                        00 - Never
+                                        01 - Less
+                                        02 - Less or Equal
+                                        03 - Equal
+                                        04 - Greater or Equal
+                                        05 - Greater Than
+                                        06 - Not Equal
+                                        07 - Always
+STENCILFUNC            5:3    0x0       Specifies the stencil function.
+                                        POSSIBLE VALUES:
+                                        00 - Never
+                                        01 - Less
+                                        02 - Less or Equal
+                                        03 - Equal
+                                        04 - Greater or Equal
+                                        05 - Greater
+                                        06 - Not Equal
+                                        07 - Always
+STENCILFAIL            8:6    0x0       Specifies the stencil value to be written if the stencil test
+                                        fails.
+                                        POSSIBLE VALUES:
+                                        00 - Keep: New value = Old value
+                                        01 - Zero: New value = 0
+                                        02 - Replace: New value = STENCILREF
+                                        03 - Increment: New value++ (clamp)
+                                        04 - Decrement: New value-- (clamp)
+                                        05 - Invert new value: New value = !Old value
+                                        06 - Increment: New value++ (wrap)
+                                        07 - Decrement: New value-- (wrap)
+STENCILZPASS           11:9   0x0       Same encoding as STENCILFAIL. Specifies the stencil
+                                        value to be written if the stencil test passes and the Z test
+                                        passes (or is not enabled).
+STENCILZFAIL           14:12  0x0       Same encoding as STENCILFAIL. Specifies the stencil
+                                        value to be written if the stencil test passes and the Z test
+                                        fails.
+STENCILFUNC_BF         17:15  0x0       Same encoding as STENCILFUNC. Specifies the stencil
+                                        function for back faced quads , if
+                                        STENCIL_FRONT_BACK = 1.
+STENCILFAIL_BF         20:18  0x0       Same encoding as STENCILFAIL. Specifies the stencil
+                                        value to be written if the stencil test fails for back faced
+                                        quads, if STENCIL_FRONT_BACK = 1
+STENCILZPASS_BF        23:21  0x0       Same encoding as STENCILFAIL. Specifies the stencil
+                                        value to be written if the stencil test passes and the Z test
+                                        passes (or is not enabled) for back faced quads, if
+                                        STENCIL_FRONT_BACK = 1
+STENCILZFAIL_BF        26:24  0x0       Same encoding as STENCILFAIL. Specifies the stencil
+                                        value to be written if the stencil test passes and the Z test
+                                        fails for back faced quads, if STENCIL_FRONT_BACK=1
+ZERO_OUTPUT_MASK       27     0x0       Zeroes the zb coverage mask output. This does not affect
+                                        the updating of the depth or stencil values.
+                                        POSSIBLE VALUES:
+                                        00 - Disable
+                                        01 - Enable

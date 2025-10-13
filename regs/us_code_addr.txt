@@ -1,0 +1,11 @@
+Field Name             Bits   Default Description
+START_ADDR             8:0    0x0     Specifies the address of the first instruction to execute in
+                                      the shader program. This address is relative to the shader
+                                      program offset given in
+                                      US_CODE_OFFSET.OFFSET_ADDR.
+END_ADDR               24:16  0x0     Specifies the address of the last instruction to execute in
+                                      the shader program. This address is relative to the shader
+                                      program offset given in
+                                      US_CODE_OFFSET.OFFSET_ADDR. Shader program
+                                      execution will always terminate after the instruction at
+                                      this address is executed.

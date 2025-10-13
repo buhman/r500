@@ -1,0 +1,3 @@
+Field Name            Bits   Default Description
+RB_RPTR               22:0   none    Ring Buffer Read Pointer. This is an index (in dwords)
+                                     of the current element being read from the ring buffer.

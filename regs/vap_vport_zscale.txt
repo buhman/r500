@@ -1,0 +1,2 @@
+Field Name             Bits   Default   Description
+VPORT_ZSCALE           31:0   0x0       Viewport Scale Factor for Z coordinates. An IEEE float.

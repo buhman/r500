@@ -1,0 +1,5 @@
+Field Name             Bits   Default Description
+Z_PEQ_SIZE             0      0x0     Specifies the z plane equation size.
+                                      POSSIBLE VALUES:
+                                      00 - 4x4 z plane equations (point-sampled or aa)
+                                      01 - 8x8 z plane equations (point-sampled only)

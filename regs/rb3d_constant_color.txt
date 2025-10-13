@@ -1,0 +1,9 @@
+Field Name            Bits   Default Description
+BLUE                  7:0    none    blue constant color (For R520, this field is ignored, use
+                                     RB3D_CONSTANT_COLOR_GB__BLUE instead)
+GREEN                 15:8   none    green constant color (For R520, this field is ignored, use
+                                     RB3D_CONSTANT_COLOR_GB__GREEN instead)
+RED                   23:16  none    red constant color (For R520, this field is ignored, use
+                                     RB3D_CONSTANT_COLOR_AR__RED instead)
+ALPHA                 31:24  none    alpha constant color (For R520, this field is ignored, use
+                                     RB3D_CONSTANT_COLOR_AR__ALPHA instead)

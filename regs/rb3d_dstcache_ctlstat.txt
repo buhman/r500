@@ -1,0 +1,22 @@
+Field Name            Bits   Default Description
+DC_FLUSH              1:0    0x0     Setting this bit flushes dirty data from the 3D Dst Cache.
+                                     Unless the DC_FREE bits are also set, the tags in the
+                                     cache remain valid. A purge is achieved by setting both
+                                     DC_FLUSH and DC_FREE.
+                                     POSSIBLE VALUES:
+                                     00 - No effect
+                                     01 - No effect
+                                     02 - Flushes dirty 3D data
+                                     03 - Flushes dirty 3D data
+DC_FREE               3:2    0x0     Setting this bit invalidates the 3D Dst Cache tags. Unless
+                                     the DC_FLUSH bit is also set, the cache lines are not
+                                     written to memory. A purge is achieved by setting both
+                                     DC_FLUSH and DC_FREE.
+                                     POSSIBLE VALUES:
+                                     00 - No effect
+                                     01 - No effect
+                                     02 - Free 3D tags
+                                     03 - Free 3D tags
+DC_FINISH             4      0x0     POSSIBLE VALUES:
+                                     00 - do not send a finish signal to the CP
+                                     01 - send a finish signal to the CP after the end of operation

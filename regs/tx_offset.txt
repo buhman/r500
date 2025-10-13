@@ -1,0 +1,18 @@
+Field Name             Bits   Default Description
+ENDIAN_SWAP            1:0    none    Endian Control
+                                      POSSIBLE VALUES:
+                                      00 - No swap
+                                      01 - 16 bit swap
+                                      02 - 32 bit swap
+                                      03 - Half-DWORD swap
+MACRO_TILE             2      none    Macro Tile Control
+                                      POSSIBLE VALUES:
+                                      00 - 2KB page is linear
+                                      01 - 2KB page is tiled
+MICRO_TILE             4:3    none    Micro Tile Control
+                                      POSSIBLE VALUES:
+                                      00 - 32 byte cache line is linear
+                                      01 - 32 byte cache line is tiled
+                                      02 - 32 byte cache line is tiled square (only applies to 16-bit texel)
+                                      03 - Reserved
+TXOFFSET               31:5   none    32-byte aligned pointer to base map

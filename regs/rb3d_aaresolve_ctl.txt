@@ -1,0 +1,18 @@
+Field Name            Bits   Default Description
+AARESOLVE_MODE        0      0x0     Specifies if the color buffer is in resolve mode. The
+                                     cache must be empty before changing this register.
+                                     POSSIBLE VALUES:
+                                     00 - Normal operation.
+                                     01 - Resolve operation.
+AARESOLVE_GAMMA       1      none    Specifies the gamma and degamma to be applied to the
+                                     samples before and after filtering, respectively.
+                                     POSSIBLE VALUES:
+                                     00 - 1.0
+                                     01 - 2.2
+AARESOLVE_ALPHA       2      0x0     Controls whether alpha is averaged in the resolve. 0 =>
+                                     the resolved alpha value is selected from the sample 0
+                                     value. 1=> the resolved alpha value is a filtered (average)
+                                     result of of the samples.
+                                     POSSIBLE VALUES:
+                                     00 - Resolved alpha value is taken from sample 0.
+                                     01 - Resolved alpha value is the average of the samples. The average is not gamma corrected.

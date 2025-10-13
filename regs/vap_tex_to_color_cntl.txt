@@ -1,0 +1,25 @@
+Field Name                  Bits   Default Description
+TEX_RGB_SHADE_FUNC_0        0      0x0
+TEX_ALPHA_SHADE_FUNC_0      1      0x0
+TEX_RGBA_CLAMP_0            2      0x0
+TEX_RGB_SHADE_FUNC_1        4      0x0
+TEX_ALPHA_SHADE_FUNC_1      5      0x0
+TEX_RGBA_CLAMP_1            6      0x0
+TEX_RGB_SHADE_FUNC_2        8      0x0
+TEX_ALPHA_SHADE_FUNC_2      9      0x0
+TEX_RGBA_CLAMP_2            10     0x0
+TEX_RGB_SHADE_FUNC_3        12     0x0
+TEX_ALPHA_SHADE_FUNC_3      13     0x0
+TEX_RGBA_CLAMP_3            14     0x0
+TEX_RGB_SHADE_FUNC_4        16     0x0
+TEX_ALPHA_SHADE_FUNC_4      17     0x0
+TEX_RGBA_CLAMP_4            18     0x0
+TEX_RGB_SHADE_FUNC_5        20     0x0
+TEX_ALPHA_SHADE_FUNC_5      21     0x0
+TEX_RGBA_CLAMP_5            22     0x0
+TEX_RGB_SHADE_FUNC_6        24     0x0
+TEX_ALPHA_SHADE_FUNC_6      25     0x0
+TEX_RGBA_CLAMP_6            26     0x0
+TEX_RGB_SHADE_FUNC_7        28     0x0
+TEX_ALPHA_SHADE_FUNC_7      29     0x0
+TEX_RGBA_CLAMP_7            30     0x0

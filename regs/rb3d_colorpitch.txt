@@ -1,0 +1,38 @@
+Field Name            Bits   Default Description
+COLORPITCH            13:1   none    3D destination pitch in multiples of 2-pixels.
+COLORTILE             16     none    Denotes whether the 3D destination is in macrotiled
+                                     format.
+                                     POSSIBLE VALUES:
+                                     00 - 3D destination is not macrotiled
+                                     01 - 3D destination is macrotiled
+COLORMICROTILE        18:17  none    Denotes whether the 3D destination is in microtiled
+                                     format.
+                                     POSSIBLE VALUES:
+                                     00 - 3D destination is no microtiled
+                                     01 - 3D destination is microtiled
+                                     02 - 3D destination is square microtiled. Only available in 16-bit
+                                     03 - (reserved)
+COLORENDIAN           20:19  none    Specifies endian control for the color buffer.
+                                     POSSIBLE VALUES:
+                                     00 - No swap
+                                     01 - Word swap (2 bytes in 16-bit)
+                                     02 - Dword swap (4 bytes in a 32-bit)
+                                     03 - Half-Dword swap (2 16-bit in a 32-bit)
+COLORFORMAT           24:21  0x6     3D destination color format.
+                                     POSSIBLE VALUES:
+                                     00 - ARGB10101010
+                                     01 - UV1010
+                                     02 - CI8 (2D ONLY)
+                                     03 - ARGB1555
+                                     04 - RGB565
+                                     05 - ARGB2101010
+                                     06 - ARGB8888
+                                     07 - ARGB32323232
+                                     08 - (Reserved)
+                                     09 - I8
+                                     10 - ARGB16161616
+                                     11 - YUV422 packed (VYUY)
+                                     12 - YUV422 packed (YVYU)
+                                     13 - UV88
+                                     14 - I10
+                                     15 - ARGB4444

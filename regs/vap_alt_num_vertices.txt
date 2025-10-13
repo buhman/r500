@@ -1,0 +1,4 @@
+Field Name             Bits   Default Description
+NUM_VERTICES           23:0   0x0     24-bit vertex count for command packet. Used instead of
+                                      bits 31:16 of VAP_VF_CNTL if
+                                      VAP_VF_CNTL.USE_ALT_NUM_VERTS is set.

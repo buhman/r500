@@ -1,0 +1,11 @@
+Field Name             Bits   Default Description
+ENABLE                 0      0x0     Enable for fog blending
+                                      POSSIBLE VALUES:
+                                      00 - Disables fog (output matches input color).
+                                      01 - Enables fog.
+FN                     2:1    0x0     Fog generation function
+                                      POSSIBLE VALUES:
+                                      00 - Fog function is linear
+                                      01 - Fog function is exponential
+                                      02 - Fog function is exponential squared
+                                      03 - Fog is derived from constant fog factor

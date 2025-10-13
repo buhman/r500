@@ -1,0 +1,3 @@
+Field Name            Bits   Default Description
+COLOROFFSET           31:5   none    256-bit aligned 3D destination offset address. The cache
+                                     must be empty before this is changed.

@@ -1,0 +1,14 @@
+Field Name             Bits   Default Description
+CULL_FRONT             0      0x0     Enable for front-face culling.
+                                      POSSIBLE VALUES:
+                                      00 - Do not cull front-facing triangles.
+                                      01 - Cull front-facing triangles.
+CULL_BACK              1      0x0     Enable for back-face culling.
+                                      POSSIBLE VALUES:
+                                      00 - Do not cull back-facing triangles.
+                                      01 - Cull back-facing triangles.
+FACE                   2      0x0     X-Ored with cross product sign to determine positive
+                                      facing
+                                      POSSIBLE VALUES:
+                                      00 - Positive cross product is front (CCW).
+                                      01 - Negative cross product is front (CW).

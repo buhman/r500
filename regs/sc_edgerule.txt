@@ -1,0 +1,265 @@
+Field Name             Bits   Default Description
+ER_TRI                 4:0    0x0     Edge rules for triangles, points, left-right lines, right-left
+                                      lines, upper-bottom lines, bottom-upper lines. For values
+                                      0 to 15, bit 0 specifies whether a sample on a horizontal-
+                                      bottom edge is in, bit 1 specifies whether a sample on a
+                                      horizontal-top edge is in, bit 2 species whether a sample
+                                      on a right edge is in, bit 3 specifies whether a sample on
+                                      a left edge is in. For values 16 to 31, bit 0 specifies
+                                      whether a sample on a vertical-right edge is in, bit 1
+                                      specifies whether a sample on a vertical-left edge is in,
+                                      bit 2 species whether a sample on a bottom edge is in, bit
+                                      3 specifies whether a sample on a top edge is in
+                                      POSSIBLE VALUES:
+                                      00 - L-in,R-in,HT-in,HB-in
+                                      01 - L-in,R-in,HT-in,HB-out
+                                      02 - L-in,R-in,HT-out,HB-in
+                                      03 - L-in,R-in,HT-out,HB-out
+                                      04 - L-in,R-out,HT-in,HB-in
+                                      05 - L-in,R-out,HT-in,HB-out
+                                      06 - L-in,R-out,HT-out,HB-in
+                                      07 - L-in,R-out,HT-out,HB-out
+                                      08 - L-out,R-in,HT-in,HB-in
+                                      09 - L-out,R-in,HT-in,HB-out
+                                      10 - L-out,R-in,HT-out,HB-in
+                                      11 - L-out,R-in,HT-out,HB-out
+                                      12 - L-out,R-out,HT-in,HB-in
+                                      13 - L-out,R-out,HT-in,HB-out
+                                      14 - L-out,R-out,HT-out,HB-in
+                                      15 - L-out,R-out,HT-out,HB-out
+                                      16 - T-in,B-in,VL-in,VR-in
+                                      17 - T-in,B-in,VL-in,VR-out
+                                      18 - T-in,B-in,VL,VR-in
+                                      19 - T-in,B-in,VL-out,VR-out
+                                      20 - T-out,B-in,VL-in,VR-in
+                                      21 - T-out,B-in,VL-in,VR-out
+                                      22 - T-out,B-in,VL-out,VR-in
+                                      23 - T-out,B-in,VL-out,VR-out
+                                      24 - T-in,B-out,VL-in,VR-in
+                                      25 - T-in,B-out,VL-in,VR-out
+                                      26 - T-in,B-out,VL-out,VR-in
+                                      27 - T-in,B-out,VL-out,VR-out
+                                      28 - T-out,B-out,VL-in,VR-in
+                                      29 - T-out,B-out,VL-in,VR-out
+                                      30 - T-out,B-out,VL-out,VR-in
+                                      31 - T-out,B-out,VL-out,VR-out
+ER_POINT               9:5    0x0     Edge rules for triangles, points, left-right lines, right-left
+                                      lines, upper-bottom lines, bottom-upper lines. For values
+                                      0 to 15, bit 0 specifies whether a sample on a horizontal-
+                                      bottom edge is in, bit 1 specifies whether a sample on a
+                                      horizontal-top edge is in, bit 2 species whether a sample
+                                      on a right edge is in, bit 3 specifies whether a sample on
+                                      a left edge is in. For values 16 to 31, bit 0 specifies
+                                      whether a sample on a vertical-right edge is in, bit 1
+                                      specifies whether a sample on a vertical-left edge is in,
+                                      bit 2 species whether a sample on a bottom edge is in, bit
+                                      3 specifies whether a sample on a top edge is in
+                                      POSSIBLE VALUES:
+                                      00 - L-in,R-in,HT-in,HB-in
+                                      01 - L-in,R-in,HT-in,HB-out
+                                      02 - L-in,R-in,HT-out,HB-in
+                                      03 - L-in,R-in,HT-out,HB-out
+                                      04 - L-in,R-out,HT-in,HB-in
+                                      05 - L-in,R-out,HT-in,HB-out
+                                      06 - L-in,R-out,HT-out,HB-in
+                                      07 - L-in,R-out,HT-out,HB-out
+                                      08 - L-out,R-in,HT-in,HB-in
+                                      09 - L-out,R-in,HT-in,HB-out
+                                      10 - L-out,R-in,HT-out,HB-in
+                                      11 - L-out,R-in,HT-out,HB-out
+                                      12 - L-out,R-out,HT-in,HB-in
+                                      13 - L-out,R-out,HT-in,HB-out
+                                      14 - L-out,R-out,HT-out,HB-in
+                                      15 - L-out,R-out,HT-out,HB-out
+                                      16 - T-in,B-in,VL-in,VR-in
+                                      17 - T-in,B-in,VL-in,VR-out
+                                      18 - T-in,B-in,VL,VR-in
+                                      19 - T-in,B-in,VL-out,VR-out
+                                      20 - T-out,B-in,VL-in,VR-in
+                                      21 - T-out,B-in,VL-in,VR-out
+                                      22 - T-out,B-in,VL-out,VR-in
+                                      23 - T-out,B-in,VL-out,VR-out
+                                      24 - T-in,B-out,VL-in,VR-in
+                                      25 - T-in,B-out,VL-in,VR-out
+                                      26 - T-in,B-out,VL-out,VR-in
+                                      27 - T-in,B-out,VL-out,VR-out
+                                      28 - T-out,B-out,VL-in,VR-in
+                                      29 - T-out,B-out,VL-in,VR-out
+                                      30 - T-out,B-out,VL-out,VR-in
+                                      31 - T-out,B-out,VL-out,VR-out
+ER_LINE_LR             14:10  0x0     Edge rules for triangles, points, left-right lines, right-left
+                                      lines, upper-bottom lines, bottom-upper lines. For values
+                                      0 to 15, bit 0 specifies whether a sample on a horizontal-
+                                      bottom edge is in, bit 1 specifies whether a sample on a
+                                      horizontal-top edge is in, bit 2 species whether a sample
+                                      on a right edge is in, bit 3 specifies whether a sample on
+                                      a left edge is in. For values 16 to 31, bit 0 specifies
+                                      whether a sample on a vertical-right edge is in, bit 1
+                                      specifies whether a sample on a vertical-left edge is in,
+                                      bit 2 species whether a sample on a bottom edge is in, bit
+                                      3 specifies whether a sample on a top edge is in
+                                      POSSIBLE VALUES:
+                                      00 - L-in,R-in,HT-in,HB-in
+                                      01 - L-in,R-in,HT-in,HB-out
+                                      02 - L-in,R-in,HT-out,HB-in
+                                      03 - L-in,R-in,HT-out,HB-out
+                                      04 - L-in,R-out,HT-in,HB-in
+                                      05 - L-in,R-out,HT-in,HB-out
+                                      06 - L-in,R-out,HT-out,HB-in
+                                      07 - L-in,R-out,HT-out,HB-out
+                                      08 - L-out,R-in,HT-in,HB-in
+                                      09 - L-out,R-in,HT-in,HB-out
+                                      10 - L-out,R-in,HT-out,HB-in
+                                      11 - L-out,R-in,HT-out,HB-out
+                                      12 - L-out,R-out,HT-in,HB-in
+                                      13 - L-out,R-out,HT-in,HB-out
+                                      14 - L-out,R-out,HT-out,HB-in
+                                      15 - L-out,R-out,HT-out,HB-out
+                                      16 - T-in,B-in,VL-in,VR-in
+                                      17 - T-in,B-in,VL-in,VR-out
+                                      18 - T-in,B-in,VL,VR-in
+                                      19 - T-in,B-in,VL-out,VR-out
+                                      20 - T-out,B-in,VL-in,VR-in
+                                      21 - T-out,B-in,VL-in,VR-out
+                                      22 - T-out,B-in,VL-out,VR-in
+                                      23 - T-out,B-in,VL-out,VR-out
+                                      24 - T-in,B-out,VL-in,VR-in
+                                      25 - T-in,B-out,VL-in,VR-out
+                                      26 - T-in,B-out,VL-out,VR-in
+                                      27 - T-in,B-out,VL-out,VR-out
+                                      28 - T-out,B-out,VL-in,VR-in
+                                      29 - T-out,B-out,VL-in,VR-out
+                                      30 - T-out,B-out,VL-out,VR-in
+                                      31 - T-out,B-out,VL-out,VR-out
+ER_LINE_RL             19:15  0x0     Edge rules for triangles, points, left-right lines, right-left
+                                      lines, upper-bottom lines, bottom-upper lines. For values
+                                      0 to 15, bit 0 specifies whether a sample on a horizontal-
+                                      bottom edge is in, bit 1 specifies whether a sample on a
+                                      horizontal-top edge is in, bit 2 species whether a sample
+                                      on a right edge is in, bit 3 specifies whether a sample on
+                                      a left edge is in. For values 16 to 31, bit 0 specifies
+                                      whether a sample on a vertical-right edge is in, bit 1
+                                      specifies whether a sample on a vertical-left edge is in,
+                                      bit 2 species whether a sample on a bottom edge is in, bit
+                                      3 specifies whether a sample on a top edge is in
+                                      POSSIBLE VALUES:
+                                      00 - L-in,R-in,HT-in,HB-in
+                                      01 - L-in,R-in,HT-in,HB-out
+                                      02 - L-in,R-in,HT-out,HB-in
+                                      03 - L-in,R-in,HT-out,HB-out
+                                      04 - L-in,R-out,HT-in,HB-in
+                                      05 - L-in,R-out,HT-in,HB-out
+                                      06 - L-in,R-out,HT-out,HB-in
+                                      07 - L-in,R-out,HT-out,HB-out
+                                      08 - L-out,R-in,HT-in,HB-in
+                                      09 - L-out,R-in,HT-in,HB-out
+                                      10 - L-out,R-in,HT-out,HB-in
+                                      11 - L-out,R-in,HT-out,HB-out
+                                      12 - L-out,R-out,HT-in,HB-in
+                                      13 - L-out,R-out,HT-in,HB-out
+                                      14 - L-out,R-out,HT-out,HB-in
+                                      15 - L-out,R-out,HT-out,HB-out
+                                      16 - T-in,B-in,VL-in,VR-in
+                                      17 - T-in,B-in,VL-in,VR-out
+                                      18 - T-in,B-in,VL,VR-in
+                                      19 - T-in,B-in,VL-out,VR-out
+                                      20 - T-out,B-in,VL-in,VR-in
+                                      21 - T-out,B-in,VL-in,VR-out
+                                      22 - T-out,B-in,VL-out,VR-in
+                                      23 - T-out,B-in,VL-out,VR-out
+                                      24 - T-in,B-out,VL-in,VR-in
+                                      25 - T-in,B-out,VL-in,VR-out
+                                      26 - T-in,B-out,VL-out,VR-in
+                                      27 - T-in,B-out,VL-out,VR-out
+                                      28 - T-out,B-out,VL-in,VR-in
+                                      29 - T-out,B-out,VL-in,VR-out
+                                      30 - T-out,B-out,VL-out,VR-in
+                                      31 - T-out,B-out,VL-out,VR-out
+ER_LINE_TB             24:20  0x0     Edge rules for triangles, points, left-right lines, right-left
+                                      lines, upper-bottom lines, bottom-upper lines. For values
+                                      0 to 15, bit 0 specifies whether a sample on a horizontal-
+                                      bottom edge is in, bit 1 specifies whether a sample on a
+                                      horizontal-top edge is in, bit 2 species whether a sample
+                                      on a right edge is in, bit 3 specifies whether a sample on
+                                      a left edge is in. For values 16 to 31, bit 0 specifies
+                                      whether a sample on a vertical-right edge is in, bit 1
+                                      specifies whether a sample on a vertical-left edge is in,
+                                      bit 2 species whether a sample on a bottom edge is in, bit
+                                      3 specifies whether a sample on a top edge is in
+                                      POSSIBLE VALUES:
+                                      00 - L-in,R-in,HT-in,HB-in
+                                      01 - L-in,R-in,HT-in,HB-out
+                                      02 - L-in,R-in,HT-out,HB-in
+                                      03 - L-in,R-in,HT-out,HB-out
+                                      04 - L-in,R-out,HT-in,HB-in
+                                      05 - L-in,R-out,HT-in,HB-out
+                                      06 - L-in,R-out,HT-out,HB-in
+                                      07 - L-in,R-out,HT-out,HB-out
+                                      08 - L-out,R-in,HT-in,HB-in
+                                      09 - L-out,R-in,HT-in,HB-out
+                                      10 - L-out,R-in,HT-out,HB-in
+                                      11 - L-out,R-in,HT-out,HB-out
+                                      12 - L-out,R-out,HT-in,HB-in
+                                      13 - L-out,R-out,HT-in,HB-out
+                                      14 - L-out,R-out,HT-out,HB-in
+                                      15 - L-out,R-out,HT-out,HB-out
+                                      16 - T-in,B-in,VL-in,VR-in
+                                      17 - T-in,B-in,VL-in,VR-out
+                                      18 - T-in,B-in,VL,VR-in
+                                      19 - T-in,B-in,VL-out,VR-out
+                                      20 - T-out,B-in,VL-in,VR-in
+                                      21 - T-out,B-in,VL-in,VR-out
+                                      22 - T-out,B-in,VL-out,VR-in
+                                      23 - T-out,B-in,VL-out,VR-out
+                                      24 - T-in,B-out,VL-in,VR-in
+                                      25 - T-in,B-out,VL-in,VR-out
+                                      26 - T-in,B-out,VL-out,VR-in
+                                      27 - T-in,B-out,VL-out,VR-out
+                                      28 - T-out,B-out,VL-in,VR-in
+                                      29 - T-out,B-out,VL-in,VR-out
+                                      30 - T-out,B-out,VL-out,VR-in
+                                      31 - T-out,B-out,VL-out,VR-out
+ER_LINE_BT             29:25  0x0     Edge rules for triangles, points, left-right lines, right-left
+                                      lines, upper-bottom lines, bottom-upper lines. For values
+                                      0 to 15, bit 0 specifies whether a sample on a horizontal-
+                                      bottom edge is in, bit 1 specifies whether a sample on a
+                                      horizontal-top edge is in, bit 2 species whether a sample
+                                      on a right edge is in, bit 3 specifies whether a sample on
+                                      a left edge is in. For values 16 to 31, bit 0 specifies
+                                      whether a sample on a vertical-right edge is in, bit 1
+                                      specifies whether a sample on a vertical-left edge is in,
+                                      bit 2 species whether a sample on a bottom edge is in, bit
+                                      3 specifies whether a sample on a top edge is in
+                                      POSSIBLE VALUES:
+                                      00 - L-in,R-in,HT-in,HB-in
+                                      01 - L-in,R-in,HT-in,HB-out
+                                      02 - L-in,R-in,HT-out,HB-in
+                                      03 - L-in,R-in,HT-out,HB-out
+                                      04 - L-in,R-out,HT-in,HB-in
+                                      05 - L-in,R-out,HT-in,HB-out
+                                      06 - L-in,R-out,HT-out,HB-in
+                                      07 - L-in,R-out,HT-out,HB-out
+                                      08 - L-out,R-in,HT-in,HB-in
+                                      09 - L-out,R-in,HT-in,HB-out
+                                      10 - L-out,R-in,HT-out,HB-in
+                                      11 - L-out,R-in,HT-out,HB-out
+                                      12 - L-out,R-out,HT-in,HB-in
+                                      13 - L-out,R-out,HT-in,HB-out
+                                      14 - L-out,R-out,HT-out,HB-in
+                                      15 - L-out,R-out,HT-out,HB-out
+                                      16 - T-in,B-in,VL-in,VR-in
+                                      17 - T-in,B-in,VL-in,VR-out
+                                      18 - T-in,B-in,VL,VR-in
+                                      19 - T-in,B-in,VL-out,VR-out
+                                      20 - T-out,B-in,VL-in,VR-in
+                                      21 - T-out,B-in,VL-in,VR-out
+                                      22 - T-out,B-in,VL-out,VR-in
+                                      23 - T-out,B-in,VL-out,VR-out
+                                      24 - T-in,B-out,VL-in,VR-in
+                                      25 - T-in,B-out,VL-in,VR-out
+                                      26 - T-in,B-out,VL-out,VR-in
+                                      27 - T-in,B-out,VL-out,VR-out
+                                      28 - T-out,B-out,VL-in,VR-in
+                                      29 - T-out,B-out,VL-in,VR-out
+                                      30 - T-out,B-out,VL-out,VR-in
+                                      31 - T-out,B-out,VL-out,VR-out

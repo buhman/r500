@@ -1,0 +1,16 @@
+Field Name          Bits   Default Description
+CSQ_MODE            31:28  0x0     Command Stream Queue Mode. Controls whether each
+                                   command stream is enabled, and whether it is in push
+                                   mode (Programmed I/O), or pull mode (Bus-Master).
+                                   Encodings are chosen to be compatible with Rage128.
+                                   POSSIBLE VALUES:
+                                   00 - Primary Disabled, Indirect Disabled.
+                                   01 - Primary PIO, Indirect Disabled.
+                                   02 - Primary BM, Indirect Disabled.
+                                   03 - Primary PIO, Indirect BM.
+                                   04 - Primary BM, Indirect BM.
+                                   05 - Primary PIO, Indirect BM.
+                                   06 - Primary BM, Indirect BM.
+                                   07 - Primary PIO, Indirect BM.
+                                   08 - Primary BM, Indirect BM.
+                                   15 - Primary PIO, Indirect PIO

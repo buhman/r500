@@ -1,0 +1,3 @@
+Field Name             Bits   Default Description
+COLOR_GREEN            15:0   0x0     Component green value (S3.12).
+COLOR_RED              31:16  0x0     Component red value (S3.12).

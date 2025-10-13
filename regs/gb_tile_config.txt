@@ -1,0 +1,77 @@
+Field Name             Bits   Default Description
+ENABLE                 0      0x1     Enables tiling, otherwise all tiles receive all polygons.
+                                      POSSIBLE VALUES:
+                                      00 - Tiling disabled.
+                                      01 - Tiling enabled (def).
+PIPE_COUNT             3:1    0x0     Specifies the number of active pipes and contexts (up to
+                                      4 pipes, 1 ctx). When this field is written, it is
+                                      automatically reduced by hardware so as not to use more
+                                      pipes than the number indicated in
+                                      GB_PIPE_SELECT.MAX_PIPES or the number of
+                                      pipes left unmasked GB_PIPE_SELECT.BAD_PIPES.
+                                      The potentially altered value is read back, rather than the
+                                      original value written by software.
+                                      POSSIBLE VALUES:
+                                      00 - RV350 (1 pipe, 1 ctx)
+                                      03 - R300 (2 pipes, 1 ctx)
+                                      06 – R420-3P (3 pipes, 1 ctx)
+                                      07 – R420 (4 pipes, 1 ctx)
+TILE_SIZE              5:4    0x1     Specifies width & height (square), in pixels (only 16, 32
+                                      available).
+                                      POSSIBLE VALUES:
+                                      00 - 8 pixels.
+                                      01 - 16 pixels.
+                                      02 - 32 pixels.
+SUPER_SIZE             8:6    0x0     Specifies number of tiles and config in super chip
+                                      configuration.
+                                      POSSIBLE VALUES:
+                                      00 - 1x1 tile (one 1x1).
+                                      01 - 2 tiles (two 1x1 : ST-A,B).
+                                      02 - 4 tiles (one 2x2).
+                                      03 - 8 tiles (two 2x2 : ST-A,B).
+                                      04 - 16 tiles (one 4x4).
+                                      05 - 32 tiles (two 4x4 : ST-A,B).
+                                      06 - 64 tiles (one 8x8).
+                                      07 - 128 tiles (two 8x8 : ST-A,B).
+SUPER_X                11:9   0x0     X Location of chip within super tile.
+SUPER_Y                14:12  0x0     Y Location of chip within super tile.
+SUPER_TILE             15     0x0     Tile location of chip in a multi super tile config (Super
+                                      size of 2,8,32 or 128).
+                                      POSSIBLE VALUES:
+                                      00 - ST-A tile.
+                                      01 - ST-B tile.
+SUBPIXEL               16     0x0     Specifies the precision of subpixels wrt pixels (12 or 16).
+                                      POSSIBLE VALUES:
+                                      00 - Select 1/12 subpixel precision.
+                                      01 - Select 1/16 subpixel precision.
+QUADS_PER_RAS          18:17  0x0     Specifies the number of quads to be sent to each
+                                      rasterizer in turn when in RV300B or R300B mode
+                                      POSSIBLE VALUES:
+                                      00 - 4 Quads
+                                      01 - 8 Quads
+                                      02 - 16 Quads
+                                      03 - 32 Quads
+BB_SCAN                19     0x0     Specifies whether to use an intercept or bounding box
+                                      based calculation for the first (coarse) scan converter
+                                      POSSIBLE VALUES:
+                                      00 - Use intercept based scan converter
+                                      01 - Use bounding box based scan converter
+ALT_SCAN_EN            20     0x0     Specifies whether to use an altenate scan pattern for the
+                                      coarse scan converter
+                                      POSSIBLE VALUES:
+                                      00 - Use normal left-right scan
+                                      01 - Use alternate left-right-left scan
+ALT_OFFSET             21     0x0     Not used -- should be 0
+                                      POSSIBLE VALUES:
+                                      00 - Not used
+                                      01 - Not used
+SUBPRECISION           22     0x0     Set to 0
+ALT_TILING             23     0x0     Support for 3x2 tiling in 3P mode
+                                      POSSIBLE VALUES:
+                                      00 - Use default tiling in all tiling modes
+                                      01 - Use alternative 3x2 tiling in 3P mode
+Z_EXTENDED             24     0x0     Support for extended setup Z range from [0,1] to [-2,2]
+                                      with per pixel clamping
+                                      POSSIBLE VALUES:
+                                      00 - Use (24.1) Z format, with vertex clamp to [1.0,0.0]
+                                      01 - Use (S25.1) format, with vertex clamp to [2.0,-2.0] and per pixel [1.0,0.0]

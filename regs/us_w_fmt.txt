@@ -1,0 +1,11 @@
+Field Name             Bits   Default Description
+W_FMT                  1:0    0x0     Format for W
+                                      POSSIBLE VALUES:
+                                      00 - W0 - W is always zero
+                                      01 - W24 - 24-bit fixed point
+                                      02 - W24_FP - 24-bit floating point. The floating point values are a special format that preserve sorting order when values are compared as integers, allowing higher precision in W without additional logic in other blocks.
+                                      03 - Reserved
+W_SRC                  2      0x0     Source for W
+                                      POSSIBLE VALUES:
+                                      00 - WSRC_US - W comes from shader instruction
+                                      01 - WSRC_RAS - W comes from rasterizer

@@ -1,0 +1,5 @@
+Field Name             Bits   Default   Description
+STENCILREF             7:0    0x0       Specifies the reference stencil value.
+STENCILMASK            15:8   0x0       This value is ANDed with both the reference and the
+                                        current stencil value prior to the stencil test.
+STENCILWRITEMASK       23:16  0x0       Specifies the write mask for the stencil planes.

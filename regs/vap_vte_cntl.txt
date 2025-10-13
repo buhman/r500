@@ -1,0 +1,21 @@
+Field Name             Bits   Default   Description
+VPORT_X_SCALE_ENA      0      0x0       Viewport Transform Scale Enable for X component
+VPORT_X_OFFSET_ENA     1      0x0       Viewport Transform Offset Enable for X component
+VPORT_Y_SCALE_ENA      2      0x0       Viewport Transform Scale Enable for Y component
+VPORT_Y_OFFSET_ENA     3      0x0       Viewport Transform Offset Enable for Y component
+VPORT_Z_SCALE_ENA      4      0x0       Viewport Transform Scale Enable for Z component
+VPORT_Z_OFFSET_ENA     5      0x0       Viewport Transform Offset Enable for Z component
+VTX_XY_FMT             8      0x0       Indicates that the incoming X, Y have already been
+                                        multiplied by 1/W0.
+                                        If OFF, the Setup Engine will bultiply the X, Y
+                                        coordinates by 1/W0.,
+VTX_Z_FMT              9      0x0       Indicates that the incoming Z has already been multiplied
+                                        by 1/W0.
+                                        If OFF, the Setup Engine will multiply the Z coordinate
+                                        by 1/W0.
+VTX_W0_FMT             10     0x0       Indicates that the incoming W0 is not 1/W0.
+                                        If ON, the Setup Engine will perform the reciprocal to
+                                        get 1/W0.
+SERIAL_PROC_ENA        11     0x0       If set, x,y,z viewport transform are performed serially
+                                        through a single pipeline instead of in parallel. Used to
+                                        mimic RL300 design.

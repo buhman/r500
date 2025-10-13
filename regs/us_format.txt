@@ -1,0 +1,7 @@
+Field Name             Bits   Default Description
+TXWIDTH                10:0   0x0
+TXHEIGHT               21:11  0x0
+TXDEPTH                25:22  0x0     POSSIBLE VALUES:
+                                      13 - width > 2048, height <= 2048
+                                      14 - width <= 2048, height > 2048
+                                      15 - width > 2048, height > 2048

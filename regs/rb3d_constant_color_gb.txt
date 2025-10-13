@@ -1,0 +1,3 @@
+Field Name            Bits   Default Description
+BLUE                  15:0   none    blue constant color in 0.10 fixed or FP16 format
+GREEN                 31:16  none    green constant color in 0.10 fixed or FP16 format

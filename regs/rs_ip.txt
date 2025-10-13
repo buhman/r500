@@ -1,0 +1,34 @@
+Field Name             Bits   Default Description
+TEX_PTR_S              5:0    0x0     Specifies the relative rasterizer input packet location of
+                                      each component (S, T, R, and Q) of texture address (i[i]).
+                                      The values 62 and 63 select constant inputs for the
+                                      component: 62 selects K0 (0.0), and 63 selects K1 (1.0).
+TEX_PTR_T              11:6   0x0     Specifies the relative rasterizer input packet location of
+                                      each component (S, T, R, and Q) of texture address (i[i]).
+                                      The values 62 and 63 select constant inputs for the
+                                      component: 62 selects K0 (0.0), and 63 selects K1 (1.0).
+TEX_PTR_R              17:12  0x0     Specifies the relative rasterizer input packet location of
+                                      each component (S, T, R, and Q) of texture address (i[i]).
+                                      The values 62 and 63 select constant inputs for the
+                                      component: 62 selects K0 (0.0), and 63 selects K1 (1.0).
+TEX_PTR_Q              23:18  0x0     Specifies the relative rasterizer input packet location of
+                                      each component (S, T, R, and Q) of texture address (i[i]).
+                                      The values 62 and 63 select constant inputs for the
+                                      component: 62 selects K0 (0.0), and 63 selects K1 (1.0).
+COL_PTR                26:24  0x0     Specifies the relative rasterizer input packet location of
+                                      the color (c[i]).
+COL_FMT                30:27  0x0     Specifies the format of the color (c[i]).
+                                      POSSIBLE VALUES:
+                                      00 - Four components (R,G,B,A)
+                                      01 - Three components (R,G,B,0)
+                                      02 - Three components (R,G,B,1)
+                                      04 - One component (0,0,0,A)
+                                      05 - Zero components (0,0,0,0)
+                                      06 - Zero components (0,0,0,1)
+                                      08 - One component (1,1,1,A)
+                                      09 - Zero components (1,1,1,0)
+                                      10 - Zero components (1,1,1,1)
+OFFSET_EN              31     0x0     Enable application of the TX_OFFSET in RS_INST_COUNT
+                                      POSSIBLE VALUES:
+                                      00 - Do not apply the TX_OFFSET in RS_INST_COUNT
+                                      01 - Apply the TX_OFFSET specified by RS_INST_COUNT

@@ -1,0 +1,25 @@
+Field Name             Bits   Default Description
+FOG_SELECT             2:0    0x0     Specifies source for outgoing (GA to SU) fog value.
+                                      POSSIBLE VALUES:
+                                      00 - Select C0A
+                                      01 - Select C1A
+                                      02 - Select C2A
+                                      03 - Select C3A
+                                      04 - Select 1/(1/W)
+                                      05 - Select Z
+DEPTH_SELECT           3      0x0     Specifies source for outgoing (GA/SU & SU/RAS) depth
+                                      value.
+                                      POSSIBLE VALUES:
+                                      00 - Select Z
+                                      01 - Select 1/(1/W)
+W_SELECT               4      0x0     Specifies source for outgoing (1/W) value, used to
+                                      disable perspective correct colors/textures.
+                                      POSSIBLE VALUES:
+                                      00 - Select (1/W)
+                                      01 - Select 1.0
+FOG_STUFF_ENABLE       5      0x0     Controls enabling of fog stuffing into texture coordinate.
+                                      POSSIBLE VALUES:
+                                      00 - Disable fog texture stuffing
+                                      01 - Enable fog texture stuffing
+FOG_STUFF_TEX          9:6    0x0     Controls which texture gets fog value
+FOG_STUFF_COMP         11:10  0x0     Controls which component of texture gets fog value

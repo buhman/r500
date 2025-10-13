@@ -1,0 +1,3 @@
+Field Name             Bits   Default   Description
+MAX_INDX               23:0   0xFFFFFF  If index to be fetched is larger than this value, the fetch
+                                        indx is set to MAX_INDX

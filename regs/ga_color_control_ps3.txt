@@ -1,0 +1,95 @@
+Field Name             Bits   Default Description
+TEX0_SHADING_PS3       1:0    0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX1_SHADING_PS3       3:2    0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX2_SHADING_PS3       5:4    0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX3_SHADING_PS3       7:6    0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX4_SHADING_PS3       9:8    0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX5_SHADING_PS3       11:10  0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX6_SHADING_PS3       13:12  0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX7_SHADING_PS3       15:14  0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX8_SHADING_PS3       17:16  0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX9_SHADING_PS3       19:18  0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+TEX10_SHADING_PS3      21:20  0x0     Specifies undefined(0), flat(1) and Gouraud(2/def)
+                                      shading for tex10 components.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+COLOR0_TEX_OVERRIDE    25:22  0x0     Specifies if each color should come from a texture and
+                                      which one.
+                                      POSSIBLE VALUES:
+                                      00 - No override
+                                      01 - Stuff texture 0
+                                      02 - Stuff texture 1
+                                      03 - Stuff texture 2
+                                      04 - Stuff texture 3
+                                      05 - Stuff texture 4
+                                      06 - Stuff texture 5
+                                      07 - Stuff texture 6
+                                      08 - Stuff texture 7
+                                      09 - Stuff texture 8/C2
+                                      10 - Stuff texture 9/C3
+COLOR1_TEX_OVERRIDE    29:26  0x0     Specifies if each color should come from a texture and
+                                      which one.
+                                      POSSIBLE VALUES:
+                                      00 - No override
+                                      01 - Stuff texture 0
+                                      02 - Stuff texture 1
+                                      03 - Stuff texture 2
+                                      04 - Stuff texture 3
+                                      05 - Stuff texture 4
+                                      06 - Stuff texture 5
+                                      07 - Stuff texture 6
+                                      08 - Stuff texture 7
+                                      09 - Stuff texture 8/C2
+                                      10 - Stuff texture 9/C3

@@ -1,0 +1,4 @@
+Field Name          Bits   Default Description
+CSQ_ADDR            11:2   none    Address into the Command Stream Queue which is to be
+                                   read from. Used for debug, to read the contents of the
+                                   Command Stream Queue.

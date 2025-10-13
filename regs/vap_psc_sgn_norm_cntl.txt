@@ -1,0 +1,27 @@
+Field Name             Bits   Default Description
+SGN_NORM_METHOD_0      1:0    0x0     There are 3 methods of normalizing signed numbers:
+                                      0: SGN_NORM_ZERO : value / (2^(n-1)-1), so -
+                                      128/127 will be less that -1.0, -127/127 will yeild -1.0,
+                                      0/127 will yield 0, and 127/127 will yield 1.0 for 8-bit
+                                      numbers.
+                                      1: SGN_NORM_ZERO_CLAMP_MINUS_ONE: Same
+                                      as SGN_NORM_ZERO except -128/127 will yield -1.0
+                                      for 8-bit numbers.
+                                      2: SGN_NORM_NO_ZERO: (2 * value + 1)/2^n, so -
+                                      128 will yield -255/255 = -1.0, 127 will yield 255/255 =
+                                      1.0, but 0 will yield 1/255 != 0.
+SGN_NORM_METHOD_1      3:2    0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_2      5:4    0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_3      7:6    0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_4      9:8    0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_5      11:10  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_6      13:12  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_7      15:14  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_8      17:16  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_9      19:18  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_10     21:20  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_11     23:22  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_12     25:24  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_13     27:26  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_14     29:28  0x0     See SGN_NORM_METHOD_0
+SGN_NORM_METHOD_15     31:30  0x0     See SGN_NORM_METHOD_0

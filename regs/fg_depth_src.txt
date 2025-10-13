@@ -1,0 +1,4 @@
+Field Name             Bits   Default Description
+DEPTH_SRC              0      0x0     POSSIBLE VALUES:
+                                      00 - Depth comes from scan converter as plane equation.
+                                      01 - Depth comes from shader as four discrete values.

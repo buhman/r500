@@ -1,0 +1,20 @@
+Field Name             Bits   Default Description
+GEOMETRY_ROUND         1:0    0x0     Trunc (0) or round to nearest (1) for geometry (XY).
+                                      POSSIBLE VALUES:
+                                      00 - Round to trunc
+                                      01 - Round to nearest
+COLOR_ROUND            3:2    0x0     When set, FP32 to FP20 using round to nearest;
+                                      otherwise trunc
+                                      POSSIBLE VALUES:
+                                      00 - Round to trunc
+                                      01 - Round to nearest
+RGB_CLAMP              4      0x0     Specifies SPFP color clamp range of [0,1] or FP20 for RGB.
+                                      POSSIBLE VALUES:
+                                      00 - Clamp to [0,1.0] for RGB
+                                      01 - RGB is FP20
+ALPHA_CLAMP            5      0x0     Specifies SPFP alpha clamp range of [0,1] or FP20.
+                                      POSSIBLE VALUES:
+                                      00 - Clamp to [0,1.0] for Alpha
+                                      01 - Alpha is FP20
+GEOMETRY_MASK          9:6    0x0     4b negative polarity mask for subpixel precision.
+                                      Inverted version gets ANDed with subpixel X, Y masks.

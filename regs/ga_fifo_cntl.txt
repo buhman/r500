@@ -1,0 +1,7 @@
+Field Name             Bits   Default Description
+VERTEX_FIFO            2:0    0x0     Number of words remaining in input vertex fifo before
+                                      asserting nearly full
+INDEX_FIFO             5:3    0x0     Number of words remaining in input primitive fifo
+                                      before asserting nearly full
+REG_FIFO               13:6   0x0     Number of words remaining in input register fifo before
+                                      asserting nearly full

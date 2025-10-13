@@ -1,0 +1,3 @@
+Field Name             Bits   Default Description
+SCREENDOOR             23:0   0x0     Screen door sample mask - 1 means sample may be
+                                      covered, 0 means sample is not covered

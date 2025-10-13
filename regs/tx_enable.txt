@@ -1,0 +1,65 @@
+Field Name             Bits   Default Description
+TEX_0_ENABLE           0      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_1_ENABLE           1      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_2_ENABLE           2      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_3_ENABLE           3      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_4_ENABLE           4      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_5_ENABLE           5      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_6_ENABLE           6      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_7_ENABLE           7      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_8_ENABLE           8      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_9_ENABLE           9      none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_10_ENABLE          10     none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_11_ENABLE          11     none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_12_ENABLE          12     none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_13_ENABLE          13     none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_14_ENABLE          14     none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable
+TEX_15_ENABLE          15     none    Texture Map Enables.
+                                      POSSIBLE VALUES:
+                                      00 - Disable, ARGB = 1,0,0,0
+                                      01 - Enable

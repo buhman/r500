@@ -1,0 +1,8 @@
+Field Name             Bits   Default   Description
+DWORDS_PER_VTX         6:0    0x0       This field specifies the number of DWORDS per vertex
+                                        to expect when VAP_VF_CNTL.PRIM_WALK is set to
+                                        Vertex Data (vertex data embedded in command stream).
+                                        This field is not used for any other PRIM_WALK
+                                        settings. This field replaces the usage of the
+                                        VAP_VTX_FMT_0/1 for this purpose in prior
+                                        implementations.

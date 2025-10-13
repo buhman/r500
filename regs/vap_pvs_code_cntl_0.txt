@@ -1,0 +1,8 @@
+Field Name             Bits   Default Description
+PVS_FIRST_INST         9:0    0x0     First Instruction to Execute in PVS.
+PVS_XYZW_VALID_INST    19:10  0x0     The PVS Instruction which updates the clip coordinate
+                                      position for the last time. This value is used to lower the
+                                      processing priority while trivial clip and back-face
+                                      culling decisions are made. This field must be set to valid
+                                      instruction.
+PVS_LAST_INST          29:20  0x0     Last Instruction (Inclusive) for the PVS to execute.

@@ -1,0 +1,6 @@
+Field Name             Bits   Default Description
+PS3_MODE               0      0x0     When reset (default), follows R300/PS2 mode; when set,
+                                      allows for new ps3 mode.
+                                      POSSIBLE VALUES:
+                                      00 - Default PS2 mode
+                                      01 - New PS3 mode

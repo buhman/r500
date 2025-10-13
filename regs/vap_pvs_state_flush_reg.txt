@@ -1,0 +1,10 @@
+Field Name             Bits   Default Description
+DATA_REGISTER          31:0   0x0     This register is used to force a flush of the PVS block
+                                      when single-buffered updates are performed. The multi-
+                                      state control of PVS Code and Const memories by the
+                                      driver is primarily for more flexible PVS state control
+                                      and for performance testing. When this register address
+                                      is written, the State Block will force a flush of PVS
+                                      processing so that both versions of PVS state are
+                                      available before updates are processed. This register is
+                                      write only, and the data that is written is unused.

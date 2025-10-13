@@ -1,0 +1,34 @@
+Field Name            Bits   Default Description
+INDIRECT2_START       6:0    none    Start location of Indirect Queue #2 in the command
+                                     cache. This value also sets the size in double octwords of
+                                     the Indirect Queue #1 cache that will reside in locations
+                                     INDIRECT1_START to (INDIRECT2_START - 1). The
+                                     Indirect Queue #2 will reside in locations
+                                     INDIRECT2_START to 0x5f. The minimum size of the
+                                     Indirect Queues must be at least twice the MAX_FETCH
+                                     size as programmed in the CP_RB_CNTL register.
+INDIRECT1_START       14:8   none    Start location of Indirect Queue #1 in the command
+                                     cache. This value is also the size in double octwords of
+                                     the Primary Queue cache that will reside in locations 0 to
+                                     (INDIRECT1_START - 1). The minimum size of the
+                                     Primary Queue cache must be at least twice the
+                                     MAX_FETCH size as programmed in the
+                                     CP_RB_CNTL register.
+CSQ_INDIRECT2_MODE    26     0x0     POSSIBLE VALUES:
+                                     00 - PIO
+                                     01 - BM
+CSQ_INDIRECT2_ENABLE  27     0x0     Enables Indirect Buffer #2. If this bit is set, the
+                                     CP_CSQ_MODE register overrides the operation of the
+                                     CSQ_MODE variable in the CP_CSQ_CNTL register.
+CSQ_INDIRECT1_MODE    28     0x0     POSSIBLE VALUES:
+                                     00 - PIO
+                                     01 - BM
+CSQ_INDIRECT1_ENABLE  29     0x0     Enables Indirect Buffer #1. If this bit is set, the
+                                     CP_CSQ_MODE register overrides the operation of the
+                                     CSQ_MODE variable in the CP_CSQ_CNTL register.
+CSQ_PRIMARY_MODE      30     0x0     POSSIBLE VALUES:
+                                     00 - PIO
+                                     01 - BM
+CSQ_PRIMARY_ENABLE    31     0x0     Enables Primary Buffer. If this bit is set, the
+                                     CP_CSQ_MODE register overrides the operation of the
+                                     CSQ_MODE variable in the CP_CSQ_CNTL register.

@@ -1,0 +1,68 @@
+Field Name             Bits   Default Description
+POINT_STUFF_ENABLE     0      0x0     Specifies if points will have stuffed texture coordinates.
+                                      POSSIBLE VALUES:
+                                      00 - Disable point texture stuffing.
+                                      01 - Enable point texture stuffing.
+LINE_STUFF_ENABLE      1      0x0     Specifies if lines will have stuffed texture coordinates.
+                                      POSSIBLE VALUES:
+                                      00 - Disable line texture stuffing.
+                                      01 - Enable line texture stuffing.
+TRIANGLE_STUFF_ENABLE  2      0x0     Specifies if triangles will have stuffed texture
+                                      coordinates.
+                                      POSSIBLE VALUES:
+                                      00 - Disable triangle texture stuffing.
+                                      01 - Enable triangle texture stuffing.
+STENCIL_AUTO           5:4    0x0     Specifies if the auto dec/inc stencil mode should be
+                                      enabled, and how.
+                                      POSSIBLE VALUES:
+                                      00 - Disable stencil auto inc/dec (def).
+                                      01 - Enable stencil auto inc/dec based on triangle cw/ccw, force into dzy low bit.
+                                      02 - Force 0 into dzy low bit.
+TEX0_SOURCE            17:16  0x0     Specifies the sources of the texture coordinates for each
+                                      texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX1_SOURCE            19:18  0x0     Specifies the sources of the texture coordinates for each
+                                      texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX2_SOURCE            21:20  0x0     Specifies the sources of the texture coordinates for each
+                                      texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX3_SOURCE            23:22  0x0     Specifies the sources of the texture coordinates for each
+                                      texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX4_SOURCE            25:24  0x0     Specifies the sources of the texture coordinates for each
+                                      texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX5_SOURCE            27:26  0x0     Specifies the sources of the texture coordinates for each
+                                      texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX6_SOURCE            29:28  0x0     Specifies the sources of the texture coordinates for each
+                                      texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX7_SOURCE            31:30  0x0     Specifies the sources of the texture coordinates for each
+                                      texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).

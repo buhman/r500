@@ -1,0 +1,39 @@
+Field Name             Bits   Default   Description
+VTX_NUM_ARRAYS         4:0    0x0       The number of arrays required to represent the current
+                                        vertex type.
+                                        Each Array is described by the following three fields:
+                                        VTX_AOS_ADDR, VTX_AOS_COUNT,
+                                        VTX_AOS_STRIDE.
+VC_FORCE_PREFETCH      5      0x0       Force Vertex Data Pre-fetching. If this bit is set, then a
+                                        256-bit word will always be fetched, regardless of which
+                                        dwords are needed. Typically useful when
+                                        VAP_VF_CNTL.PRIM_WALK is set to Vertex List
+                                        (Auto-incremented indices).
+VC_DIS_CACHE_INVLD     6      0x0       If set, the vertex cache is not invalidated between draw
+                                        packets. This allows vertex cache hits to occur from
+                                        packet to packet. This must be set with caution with
+                                        respect to multiple contexts in the driver.
+AOS_0_FETCH_SIZE       16     0x0       Granule Size to Fetch for AOS 0.
+                                        0 = 128-bit granule size
+                                        1 = 256-bit granule size
+                                        This allows the driver to program the fetch size based on
+                                        DWORDS/VTX/AOS combined with AGP vs. LOC
+                                        Memory. The general belief is that the granule size
+                                        should always be 256-bits for LOC memory and AGP8X
+                                        data, but should be 128-bit for AGP2X/4X data if the
+                                        DWORDS/VTX/AOS is less than TBD (128?) bits.
+AOS_1_FETCH_SIZE       17     0x0       See AOS_0_FETCH_SIZE
+AOS_2_FETCH_SIZE       18     0x0       See AOS_0_FETCH_SIZE
+AOS_3_FETCH_SIZE       19     0x0       See AOS_0_FETCH_SIZE
+AOS_4_FETCH_SIZE       20     0x0       See AOS_0_FETCH_SIZE
+AOS_5_FETCH_SIZE       21     0x0       See AOS_0_FETCH_SIZE
+AOS_6_FETCH_SIZE       22     0x0       See AOS_0_FETCH_SIZE
+AOS_7_FETCH_SIZE       23     0x0       See AOS_0_FETCH_SIZE
+AOS_8_FETCH_SIZE       24     0x0       See AOS_0_FETCH_SIZE
+AOS_9_FETCH_SIZE       25     0x0       See AOS_0_FETCH_SIZE
+AOS_10_FETCH_SIZE      26     0x0       See AOS_0_FETCH_SIZE
+AOS_11_FETCH_SIZE      27     0x0       See AOS_0_FETCH_SIZE
+AOS_12_FETCH_SIZE      28     0x0       See AOS_0_FETCH_SIZE
+AOS_13_FETCH_SIZE      29     0x0       See AOS_0_FETCH_SIZE
+AOS_14_FETCH_SIZE      30     0x0       See AOS_0_FETCH_SIZE
+AOS_15_FETCH_SIZE      31     0x0       See AOS_0_FETCH_SIZE

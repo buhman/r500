@@ -1,0 +1,2 @@
+Field Name             Bits   Default   Description
+VPORT_ZOFFSET          31:0   0x0       Viewport Offset for Z coordinates. An IEEE float.

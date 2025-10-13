@@ -1,0 +1,28 @@
+Field Name             Bits   Default Description
+HZ_EN                  0      0x0     Enable for hierarchical Z.
+                                      POSSIBLE VALUES:
+                                      00 - Disables Hyper-Z.
+                                      01 - Enables Hyper-Z.
+HZ_MAX                 1      0x0     Specifies whether to compute min or max z value
+                                      POSSIBLE VALUES:
+                                      00 - HZ block computes minimum z value
+                                      01 - HZ block computes maximum z value
+HZ_ADJ                 4:2    0x0     Specifies adjustment to get added or subtracted from
+                                      computed z value
+                                      POSSIBLE VALUES:
+                                      00 - Add or Subtract 1/256 << ze
+                                      01 - Add or Subtract 1/128 << ze
+                                      02 - Add or Subtract 1/64 << ze
+                                      03 - Add or Subtract 1/32 << ze
+                                      04 - Add or Subtract 1/16 << ze
+                                      05 - Add or Subtract 1/8 << ze
+                                      06 - Add or Subtract 1/4 << ze
+                                      07 - Add or Subtract 1/2 << ze
+HZ_Z0MIN               5      0x0     Specifies whether vertex 0 z contains minimum z value
+                                      POSSIBLE VALUES:
+                                      00 - Vertex 0 does not contain minimum z value
+                                      01 - Vertex 0 does contain minimum z value
+HZ_Z0MAX               6      0x0     Specifies whether vertex 0 z contains maximum z value
+                                      POSSIBLE VALUES:
+                                      00 - Vertex 0 does not contain maximum z value
+                                      01 - Vertex 0 does contain maximum z value

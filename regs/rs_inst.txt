@@ -1,0 +1,30 @@
+Field Name             Bits   Default Description
+TEX_ID                 3:0    0x0     Specifies the index (into the RS_IP table) of the texture
+                                      address output during this rasterizer instruction
+TEX_CN                 4      0x0     Write enable for texture address
+                                      POSSIBLE VALUES:
+                                      00 - No write - texture coordinate not valid
+                                      01 - write - texture valid
+TEX_ADDR               11:5   0x0     Specifies the destination address (within the current pixel
+                                      stack frame) of the texture address output during this
+                                      rasterizer instruction
+COL_ID                 15:12  0x0     Specifies the index (into the RS_IP table) of the color
+                                      output during this rasterizer instruction
+COL_CN                 17:16  0x0     Write enable for color
+                                      POSSIBLE VALUES:
+                                      00 - No write - color not valid
+                                      01 - write - color valid
+                                      02 - write fbuffer - XY00->RGBA
+                                      03 - write backface - B000->RGBA
+COL_ADDR               24:18  0x0     Specifies the destination address (within the current pixel
+                                      stack frame) of the color output during this rasterizer
+                                      instruction
+TEX_ADJ                25     0x0     Specifies whether to sample texture coordinates at the
+                                      real or adjusted pixel centers
+                                      POSSIBLE VALUES:
+                                      00 - Sample texture coordinates at real pixel centers
+                                      01 - Sample texture coordinates at adjusted pixel centers
+W_CN                   26     0x0     Specifies that the rasterizer should output w
+                                      POSSIBLE VALUES:
+                                      00 - No write - w not valid
+                                      01 - write - w valid

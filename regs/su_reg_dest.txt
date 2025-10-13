@@ -1,0 +1,3 @@
+Field Name             Bits   Default Description
+SELECT                 3:0    0xF     Register read/write destination select: b0: logical pipe0,
+                                      b1: logical pipe1, b2: logical pipe2 and b3: logical pipe3

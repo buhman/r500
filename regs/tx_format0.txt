@@ -1,0 +1,24 @@
+Field Name             Bits   Default Description
+TXWIDTH                10:0   none    Image width - 1. The largest image is 4096 texels. When
+                                      wrapping or mirroring, must be a power of 2. When
+                                      mipmapping, must be a power of 2 or padded to a power
+                                      of 2 in memory. Can always be non-square, except for
+                                      cube maps which must be square.
+TXHEIGHT               21:11  none    Image height - 1. The largest image is 4096 texels. When
+                                      wrapping or mirroring, must be a power of 2. When
+                                      mipmapping, must be a power of 2 or padded to a power
+                                      of 2 in memory. Can always be non-square, except for
+                                      cube maps which must be square.
+TXDEPTH                25:22  none    LOG2(depth) of volume texture
+NUM_LEVELS             29:26  none    Number of mipmap levels minus 1. Ranges from 0 to 12.
+                                      Equivalent to LOD index of smallest (coarsest) mipmap
+                                      to use.
+PROJECTED              30     none    Specifies whether texture coords are projected.
+                                      POSSIBLE VALUES:
+                                      00 - Non-Projected
+                                      01 - Projected
+TXPITCH_EN             31     none    Indicates when TXPITCH should be used instead of
+                                      TXWIDTH for image addressing
+                                      POSSIBLE VALUES:
+                                      00 - Use TXWIDTH for image addressing
+                                      01 - Use TXPITCH for image addressing

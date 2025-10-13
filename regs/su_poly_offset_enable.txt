@@ -1,0 +1,15 @@
+Field Name             Bits   Default Description
+FRONT_ENABLE           0      0x0     Enables front facing polygon`s offset.
+                                      POSSIBLE VALUES:
+                                      00 - Disable front offset.
+                                      01 - Enable front offset.
+BACK_ENABLE            1      0x0     Enables back facing polygon`s offset.
+                                      POSSIBLE VALUES:
+                                      00 - Disable back offset.
+                                      01 - Enable back offset.
+PARA_ENABLE            2      0x0     Forces all parallelograms to have FRONT_FACING for
+                                      poly offset -- Need to have FRONT_ENABLE also set to
+                                      have Z offset for parallelograms.
+                                      POSSIBLE VALUES:
+                                      00 - Disable front offset for parallelograms.
+                                      01 - Enable front offset for parallelograms.

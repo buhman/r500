@@ -1,0 +1,5 @@
+Field Name            Bits   Default Description
+ME_RAM_RADDR          7:0    none    MicroEngine RAM Address (Read Mode) Writing
+                                     this register puts the RAM access circuitry into `Read
+                                     Mode` , which allows the address to auto-increment
+                                     as data is read from the RAM. Write Only.

@@ -1,0 +1,4 @@
+Field Name             Bits   Default Description
+OFFSET_ADDR            8:0    0x0     Specifies the offset to add to relative instruction
+                                      addresses, including START_ADDR, END_ADDR, and
+                                      some flow control jump addresses.

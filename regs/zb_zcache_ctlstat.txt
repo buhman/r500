@@ -1,0 +1,21 @@
+Field Name             Bits   Default   Description
+ZC_FLUSH               0      0x0       Setting this bit flushes the dirty data from the Z cache.
+                                        Unless ZC_FREE bit is also set, the tags in the cache
+                                        remain valid. A purge is achieved by setting both
+                                        ZC_FLUSH and ZC_FREE. This is a sticky bit and it
+                                        clears itself at the end of the operation.
+                                        POSSIBLE VALUES:
+                                        00 - No effect
+                                        01 - Flush and Free Z cache lines
+ZC_FREE                1      0x0       Setting this bit invalidates the Z cache tags. Unless
+                                        ZC_FLUSH bit is also set, the cachelines are not written
+                                        to memory. A purge is achieved by setting both
+                                        ZC_FLUSH and ZC_FREE. This is a sticky bit that
+                                        clears itself at the end of the operation.
+                                        POSSIBLE VALUES:
+                                        00 - No effect
+                                        01 - Free Z cache lines (invalidate)
+ZC_BUSY                31     0x0       This bit is unused ...
+                                        POSSIBLE VALUES:
+                                        00 - Idle
+                                        01 - Busy

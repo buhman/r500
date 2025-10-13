@@ -1,0 +1,29 @@
+Field Name             Bits   Default Description
+VC_SWAP                1:0    0x0     Endian-Swap Control.
+                                      POSSIBLE VALUES:
+                                      00 - No swap 1 = 16-bit swap: 0xAABBCCDD becomes 0xBBAADDCC
+                                      02 - 32-bit swap: 0xAABBCCDD becomes 0xDDCCBBAA
+                                      03 - Half-dword swap: 0xAABBCCDD becomes 0xCCDDAABB
+PVS_BYPASS             8      0x0     The TCL engine is logically or physically removed from
+                                      the circuit.
+PVS_BUSY               11     0x0     Transform/Clip/Light (TCL) Engine is Busy. Read-only.
+MAX_MPS                19:16  0x0     Maximum number of MPs fused for this chip. Read-only.
+                                      For A11, fusemask is fixed to 1XXX.
+                                      For A12,
+                                      CG.CC_COMBINEDSTRAPS.MAX_MPS[7:5] = 000 => max_mps[3:0] = 1XXX => 8 MPs
+                                      CG.CC_COMBINEDSTRAPS.MAX_MPS[7:5] = 001 => max_mps[3:0] = 0110 => 6 MPs
+                                      CG.CC_COMBINEDSTRAPS.MAX_MPS[7:5] = 010 => max_mps[3:0] = 0101 => 5 MPs
+                                      CG.CC_COMBINEDSTRAPS.MAX_MPS[7:5] = 011 => max_mps[3:0] = 0100 => 4 MPs
+                                      CG.CC_COMBINEDSTRAPS.MAX_MPS[7:5] = 100 => max_mps[3:0] = 0011 => 3 MPs
+                                      CG.CC_COMBINEDSTRAPS.MAX_MPS[7:5] = 101 => max_mps[3:0] = 0010 => 2 MPs
+                                      CG.CC_COMBINEDSTRAPS.MAX_MPS[7:5] = 110 => max_mps[3:0] = 0001 => 1 MP
+                                      CG.CC_COMBINEDSTRAPS.MAX_MPS[7:5] = 111 => max_mps[3:0] = 0000 => 0 MP
+                                      Note that max_mps[3:0] = 0111 = 7 MPs is not available
+VS_BUSY                24     0x0     Vertex Store is Busy. Read-only.
+RCP_BUSY               25     0x0     Reciprocal Engine is Busy. Read-only.
+VTE_BUSY               26     0x0     ViewPort Transform Engine is Busy. Read-only.
+MIU_BUSY               27     0x0     Memory Interface Unit is Busy. Read-only.
+VC_BUSY                28     0x0     Vertex Cache is Busy. Read-only.
+VF_BUSY                29     0x0     Vertex Fetcher is Busy. Read-only.
+REGPIPE_BUSY           30     0x0     Register Pipeline is Busy. Read-only.
+VAP_BUSY               31     0x0     VAP Engine is Busy. Read-only.

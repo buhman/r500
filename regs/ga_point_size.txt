@@ -1,0 +1,5 @@
+Field Name             Bits   Default Description
+HEIGHT                 15:0   0x0     1/2 Height of point; fixed (16.0), subpixel format (1/12
+                                      or 1/16, even if in 8b precision).
+WIDTH                  31:16  0x0     1/2 Width of point; fixed (16.0), subpixel format (1/12 or
+                                      1/16, even if in 8b precision)

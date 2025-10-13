@@ -1,0 +1,3 @@
+Field Name            Bits   Default Description
+CP_GUI_COMMAND        31:0   none    Command for PIO DMAs to the GUI DMA. Only
+                                     DWORD access is allowed to this register.

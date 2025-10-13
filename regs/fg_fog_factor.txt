@@ -1,0 +1,2 @@
+Field Name             Bits   Default Description
+FACTOR                 9:0    0x0     Constant fog factor; fixed (0.10) format.

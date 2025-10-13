@@ -1,0 +1,7 @@
+Field Name             Bits   Default Description
+VTX_POS_PRESENT        0      0x0     Output the Position Vector
+VTX_COLOR_0_PRESENT    1      0x0     Output Color 0 Vector
+VTX_COLOR_1_PRESENT    2      0x0     Output Color 1 Vector
+VTX_COLOR_2_PRESENT    3      0x0     Output Color 2 Vector
+VTX_COLOR_3_PRESENT    4      0x0     Output Color 3 Vector
+VTX_PT_SIZE_PRESENT    16     0x0     Output Point Size Vector

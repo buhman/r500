@@ -1,0 +1,48 @@
+Field Name             Bits   Default Description
+OUT_FMT                4:0    0x0     POSSIBLE VALUES:
+                                      00 - C4_8 (S/U)
+                                      01 - C4_10 (U)
+                                      02 - C4_10_GAMMA - (U)
+                                      03 - C_16 - (S/U)
+                                      04 - C2_16 - (S/U)
+                                      05 - C4_16 - (S/U)
+                                      06 - C_16_MPEG - (S)
+                                      07 - C2_16_MPEG - (S)
+                                      08 - C2_4 - (U)
+                                      09 - C_3_3_2 - (U)
+                                      10 - C_6_5_6 - (S/U)
+                                      11 - C_11_11_10 - (S/U)
+                                      12 - C_10_11_11 - (S/U)
+                                      13 - C_2_10_10_10 - (S/U)
+                                      14 - reserved
+                                      15 - UNUSED - Render target is not used
+                                      16 - C_16_FP - (S10E5)
+                                      17 - C2_16_FP - (S10E5)
+                                      18 - C4_16_FP - (S10E5)
+                                      19 - C_32_FP - (S23E8)
+                                      20 - C2_32_FP - (S23E8)
+                                      21 - C4_32_FP - (S23E8)
+C0_SEL                 9:8    0x0     POSSIBLE VALUES:
+                                      00 - Alpha
+                                      01 - Red
+                                      02 - Green
+                                      03 - Blue
+C1_SEL                 11:10  0x0     POSSIBLE VALUES:
+                                      00 - Alpha
+                                      01 - Red
+                                      02 - Green
+                                      03 - Blue
+C2_SEL                 13:12  0x0     POSSIBLE VALUES:
+                                      00 - Alpha
+                                      01 - Red
+                                      02 - Green
+                                      03 - Blue
+C3_SEL                 15:14  0x0     POSSIBLE VALUES:
+                                      00 - Alpha
+                                      01 - Red
+                                      02 - Green
+                                      03 - Blue
+OUT_SIGN               19:16  0x0
+ROUND_ADJ              20     0x0     POSSIBLE VALUES:
+                                      00 - Normal rounding
+                                      01 - Modified rounding of fixed-point data

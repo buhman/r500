@@ -1,0 +1,65 @@
+Field Name            Bits   Default Description
+BLUE_MASK             0      0x1     mask bit for the blue channel
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+GREEN_MASK            1      0x1     mask bit for the green channel
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+RED_MASK              2      0x1     mask bit for the red channel
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+ALPHA_MASK            3      0x1     mask bit for the alpha channel
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+BLUE_MASK1            4      0x1     mask bit for the blue channel of MRT 1
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+GREEN_MASK1           5      0x1     mask bit for the green channel of MRT 1
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+RED_MASK1             6      0x1     mask bit for the red channel of MRT 1
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+ALPHA_MASK1           7      0x1     mask bit for the alpha channel of MRT 1
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+BLUE_MASK2            8      0x1     mask bit for the blue channel of MRT 2
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+GREEN_MASK2           9      0x1     mask bit for the green channel of MRT 2
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+RED_MASK2             10     0x1     mask bit for the red channel of MRT 2
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+ALPHA_MASK2           11     0x1     mask bit for the alpha channel of MRT 2
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+BLUE_MASK3            12     0x1     mask bit for the blue channel of MRT 3
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+GREEN_MASK3           13     0x1     mask bit for the green channel of MRT 3
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+RED_MASK3             14     0x1     mask bit for the red channel of MRT 3
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable
+ALPHA_MASK3           15     0x1     mask bit for the alpha channel of MRT 3
+                                     POSSIBLE VALUES:
+                                     00 - disable
+                                     01 - enable

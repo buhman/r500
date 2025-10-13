@@ -1,0 +1,3 @@
+Field Name            Bits   Default Description
+RB_RPTR_WR            22:0   0x0     Writable Ring Buffer Read Pointer. Writable for
+                                     updating the RB_RPTR after an ACPI.

@@ -1,0 +1,9 @@
+Field Name             Bits   Default Description
+IT_COUNT               6:0    0x0     Specifies the total number of texture address components
+                                      contained in the rasterizer input packet (0:32).
+IC_COUNT               10:7   0x0     Specifies the total number of colors contained in the
+                                      rasterizer input packet (0:4).
+W_ADDR                 17:12  0x0     Specifies the relative rasterizer input packet location of w
+                                      (if w_count==1)
+HIRES_EN               18     0x0     Enable high resolution texture coordinate output when q
+                                      is equal to 1

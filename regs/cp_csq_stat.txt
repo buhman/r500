@@ -1,0 +1,4 @@
+Field Name            Bits   Default Description
+CSQ_RPTR_PRIMARY      9:0    none    Current Read Pointer into the Primary Queue. Default = 0.
+CSQ_WPTR_PRIMARY      19:10  none    Current Write Pointer into the Primary Queue. Default = 0.
+CSQ_RPTR_INDIRECT     29:20  none    Current Read Pointer into the Indirect Queue. Default = 0.

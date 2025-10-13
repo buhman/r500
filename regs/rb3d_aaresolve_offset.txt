@@ -1,0 +1,2 @@
+Field Name            Bits   Default Description
+AARESOLVE_OFFSET      31:5   none    256-bit aligned 3D resolve destination offset.

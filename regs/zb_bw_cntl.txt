@@ -1,0 +1,88 @@
+Field Name                              Bits   Default   Description
+HIZ_ENABLE                              0      0x0       Enables hierarchical Z.
+                                                         POSSIBLE VALUES:
+                                                         00 - Hierarchical Z Disabled
+                                                         01 - Hierarchical Z Enabled
+HIZ_MIN                                 1      0x0       POSSIBLE VALUES:
+                                                         00 - Update Hierarchical Z with Max value
+                                                         01 - Update Hierarchical Z with Min value
+FAST_FILL                               2      0x0       POSSIBLE VALUES:
+                                                         00 - Fast Fill Disabled
+                                                         01 - Fast Fill Enabled (ZB_DEPTHCLEARVALUE )
+RD_COMP_ENABLE                          3      0x0       Enables reading of compressed Z data from memory to the
+                                                         cache.
+                                                         POSSIBLE VALUES:
+                                                         00 - Z Read Compression Disabled
+                                                         01 - Z Read Compression Enabled
+WR_COMP_ENABLE                          4      0x0       Enables writing of compressed Z data from cache to memory,
+                                                         POSSIBLE VALUES:
+                                                         00 - Z Write Compression Disabled
+                                                         01 - Z Write Compression Enabled
+ZB_CB_CLEAR                             5      0x0       This bit is set when the Z buffer is used to help the CB in
+                                                         clearing a region. Part of the region is cleared by the color
+                                                         buffer and part will be cleared by the Z buffer. Since the Z
+                                                         buffer does not have any write masks in the cache, full micro-
+                                                         tiles need to be written. If a partial micro-tile is touched, then
+                                                         the un-touched part will be unknowns. The cache will operate
+                                                         in write-allocate mode and quads will be accumulated in the
+                                                         cache and then evicted to main memory. The color value is
+                                                         supplied through the ZB_DEPTHCLEARVALUE register.
+                                                         POSSIBLE VALUES:
+                                                         00 - Z unit cache controller does RMW
+                                                         01 - Z unit cache controller does cache-line granular Write only
+FORCE_COMPRESSED_STENCIL_VALUE          6      0x0       Enabling this bit will force all the compressed stencil values
+                                                         to be equal to
+                                                         old_stencil_value&~ZB_STENCILREFMASK.stencilwritemask |
+                                                         ZB_STENCILREFMASK.stencilref&ZB_STENCILREFMASK.stencilwritemask.
+                                                         This should be enabled during stencil
+                                                         clears to avoid needless decompression.
+                                                         POSSIBLE VALUES:
+                                                         00 - Do not force the compressed stencil value.
+                                                         01 - Force the compressed stencil value.
+ZEQUAL_OPTIMIZE_DISABLE                 7      0x0       By default this is 0 (enabled). When NEWZ=OLDZ, then
+                                                         writes do not occur to save BW.
+                                                         POSSIBLE VALUES:
+                                                         00 - Enable not updating the Z buffer if NewZ=OldZ
+                                                         01 - Disable above feature (in case there is a bug)
+SEQUAL_OPTIMIZE_DISABLE                 8      0x0       By default this is 0 (enabled). When
+                                                         NEW_STENCIL=OLD_STENCIL, then writes do not occur
+                                                         to save BW.
+                                                         POSSIBLE VALUES:
+                                                         00 - Enable not updating the Stencil buffer if NewS=OldS
+                                                         01 - Disable above feature (in case there is a bug)
+BMASK_DISABLE                           10     0x0       Controls whether bytemasking is used or not.
+                                                         POSSIBLE VALUES:
+                                                         00 - Enable bytemasking
+                                                         01 - Disable bytemasking
+HIZ_EQUAL_REJECT_ENABLE                 11     0x0       Enables hiz rejects when the z function is equals.
+                                                         POSSIBLE VALUES:
+                                                         00 - Disable
+                                                         01 - Enable
+HIZ_FP_EXP_BITS                         14:12  0x0       Number of exponent bits to use for the hiz floating point
+                                                         format. Values 0 to 5 are legal. 0 will disable the floating
+                                                         point hiz encoding.
+HIZ_FP_INVERT                           15     0x0       Determines whether leading zeros or ones are eliminated.
+                                                         POSSIBLE VALUES:
+                                                         00 - Count leading 1s
+                                                         01 - Count leading 0s
+TILE_OVERWRITE_RECOMPRESSION_DISABLE    16     0x0       The zb tries to detect single plane equations that completely
+                                                         overwrite a compressed tile. This allows the tile to jump from
+                                                         the decompressed state to the fully compressed state.
+                                                         POSSIBLE VALUES:
+                                                         00 - Enable tile overwrite recompression
+                                                         01 - Disable tile overwrite recompression
+CONTIGUOUS_6XAA_SAMPLES_DISABLE         17     0x0       This disables storing samples contiguously in 6xaa.
+                                                         POSSIBLE VALUES:
+                                                         00 - Enable contiguous samples
+                                                         01 - Disable contiguous samples
+PEQ_PACKING_ENABLE                      18     0x0       Enables packing of the plane equations to eliminate wasted
+                                                         peq slots.
+                                                         POSSIBLE VALUES:
+                                                         00 - Disable
+                                                         01 - Enable
+COVERED_PTR_MASKING_ENABLE              19     0x0       Enables discarding of pointers from pixels that are going to be
+                                                         covered. This reduces the apparent number of plane equations
+                                                         in use.
+                                                         POSSIBLE VALUES:
+                                                         00 - Disable
+                                                         01 - Enable

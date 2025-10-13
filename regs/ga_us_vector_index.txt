@@ -1,0 +1,20 @@
+Field Name             Bits   Default Description
+INDEX                  8:0    0x0     Instruction (TYPE == GA_US_VECTOR_INST) or
+                                      constant (TYPE == GA_US_VECTOR_CONST)
+                                      number at which to start loading. The GA will then
+                                      expect n*6 (instructions) or n*4 (constants) writes to
+                                      GA_US_VECTOR_DATA. The GA will self-increment
+                                      until this register is written again. For instructions, the
+                                      GA expects the dwords in the following order:
+                                      US_CMN_INST, US_ALU_RGB_ADDR,
+                                      US_ALU_ALPHA_ADDR, US_ALU_ALPHA,
+                                      US_RGB_INST, US_ALPHA_INST, US_RGBA_INST.
+                                      For constants, the GA expects the dwords in RGBA
+                                      order.
+TYPE                   16     0x0     Specifies if the GA should load instructions or constants.
+                                      POSSIBLE VALUES:
+                                      00 - Load instructions - INDEX is an instruction index
+                                      01 - Load constants - INDEX is a constant index
+CLAMP                  17     0x0     POSSIBLE VALUES:
+                                      00 - No clamping of data - Default
+                                      01 - Clamp to [-1.0,1.0] constant data

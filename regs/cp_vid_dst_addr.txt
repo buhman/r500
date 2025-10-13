@@ -1,0 +1,3 @@
+Field Name            Bits   Default Description
+CP_VID_DST_ADDR       31:0   none    Destination address for PIO DMAs to the VID DMA.
+                                     Only DWORD access is allowed to this register.

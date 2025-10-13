@@ -1,0 +1,5 @@
+Field Name             Bits   Default   Description
+DEPTHCLEARVALUE        31:0   0x0       When a block has a Z Mask value of 0, all Z values in
+                                        that block are cleared to this value. In 24bpp, the stencil
+                                        value is also updated regardless of whether it is enabled
+                                        or not.

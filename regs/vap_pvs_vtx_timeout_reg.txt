@@ -1,0 +1,6 @@
+Field Name             Bits   Default     Description
+CLK_COUNT              31:0   0xFFFFFFFF  This register is used to define the number of core clocks
+                                          to wait for a vertex to be received by the VAP input
+                                          controller (while the primitive path is backed up) before
+                                          forcing any accumulated vertices to be submitted to the
+                                          vertex processing path.

@@ -1,0 +1,58 @@
+Field Name             Bits   Default Description
+CLAMP_S                2:0    none    Clamp mode for texture coordinates
+                                      POSSIBLE VALUES:
+                                      00 - Wrap (repeat)
+                                      01 - Mirror
+                                      02 - Clamp to last texel (0.0 to 1.0)
+                                      03 - MirrorOnce to last texel (-1.0 to 1.0)
+                                      04 - Clamp half way to border color (0.0 to 1.0)
+                                      05 - MirrorOnce half way to border color (-1.0 to 1.0)
+                                      06 - Clamp to border color (0.0 to 1.0)
+                                      07 - MirrorOnce to border color (-1.0 to 1.0)
+CLAMP_T                5:3    none    Clamp mode for texture coordinates
+                                      POSSIBLE VALUES:
+                                      00 - Wrap (repeat)
+                                      01 - Mirror
+                                      02 - Clamp to last texel (0.0 to 1.0)
+                                      03 - MirrorOnce to last texel (-1.0 to 1.0)
+                                      04 - Clamp half way to border color (0.0 to 1.0)
+                                      05 - MirrorOnce half way to border color (-1.0 to 1.0)
+                                      06 - Clamp to border color (0.0 to 1.0)
+                                      07 - MirrorOnce to border color (-1.0 to 1.0)
+CLAMP_R                8:6    none    Clamp mode for texture coordinates
+                                      POSSIBLE VALUES:
+                                      00 - Wrap (repeat)
+                                      01 - Mirror
+                                      02 - Clamp to last texel (0.0 to 1.0)
+                                      03 - MirrorOnce to last texel (-1.0 to 1.0)
+                                      04 - Clamp half way to border color (0.0 to 1.0)
+                                      05 - MirrorOnce half way to border color (-1.0 to 1.0)
+                                      06 - Clamp to border color (0.0 to 1.0)
+                                      07 - MirrorOnce to border color (-1.0 to 1.0)
+MAG_FILTER             10:9   none    Filter used when texture is magnified
+                                      POSSIBLE VALUES:
+                                      00 - Filter4
+                                      01 - Point
+                                      02 - Linear
+                                      03 - Reserved
+MIN_FILTER             12:11  none    Filter used when texture is minified
+                                      POSSIBLE VALUES:
+                                      00 - Filter4
+                                      01 - Point
+                                      02 - Linear
+                                      03 - Reserved
+MIP_FILTER             14:13  none    Filter used between mipmap levels
+                                      POSSIBLE VALUES:
+                                      00 - None
+                                      01 - Point
+                                      02 - Linear
+                                      03 - Reserved
+VOL_FILTER             16:15  none    Filter used between layers of a volume
+                                      POSSIBLE VALUES:
+                                      00 - None (no filter specifed, select from MIN/MAG filters)
+                                      01 - Point
+                                      02 - Linear
+                                      03 - Reserved
+MAX_MIP_LEVEL          20:17  none    LOD index of largest (finest) mipmap to use (0 is
+                                      largest). Ranges from 0 to NUM_LEVELS.
+ID                     31:28  none    Logical id for this physical texture

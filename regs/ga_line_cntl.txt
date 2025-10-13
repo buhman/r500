@@ -1,0 +1,14 @@
+Field Name            Bits   Default Description
+WIDTH                 15:0   0x0     1/2 width of line, in subpixels (1/12 or 1/16 only, even in
+                                     8b subprecision); (16.0) fixed format.
+END_TYPE              17:16  0x0     Specifies how ends of lines should be drawn.
+                                     POSSIBLE VALUES:
+                                     00 - Horizontal
+                                     01 - Vertical
+                                     02 - Square (horizontal or vertical depending upon slope)
+                                     03 - Computed (perpendicular to slope)
+SORT                  18     0x0     R520+: When enabled, all lines are sorted so that V0 is
+                                     vertex with smallest X, or if X equal, smallest Y.
+                                     POSSIBLE VALUES:
+                                     00 - No sorting (default)
+                                     01 - Sort on minX than MinY

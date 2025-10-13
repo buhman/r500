@@ -1,0 +1,16 @@
+Field Name            Bits   Default Description
+MRU_BUSY              0      none    Memory Read Unit Busy.
+MWU_BUSY              1      none    Memory Write Unit Busy.
+RSIU_BUSY             2      none    Register Backbone Input Interface Busy.
+RCIU_BUSY             3      none    RBBM Output Interface Busy.
+CSF_PRIMARY_BUSY      9      none    Primary Command Stream Fetcher Busy.
+CSF_INDIRECT_BUSY     10     none    Indirect #1 Command Stream Fetcher Busy.
+CSQ_PRIMARY_BUSY      11     none    Data in Command Queue for Primary Stream.
+CSQ_INDIRECT_BUSY     12     none    Data in Command Queue for Indirect #1 Stream.
+CSI_BUSY              13     none    Command Stream Interpreter Busy.
+CSF_INDIRECT2_BUSY    14     none    Indirect #2 Command Stream Fetcher Busy.
+CSQ_INDIRECT2_BUSY    15     none    Data in Command Queue for Indirect #2 Stream.
+GUIDMA_BUSY           28     none    GUI DMA Engine Busy.
+VIDDMA_BUSY           29     none    VID DMA Engine Busy.
+CMDSTRM_BUSY          30     none    Command Stream Busy.
+CP_BUSY               31     none    CP Busy.

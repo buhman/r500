@@ -1,0 +1,5 @@
+Field Name            Bits   Default Description
+BLUE                  7:0    none    blue clear color
+GREEN                 15:8   none    green clear color
+RED                   23:16  none    red clear color
+ALPHA                 31:24  none    alpha clear color

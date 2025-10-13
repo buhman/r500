@@ -1,0 +1,9 @@
+Field Name            Bits   Default Description
+PRE_WRITE_TIMER       27:0   0x0     Pre-Write Timer. The number of clocks that a write to
+                                     the CP_RB_WPTR register will be delayed until actually
+                                     taking effect. Default = 0
+PRE_WRITE_LIMIT       31:28  0x0     Pre-Write Limit. The number of times that the
+                                     CP_RB_WPTR register can be written (while the
+                                     PRE_WRITE_TIMER has not expired) before the
+                                     CP_RB_WPTR register is forced to be updated with the
+                                     most recently written value. Default = 0

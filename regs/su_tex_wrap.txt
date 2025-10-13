@@ -1,0 +1,161 @@
+Field Name             Bits   Default Description
+T0C0                   0      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T0C1                   1      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T0C2                   2      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T0C3                   3      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T1C0                   4      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T1C1                   5      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T1C2                   6      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T1C3                   7      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T2C0                   8      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T2C1                   9      0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T2C2                   10     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T2C3                   11     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T3C0                   12     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T3C1                   13     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T3C2                   14     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T3C3                   15     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T4C0                   16     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T4C1                   17     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T4C2                   18     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T4C3                   19     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T5C0                   20     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T5C1                   21     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T5C2                   22     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T5C3                   23     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T6C0                   24     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T6C1                   25     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T6C2                   26     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T6C3                   27     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T7C0                   28     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T7C1                   29     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T7C2                   30     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.
+T7C3                   31     0x0     tNcM -- Enable texture wrapping on component M
+                                      (S,T,R,Q) of texture N.
+                                      POSSIBLE VALUES:
+                                      00 - Disable cylindrical wrapping.
+                                      01 - Enable cylindrical wrapping.

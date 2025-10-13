@@ -1,0 +1,12 @@
+Field Name             Bits   Default Description
+AA_ENABLE              0      0x0     Enables antialiasing.
+                                      POSSIBLE VALUES:
+                                      00 - Antialiasing disabled(def)
+                                      01 - Antialiasing enabled
+NUM_AA_SUBSAMPLES      2:1    0x0     Specifies the number of subsamples to use while
+                                      antialiasing.
+                                      POSSIBLE VALUES:
+                                      00 - 2 subsamples
+                                      01 - 3 subsamples
+                                      02 - 4 subsamples
+                                      03 - 6 subsamples

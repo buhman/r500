@@ -1,0 +1,4 @@
+Field Name             Bits   Default   Description
+ZTOP                   0      0x0       POSSIBLE VALUES:
+                                        00 - Z is at the bottom of the pipe, after the fog unit.
+                                        01 - Z is at the top of the pipe, after the scan unit.

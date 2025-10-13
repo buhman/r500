@@ -1,0 +1,23 @@
+Field Name             Bits   Default   Description
+DEPTHFORMAT            3:0    0x0       Specifies the format of the Z buffer.
+                                        POSSIBLE VALUES:
+                                        00 - 16-bit Integer Z
+                                        01 - 16-bit compressed 13E3
+                                        02 - 24-bit Integer Z, 8 bit Stencil (LSBs)
+                                        03 - RESERVED
+                                        04 - RESERVED
+                                        05 - RESERVED
+                                        06 - RESERVED
+                                        07 - RESERVED
+                                        08 - RESERVED
+                                        09 - RESERVED
+                                        10 - RESERVED
+                                        11 - RESERVED
+                                        12 - RESERVED
+                                        13 - RESERVED
+                                        14 - RESERVED
+                                        15 - RESERVED
+INVERT                 4      0x0       POSSIBLE VALUES:
+                                        00 - in 13E3 format , count leading 1`s
+                                        01 - in 13E3 format , count leading 0`s.
+PEQ8                   5      0x0       This bit is unused

@@ -1,0 +1,4 @@
+Field Name             Bits   Default Description
+OFFSET                 31:0   0x0     Specifies polygon offset offset for front-facing polygons;
+                                      32b IEEE float format; applied after Z scale & offset (0
+                                      to 2^24-1 range)

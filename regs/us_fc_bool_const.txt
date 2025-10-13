@@ -1,0 +1,2 @@
+Field Name             Bits   Default Description
+KBOOL                  31:0   0x0     Specifies the boolean value for constants 0-31.

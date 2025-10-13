@@ -1,0 +1,6 @@
+Field Name             Bits   Default Description
+CODE_ADDR              8:0    0x0     Specifies the start address of the current code window.
+                                      This address is an absolute address.
+CODE_SIZE              24:16  0x0     Specifies the size of the current code window, minus
+                                      one. The last instruction in the code window is given by
+                                      CODE_ADDR + CODE_SIZE.

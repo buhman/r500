@@ -1,0 +1,11 @@
+Field Name            Bits   Default Description
+SCRATCH_ALT_VP_WR     0      0x0     0=Physical (Default), 1=Virtual
+SCRATCH_VP_WR         1      0x0     0=Physical (Default), 1=Virtual
+RPTR_VP_UPDATE        2      0x0     0=Physical (Default), 1=Virtual
+VIDDMA_VP_WR          3      0x0     0=Physical (Default), 1=Virtual
+VIDDMA_VP_RD          4      0x0     0=Physical (Default), 1=Virtual
+GUIDMA_VP_WR          5      0x0     0=Physical (Default), 1=Virtual
+GUIDMA_VP_RD          6      0x0     0=Physical (Default), 1=Virtual
+INDR2_VP_FETCH        7      0x0     0=Physical (Default), 1=Virtual
+INDR1_VP_FETCH        8      0x0     0=Physical (Default), 1=Virtual
+RING_VP_FETCH         9      0x0     0=Physical (Default), 1=Virtual

@@ -1,0 +1,6 @@
+Field Name            Bits   Default Description
+RB_RPTR_SWAP          1:0    0x0     Swap control of the reported read pointer address. See
+                                     CP_RB_CNTL.BUF_SWAP for the encoding.
+RB_RPTR_ADDR          31:2   0x0     Ring Buffer Read Pointer Address. Address of the Host`s
+                                     copy of the Read Pointer. CP_RB_RPTR (RO) Ring
+                                     Buffer Read Pointer

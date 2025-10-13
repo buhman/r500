@@ -1,0 +1,45 @@
+Field Name                            Bits   Default Description
+NUM_MULTIWRITES                       6:5    0x0     A quad is replicated and written to this
+                                                     many buffers.
+                                                     POSSIBLE VALUES:
+                                                     00 - 1 buffer. This is the only mode where the cb processes the end of packet command.
+                                                     01 - 2 buffers
+                                                     02 - 3 buffers
+                                                     03 - 4 buffers
+CLRCMP_FLIPE_ENABLE                   7      0x0     Enables equivalent of rage128
+                                                     CMP_EQ_FLIP color compare mode.
+                                                     This is used to ensure 3D data does not
+                                                     get chromakeyed away by logic in the
+                                                     backend.
+                                                     POSSIBLE VALUES:
+                                                     00 - Disable color compare.
+                                                     01 - Enable color compare.
+AA_COMPRESSION_ENABLE                 9      none    Enables AA color compression. Cmask
+                                                     must also be enabled when aa
+                                                     compression is enabled. The cache must
+                                                     be empty before this is changed.
+                                                     POSSIBLE VALUES:
+                                                     00 - Disable AA compression
+                                                     01 - Enable AA compression
+CMASK_ENABLE                          10     none    Enables use of the cmask ram. The cache
+                                                     must be empty before this is changed.
+                                                     POSSIBLE VALUES:
+                                                     00 - Disable
+                                                     01 - Enable
+INDEPENDENT_COLOR_CHANNEL_MASK_ENABLE 12     0x0     Enables indepedent color channel masks
+                                                     for the MRTs. Disabling this feature will
+                                                     cause all the MRTs to use color channel
+                                                     mask 0.
+                                                     POSSIBLE VALUES:
+                                                     00 - Disable
+                                                     01 - Enable
+WRITE_COMPRESSION_DISABLE             13     none    Disables write compression.
+                                                     POSSIBLE VALUES:
+                                                     00 - Enable write compression
+                                                     01 - Disable write compression
+INDEPENDENT_COLORFORMAT_ENABLE        14     0x0     Enables independent color format for the
+                                                     MRTs. Disabling this feature will cause
+                                                     all the MRTs to use color format 0.
+                                                     POSSIBLE VALUES:
+                                                     00 - Disable
+                                                     01 - Enable

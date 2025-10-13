@@ -1,0 +1,144 @@
+Field Name            Bits   Default Description
+COMB_FCN              14:12  none    Combine Function , Allows modification of how the
+                                     SRCBLEND and DESTBLEND are combined.
+                                     POSSIBLE VALUES:
+                                     00 - Add and Clamp
+                                     01 - Add but no Clamp
+                                     02 - Subtract Dst from Src, and Clamp
+                                     03 - Subtract Dst from Src, and don`t Clamp
+                                     04 - Minimum of Src, Dst (the src and dst blend functions are forced to D3D_ONE)
+                                     05 - Maximum of Src, Dst (the src and dst blend functions are forced to D3D_ONE)
+                                     06 - Subtract Src from Dst, and Clamp
+                                     07 - Subtract Src from Dst, and don`t Clamp
+SRCBLEND              21:16  none    Source Blend Function , Alpha blending function (SRC).
+                                     POSSIBLE VALUES:
+                                     00 - RESERVED
+                                     01 - D3D_ZERO
+                                     02 - D3D_ONE
+                                     03 - D3D_SRCCOLOR
+                                     04 - D3D_INVSRCCOLOR
+                                     05 - D3D_SRCALPHA
+                                     06 - D3D_INVSRCALPHA
+                                     07 - D3D_DESTALPHA
+                                     08 - D3D_INVDESTALPHA
+                                     09 - D3D_DESTCOLOR
+                                     10 - D3D_INVDESTCOLOR
+                                     11 - D3D_SRCALPHASAT
+                                     12 - D3D_BOTHSRCALPHA
+                                     13 - D3D_BOTHINVSRCALPHA
+                                     14 - RESERVED
+                                     15 - RESERVED
+                                     16 - RESERVED
+                                     17 - RESERVED
+                                     18 - RESERVED
+                                     19 - RESERVED
+                                     20 - RESERVED
+                                     21 - RESERVED
+                                     22 - RESERVED
+                                     23 - RESERVED
+                                     24 - RESERVED
+                                     25 - RESERVED
+                                     26 - RESERVED
+                                     27 - RESERVED
+                                     28 - RESERVED
+                                     29 - RESERVED
+                                     30 - RESERVED
+                                     31 - RESERVED
+                                     32 - GL_ZERO
+                                     33 - GL_ONE
+                                     34 - GL_SRC_COLOR
+                                     35 - GL_ONE_MINUS_SRC_COLOR
+                                     36 - GL_DST_COLOR
+                                     37 - GL_ONE_MINUS_DST_COLOR
+                                     38 - GL_SRC_ALPHA
+                                     39 - GL_ONE_MINUS_SRC_ALPHA
+                                     40 - GL_DST_ALPHA
+                                     41 - GL_ONE_MINUS_DST_ALPHA
+                                     42 - GL_SRC_ALPHA_SATURATE
+                                     43 - GL_CONSTANT_COLOR
+                                     44 - GL_ONE_MINUS_CONSTANT_COLOR
+                                     45 - GL_CONSTANT_ALPHA
+                                     46 - GL_ONE_MINUS_CONSTANT_ALPHA
+                                     47 - RESERVED
+                                     48 - RESERVED
+                                     49 - RESERVED
+                                     50 - RESERVED
+                                     51 - RESERVED
+                                     52 - RESERVED
+                                     53 - RESERVED
+                                     54 - RESERVED
+                                     55 - RESERVED
+                                     56 - RESERVED
+                                     57 - RESERVED
+                                     58 - RESERVED
+                                     59 - RESERVED
+                                     60 - RESERVED
+                                     61 - RESERVED
+                                     62 - RESERVED
+                                     63 - RESERVED
+DESTBLEND             29:24  none    Destination Blend Function , Alpha blending function (DST).
+                                     POSSIBLE VALUES:
+                                     00 - RESERVED
+                                     01 - D3D_ZERO
+                                     02 - D3D_ONE
+                                     03 - D3D_SRCCOLOR
+                                     04 - D3D_INVSRCCOLOR
+                                     05 - D3D_SRCALPHA
+                                     06 - D3D_INVSRCALPHA
+                                     07 - D3D_DESTALPHA
+                                     08 - D3D_INVDESTALPHA
+                                     09 - D3D_DESTCOLOR
+                                     10 - D3D_INVDESTCOLOR
+                                     11 - RESERVED
+                                     12 - RESERVED
+                                     13 - RESERVED
+                                     14 - RESERVED
+                                     15 - RESERVED
+                                     16 - RESERVED
+                                     17 - RESERVED
+                                     18 - RESERVED
+                                     19 - RESERVED
+                                     20 - RESERVED
+                                     21 - RESERVED
+                                     22 - RESERVED
+                                     23 - RESERVED
+                                     24 - RESERVED
+                                     25 - RESERVED
+                                     26 - RESERVED
+                                     27 - RESERVED
+                                     28 - RESERVED
+                                     29 - RESERVED
+                                     30 - RESERVED
+                                     31 - RESERVED
+                                     32 - GL_ZERO
+                                     33 - GL_ONE
+                                     34 - GL_SRC_COLOR
+                                     35 - GL_ONE_MINUS_SRC_COLOR
+                                     36 - GL_DST_COLOR
+                                     37 - GL_ONE_MINUS_DST_COLOR
+                                     38 - GL_SRC_ALPHA
+                                     39 - GL_ONE_MINUS_SRC_ALPHA
+                                     40 - GL_DST_ALPHA
+                                     41 - GL_ONE_MINUS_DST_ALPHA
+                                     42 - RESERVED
+                                     43 - GL_CONSTANT_COLOR
+                                     44 - GL_ONE_MINUS_CONSTANT_COLOR
+                                     45 - GL_CONSTANT_ALPHA
+                                     46 - GL_ONE_MINUS_CONSTANT_ALPHA
+                                     47 - RESERVED
+                                     48 - RESERVED
+                                     49 - RESERVED
+                                     50 - RESERVED
+                                     51 - RESERVED
+                                     52 - RESERVED
+                                     53 - RESERVED
+                                     54 - RESERVED
+                                     55 - RESERVED
+                                     56 - RESERVED
+                                     57 - RESERVED
+                                     58 - RESERVED
+                                     59 - RESERVED
+                                     60 - RESERVED
+                                     61 - RESERVED
+                                     62 - RESERVED
+                                     63 - RESERVED

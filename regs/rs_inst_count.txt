@@ -1,0 +1,4 @@
+Field Name             Bits   Default Description
+INST_COUNT             3:0    0x0     Number of rasterizer instructions (1:16)
+TX_OFFSET              7:5    0x0     Indicates range of texture offset to minimize peroidic
+                                      errors on texels sampled right on their edges

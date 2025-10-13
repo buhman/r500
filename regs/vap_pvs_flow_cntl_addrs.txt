@@ -1,0 +1,24 @@
+Field Name                  Bits   Default Description
+PVS_FC_ACT_ADRS_0           7:0    0x0     This field defines the last PVS instruction to execute
+                                           prior to the control flow redirection.
+                                           JUMP - The last instruction executed prior to the jump
+                                           LOOP - The last instruction executed prior to the loop
+                                           (init loop counter/inc)
+                                           JSR - The last instruction executed prior to the jump to
+                                           the subroutine.
+PVS_FC_LOOP_CNT_JMP_INST_0  15:8   0x0     This field has multiple definitions as follows:
+                                           JUMP - The instruction address to jump to.
+                                           LOOP - The loop count. *Note loop count of 0 must be
+                                           replaced by a jump.
+                                           JSR - The instruction address to jump to (first inst of
+                                           subroutine).
+PVS_FC_LAST_INST_0          23:16  0x0     This field has multiple definitions as follows:
+                                           JUMP - Not Applicable
+                                           LOOP - The last instruction of the loop.
+                                           JSR - The last instruction of the subroutine.
+PVS_FC_RTN_INST_0           31:24  0x0     This field has multiple definitions as follows:
+                                           JUMP - Not Applicable
+                                           LOOP - First Instruction of Loop (Typically
+                                           ACT_ADRS + 1)
+                                           JSR - First Instruction After JSR (Typically
+                                           ACT_ADRS + 1)

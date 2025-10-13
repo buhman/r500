@@ -1,0 +1,5 @@
+Field Name             Bits   Default   Description
+HIZ_DWORD              31:0   0x0       This DWORD contains 8-bit values for 4 blocks..
+                                        Reading this register causes a read from the address
+                                        pointed to by RDINDEX. Writing to this register causes
+                                        a write to the address pointed to by WRINDEX.

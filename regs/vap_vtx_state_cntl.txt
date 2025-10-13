@@ -1,0 +1,35 @@
+Field Name               Bits   Default   Description
+COLOR_0_ASSEMBLY_CNTL    1:0    0x0       0 : Select Color 0
+                                          1 : Select User Color 0
+                                          2 : Select User Color 1
+                                          3 : Reserved
+COLOR_1_ASSEMBLY_CNTL    3:2    0x0       0 : Select Color 1
+                                          1 : Select User Color 0
+                                          2 : Select User Color 1
+                                          3 : Reserved
+COLOR_2_ASSEMBLY_CNTL    5:4    0x0       0 : Select Color 2
+                                          1 : Select User Color 0
+                                          2 : Select User Color 1
+                                          3 : Reserved
+COLOR_3_ASSEMBLY_CNTL    7:6    0x0       0 : Select Color 3
+                                          1 : Select User Color 0
+                                          2 : Select User Color 1
+                                          3 : Reserved
+COLOR_4_ASSEMBLY_CNTL    9:8    0x0       0 : Select Color 4
+                                          1 : Select User Color 0
+                                          2 : Select User Color 1
+                                          3 : Reserved
+COLOR_5_ASSEMBLY_CNTL    11:10  0x0       0 : Select Color 5
+                                          1 : Select User Color 0
+                                          2 : Select User Color 1
+                                          3 : Reserved
+COLOR_6_ASSEMBLY_CNTL    13:12  0x0       0 : Select Color 6
+                                          1 : Select User Color 0
+                                          2 : Select User Color 1
+                                          3 : Reserved
+COLOR_7_ASSEMBLY_CNTL    15:14  0x0       0 : Select Color 7
+                                          1 : Select User Color 0
+                                          2 : Select User Color 1
+                                          3 : Reserved
+UPDATE_USER_COLOR_0_ENA  16     0x0       0 : User Color 0 State is NOT updated when User Color 0 is written.
+                                          1 : User Color 1 State IS updated when User Color 0 is written.

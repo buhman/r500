@@ -1,0 +1,61 @@
+Field Name             Bits   Default Description
+TEX0_SOURCE            1:0    0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX1_SOURCE            3:2    0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX2_SOURCE            5:4    0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX3_SOURCE            7:6    0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX4_SOURCE            9:8    0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX5_SOURCE            11:10  0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX6_SOURCE            13:12  0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX7_SOURCE            15:14  0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX8_SOURCE            17:16  0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).
+TEX9_SOURCE            19:18  0x0     Specifies VAP source, or GA (ST) or GA (STR) stuffing
+                                      for each texture.
+                                      POSSIBLE VALUES:
+                                      00 - Replicate VAP source texture coordinates (S,T,[R,Q]).
+                                      01 - Stuff with source texture coordinates (S,T).
+                                      02 - Stuff with source texture coordinates (S,T,R).

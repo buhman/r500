@@ -1,0 +1,145 @@
+Field Name             Bits   Default Description
+TXFORMAT               4:0    none    Texture Format. Components are numbered right to left.
+                                      Parenthesis indicate typical uses of each format.
+                                      POSSIBLE VALUES:
+                                      00 - TX_FMT_8 or TX_FMT_1 (if TX_FORMAT2.TXFORMAT_MSB is set)
+                                      01 - TX_FMT_16 or TX_FMT_1_REVERSE (if TX_FORMAT2.TXFORMAT_MSB is set)
+                                      02 - TX_FMT_4_4 or TX_FMT_10 (if TX_FORMAT2.TXFORMAT_MSB is set)
+                                      03 - TX_FMT_8_8 or TX_FMT_10_10 (if TX_FORMAT2.TXFORMAT_MSB is set)
+                                      04 - TX_FMT_16_16 or TX_FMT_10_10_10_10 (if TX_FORMAT2.TXFORMAT_MSB is set)
+                                      05 - TX_FMT_3_3_2 or TX_FMT_ATI1N (if TX_FORMAT2.TXFORMAT_MSB is set)
+                                      06 - TX_FMT_5_6_5 or TX_FMT_24_8 (if TX_FORMAT2.TXFORMAT_MSB is set)
+                                      07 - TX_FMT_6_5_5
+                                      08 - TX_FMT_11_11_10
+                                      09 - TX_FMT_10_11_11
+                                      10 - TX_FMT_4_4_4_4
+                                      11 - TX_FMT_1_5_5_5
+                                      12 - TX_FMT_8_8_8_8
+                                      13 - TX_FMT_2_10_10_10
+                                      14 - TX_FMT_16_16_16_16
+                                      15 - Reserved
+                                      16 - Reserved
+                                      17 - Reserved
+                                      18 - TX_FMT_Y8
+                                      19 - TX_FMT_AVYU444
+                                      20 - TX_FMT_VYUY422
+                                      21 - TX_FMT_YVYU422
+                                      22 - TX_FMT_16_MPEG
+                                      23 - TX_FMT_16_16_MPEG
+                                      24 - TX_FMT_16f
+                                      25 - TX_FMT_16f_16f
+                                      26 - TX_FMT_16f_16f_16f_16f
+                                      27 - TX_FMT_32f
+                                      28 - TX_FMT_32f_32f
+                                      29 - TX_FMT_32f_32f_32f_32f
+                                      30 - TX_FMT_W24_FP
+                                      31 - TX_FMT_ATI2N
+SIGNED_COMP0           5      none    Component filter should interpret texel data as signed or
+                                      unsigned. (Ignored for Y/YUV formats.)
+                                      POSSIBLE VALUES:
+                                      00 - Component filter should interpret texel data as unsigned
+                                      01 - Component filter should interpret texel data as signed
+SIGNED_COMP1           6      none    Component filter should interpret texel data as signed or
+                                      unsigned. (Ignored for Y/YUV formats.)
+                                      POSSIBLE VALUES:
+                                      00 - Component filter should interpret texel data as unsigned
+                                      01 - Component filter should interpret texel data as signed
+SIGNED_COMP2           7      none    Component filter should interpret texel data as signed or
+                                      unsigned. (Ignored for Y/YUV formats.)
+                                      POSSIBLE VALUES:
+                                      00 - Component filter should interpret texel data as unsigned
+                                      01 - Component filter should interpret texel data as signed
+SIGNED_COMP3           8      none    Component filter should interpret texel data as signed or
+                                      unsigned. (Ignored for Y/YUV formats.)
+                                      POSSIBLE VALUES:
+                                      00 - Component filter should interpret texel data as unsigned
+                                      01 - Component filter should interpret texel data as signed
+SEL_ALPHA              11:9   none    Specifies swizzling for each channel at the input of the
+                                      pixel shader. (Ignored for Y/YUV formats.)
+                                      POSSIBLE VALUES:
+                                      00 - Select Texture Component0.
+                                      01 - Select Texture Component1.
+                                      02 - Select Texture Component2.
+                                      03 - Select Texture Component3.
+                                      04 - Select the value 0.
+                                      05 - Select the value 1.
+SEL_RED                14:12  none    Specifies swizzling for each channel at the input of the
+                                      pixel shader. (Ignored for Y/YUV formats.)
+                                      POSSIBLE VALUES:
+                                      00 - Select Texture Component0.
+                                      01 - Select Texture Component1.
+                                      02 - Select Texture Component2.
+                                      03 - Select Texture Component3.
+                                      04 - Select the value 0.
+                                      05 - Select the value 1.
+SEL_GREEN              17:15  none    Specifies swizzling for each channel at the input of the
+                                      pixel shader. (Ignored for Y/YUV formats.)
+                                      POSSIBLE VALUES:
+                                      00 - Select Texture Component0.
+                                      01 - Select Texture Component1.
+                                      02 - Select Texture Component2.
+                                      03 - Select Texture Component3.
+                                      04 - Select the value 0.
+                                      05 - Select the value 1.
+SEL_BLUE               20:18  none    Specifies swizzling for each channel at the input of the
+                                      pixel shader. (Ignored for Y/YUV formats.)
+                                      POSSIBLE VALUES:
+                                      00 - Select Texture Component0.
+                                      01 - Select Texture Component1.
+                                      02 - Select Texture Component2.
+                                      03 - Select Texture Component3.
+                                      04 - Select the value 0.
+                                      05 - Select the value 1.
+GAMMA                  21     none    Optionally remove gamma from texture before passing to
+                                      shader. Only apply to 8bit or less components.
+                                      POSSIBLE VALUES:
+                                      00 - Disable gamma removal
+                                      01 - Enable gamma removal
+YUV_TO_RGB             23:22  none    YUV to RGB conversion mode
+                                      POSSIBLE VALUES:
+                                      00 - Disable YUV to RGB conversion
+                                      01 - Enable YUV to RGB conversion (with clamp)
+                                      02 - Enable YUV to RGB conversion (without clamp)
+SWAP_YUV               24     none    POSSIBLE VALUES:
+                                      00 - Disable swap YUV mode
+                                      01 - Enable swap YUV mode (hw inverts upper bit of U and V)
+TEX_COORD_TYPE         26:25  none    Specifies coordinate type.
+                                      POSSIBLE VALUES:
+                                      00 - 2D
+                                      01 - 3D
+                                      02 - Cube
+                                      03 - Reserved
+CACHE                  31:27  none    This field is ignored on R520 and RV510.
+                                      POSSIBLE VALUES:
+                                      00 - WHOLE
+                                      01 - Reserved
+                                      02 - HALF_REGION_0
+                                      03 - HALF_REGION_1
+                                      04 - FOURTH_REGION_0
+                                      05 - FOURTH_REGION_1
+                                      06 - FOURTH_REGION_2
+                                      07 - FOURTH_REGION_3
+                                      08 - EIGHTH_REGION_0
+                                      09 - EIGHTH_REGION_1
+                                      10 - EIGHTH_REGION_2
+                                      11 - EIGHTH_REGION_3
+                                      12 - EIGHTH_REGION_4
+                                      13 - EIGHTH_REGION_5
+                                      14 - EIGHTH_REGION_6
+                                      15 - EIGHTH_REGION_7
+                                      16 - SIXTEENTH_REGION_0
+                                      17 - SIXTEENTH_REGION_1
+                                      18 - SIXTEENTH_REGION_2
+                                      19 - SIXTEENTH_REGION_3
+                                      20 - SIXTEENTH_REGION_4
+                                      21 - SIXTEENTH_REGION_5
+                                      22 - SIXTEENTH_REGION_6
+                                      23 - SIXTEENTH_REGION_7
+                                      24 - SIXTEENTH_REGION_8
+                                      25 - SIXTEENTH_REGION_9
+                                      26 - SIXTEENTH_REGION_A
+                                      27 - SIXTEENTH_REGION_B
+                                      28 - SIXTEENTH_REGION_C
+                                      29 - SIXTEENTH_REGION_D
+                                      30 - SIXTEENTH_REGION_E
+                                      31 - SIXTEENTH_REGION_F

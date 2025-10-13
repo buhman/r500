@@ -1,0 +1,3 @@
+Field Name            Bits   Default Description
+CLRCMP_FLIPE          31:0   none    Like RB2D_CLRCMP_FLIPE, but a separate register is
+                                     provided to keep 2D and 3D state separate.

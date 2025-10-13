@@ -1,0 +1,5 @@
+Field Name             Bits   Default   Description
+VTX_AOS_COUNT0         6:0    0x0       Number of dwords in this structure.
+VTX_AOS_STRIDE0        14:8   0x0       Number of dwords from one array element to the next.
+VTX_AOS_COUNT1         22:16  0x0       Number of dwords in this structure.
+VTX_AOS_STRIDE1        30:24  0x0       Number of dwords from one array element to the next.

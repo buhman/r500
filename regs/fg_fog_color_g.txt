@@ -1,0 +1,2 @@
+Field Name             Bits   Default Description
+GREEN                  9:0    0x0     Green component of fog color; (0.10) fixed format.

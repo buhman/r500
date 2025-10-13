@@ -1,0 +1,5 @@
+Field Name             Bits   Default Description
+SC_HIGHWATER_IFIFO     5:0    0x0     High water mark for SC input fifo
+SC_HIGHWATER_BFIFO     11:6   0x0     High water mark for SC input fifo (B)
+RS_HIGHWATER_COL       17:12  0x0     High water mark for RS colors` fifo
+RS_HIGHWATER_TEX       23:18  0x0     High water mark for RS textures` fifo

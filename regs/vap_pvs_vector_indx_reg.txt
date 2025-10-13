@@ -1,0 +1,2 @@
+Field Name             Bits   Default Description
+OCTWORD_OFFSET         10:0   0x0     Octword offset to begin writing.

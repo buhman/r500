@@ -1,0 +1,47 @@
+Field Name             Bits   Default Description
+AF_VAL                 7:0    0x0     Specifies the 8-bit alpha compare value when
+                                      AF_EN_8BIT is enabled
+AF_FUNC                10:8   0x0     Specifies the alpha compare function.
+                                      POSSIBLE VALUES:
+                                      00 - AF_NEVER
+                                      01 - AF_LESS
+                                      02 - AF_EQUAL
+                                      03 - AF_LE
+                                      04 - AF_GREATER
+                                      05 - AF_NOTEQUAL
+                                      06 - AF_GE
+                                      07 - AF_ALWAYS
+AF_EN                  11     0x0     Enables/Disables alpha compare function.
+                                      POSSIBLE VALUES:
+                                      00 - Disable alpha function.
+                                      01 - Enable alpha function.
+AF_EN_8BIT             12     0x0     Enable 8-bit alpha compare function.
+                                      POSSIBLE VALUES:
+                                      00 - Default 10-bit alpha compare.
+                                      01 - Enable 8-bit alpha compare.
+AM_EN                  16     0x0     Enables/Disables alpha-to-mask function.
+                                      POSSIBLE VALUES:
+                                      00 - Disable alpha to mask function.
+                                      01 - Enable alpha to mask function.
+AM_CFG                 17     0x0     Specfies number of sub-pixel samples for alpha-to-mask
+                                      function.
+                                      POSSIBLE VALUES:
+                                      00 - 2/4 sub-pixel samples.
+                                      01 - 3/6 sub-pixel samples.
+DITH_EN                20     0x0     Enables/Disables RGB Dithering (Not supported in
+                                      R520)
+                                      POSSIBLE VALUES:
+                                      00 - Disable Dithering
+                                      01 - Enable Dithering.
+ALP_OFF_EN             24     0x0     Alpha offset enable/disable (Not supported in R520)
+                                      POSSIBLE VALUES:
+                                      00 - Disables alpha offset of 2 (default r300 & rv350 behavior)
+                                      01 - Enables offset of 2 on alpha coming in from the US
+DISCARD_ZERO_MASK_QUAD 25     0x0     Enable/Disable discard zero mask coverage quad to ZB
+                                      POSSIBLE VALUES:
+                                      00 - No discard of zero coverage mask quads
+                                      01 - Discard zero coverage mask quads
+FP16_ENABLE            28     0x0     Enables/Disables FP16 alpha function
+                                      POSSIBLE VALUES:
+                                      00 - Default 10-bit alpha compare and alpha-to-mask function
+                                      01 - Enable FP16 alpha compare and alpha-to-mask function

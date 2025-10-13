@@ -1,0 +1,13 @@
+Field Name             Bits   Default Description
+WEIGHT_1               10:0   none    (s1.9). Bottom or Right weight of pair.
+WEIGHT_0               21:11  none    (s1.9). Top or Left weight of pair.
+WEIGHT_PAIR            22     none    Indicates which pair of weights within phase to load.
+                                      POSSIBLE VALUES:
+                                      00 - Top or Left
+                                      01 - Bottom or Right
+PHASE                  26:23  none    Indicates which of 9 phases to load
+DIRECTION              27     none    Indicates whether to load the horizontal or vertical
+                                      weights
+                                      POSSIBLE VALUES:
+                                      00 - Horizontal
+                                      01 - Vertical

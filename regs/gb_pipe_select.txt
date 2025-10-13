@@ -1,0 +1,19 @@
+Field Name             Bits   Default Description
+PIPE0_ID               1:0    0x0     Maps physical pipe 0 to logical pipe ID (def 0).
+PIPE1_ID               3:2    0x1     Maps physical pipe 1 to logical pipe ID (def 1).
+PIPE2_ID               5:4    0x2     Maps physical pipe 2 to logical pipe ID (def 2).
+PIPE3_ID               7:6    0x3     Maps physical pipe 3 to logical pipe ID (def 3).
+PIPE_MASK              11:8   0x0     4b mask, indicates which physical pipes are enabled (def
+                                      none=0x0) -- B3=P3, B2=P2, B1=P1, B0=P0. -- 1:
+                                      enabled, 0: disabled
+MAX_PIPE               13:12  0x3     2b, indicates, by the fuses, the max number of allowed
+                                      pipes. 0 = 1 pipe ... 3 = 4 pipes -- Read Only
+BAD_PIPES              17:14  0xF     4b, indicates, by the fuses, the bad pipes: B3=P3, B2=P2,
+                                      B1=P1, B0=P0 -- 1: bad, 0: good -- Read Only
+CONFIG_PIPES           18     0x0     If this bit is set when writing this register, the logical
+                                      pipe ID values are assigned automatically based on the
+                                      values that are read back in the MAX_PIPE and
+                                      BAD_PIPES fields. This field is always read back as 0.
+                                      POSSIBLE VALUES:
+                                      00 - Do nothing
+                                      01 - Force self-configuration

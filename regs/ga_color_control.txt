@@ -1,0 +1,48 @@
+Field Name             Bits   Default Description
+RGB0_SHADING           1:0    0x0     Specifies solid, flat or Gouraud shading.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+ALPHA0_SHADING         3:2    0x0     Specifies solid, flat or Gouraud shading.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+RGB1_SHADING           5:4    0x0     Specifies solid, flat or Gouraud shading.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+ALPHA1_SHADING         7:6    0x0     Specifies solid, flat or Gouraud shading.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+RGB2_SHADING           9:8    0x0     Specifies solid, flat or Gouraud shading.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+ALPHA2_SHADING         11:10  0x0     Specifies solid, flat or Gouraud shading.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+RGB3_SHADING           13:12  0x0     Specifies solid, flat or Gouraud shading.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+ALPHA3_SHADING         15:14  0x0     Specifies solid, flat or Gouraud shading.
+                                      POSSIBLE VALUES:
+                                      00 - Solid fill color
+                                      01 - Flat shading
+                                      02 - Gouraud shading
+PROVOKING_VERTEX       17:16  0x0     Specifies, for flat shaded polygons, which vertex holds
+                                      the polygon color.
+                                      POSSIBLE VALUES:
+                                      00 - Provoking is first vertex
+                                      01 - Provoking is second vertex
+                                      02 - Provoking is third vertex
+                                      03 - Provoking is always last vertex

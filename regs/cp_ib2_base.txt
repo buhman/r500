@@ -1,0 +1,4 @@
+Field Name            Bits   Default Description
+IB2_BASE              31:2   none    Indirect Buffer 2 Base. Address of the beginning of the
+                                     indirect buffer. Only DWORD access is allowed to this
+                                     register.

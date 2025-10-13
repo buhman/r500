@@ -1,0 +1,11 @@
+Field Name             Bits   Default   Description
+ZPASS_ADDR             31:2   0x0       Writing this location with a DWORD address causes the
+                                        value in ZB_ZPASS_DATA to be written to main
+                                        memory at the location pointed to by this address.
+                                        NOTE: R300 has 2 pixel pipes. Broadcasting this address
+                                        causes both pipes to write their ZPASS value to the same
+                                        address. There is no guarantee which pipe will write last.
+                                        So when writing to this register, the GA needs to be
+                                        programmed to send the write command to pipe 0. Then
+                                        a different address needs to be written to pipe 1. Then
+                                        both pipes should be enabled for further register writes.

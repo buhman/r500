@@ -1,0 +1,2 @@
+Field Name             Bits   Default   Description
+DATA_REGISTER          31:0   0x0       BLND_WT_0

@@ -1,0 +1,5 @@
+Field Name             Bits   Default   Description
+DEPTHX_OFFSET          11:1   0x0       X coordinate offset. multiple of 32 . Bits 4:0 have to be
+                                        zero
+DEPTHY_OFFSET          27:17  0x0       Y coordinate offset. multiple of 32 . Bits 4:0 have to be
+                                        zero
