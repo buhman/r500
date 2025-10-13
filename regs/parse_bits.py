@@ -10,6 +10,10 @@ def split_line_fields(line, fields):
     b = line[fields[1]:fields[2]]
     c = line[fields[2]:fields[3]]
     d = line[fields[3]:]
+    assert a.strip() == '' or a[0] != ' ', a
+    assert b.strip() == '' or b[0] != ' ', b
+    assert c.strip() == '' or c[0] != ' ', c
+    assert d.strip() == '' or d[0] != ' ', d
     assert a[-1] == ' '
     assert b[-1] == ' '
     assert c[-1] == ' ' or len(line) < fields[3]
