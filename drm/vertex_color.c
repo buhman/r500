@@ -117,7 +117,6 @@ int indirect_buffer()
       );
   T0V(GA_COLOR_CONTROL_PS3, 0x00000000);
   T0V(SU_TEX_WRAP_PS3, 0x00000000);
-  T0V(VAP_PVS_STATE_FLUSH_REG, 0x00000000);
   T0V(VAP_PVS_VTX_TIMEOUT_REG
       , VAP_PVS_VTX_TIMEOUT_REG__CLK_COUNT(0xffff)
       );
@@ -323,14 +322,22 @@ int indirect_buffer()
       , VAP_VF_MIN_VTX_INDX__MIN_INDX(0)
       );
   T0V(VAP_VTX_SIZE
-      , VAP_VTX_SIZE__DWORDS_PER_VTX(3)
+      , VAP_VTX_SIZE__DWORDS_PER_VTX(6)
       );
 
   T0V(VAP_PROG_STREAM_CNTL_0
       , VAP_PROG_STREAM_CNTL__DATA_TYPE_0(2)
       | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_0(0)
       | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_0(0)
-      | VAP_PROG_STREAM_CNTL__LAST_VEC_0(1)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_0(0)
+      | VAP_PROG_STREAM_CNTL__SIGNED_0(0)
+      | VAP_PROG_STREAM_CNTL__NORMALIZE_0(0)
+      | VAP_PROG_STREAM_CNTL__DATA_TYPE_1(2)
+      | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_1(0)
+      | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_1(1)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_1(1)
+      | VAP_PROG_STREAM_CNTL__SIGNED_1(0)
+      | VAP_PROG_STREAM_CNTL__NORMALIZE_1(0)
       );
   T0V(VAP_PROG_STREAM_CNTL_EXT_0
       , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0(0)
@@ -338,14 +345,20 @@ int indirect_buffer()
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0(2)
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0(5)
       | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(15)
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_1(0)
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_1(1)
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_1(2)
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_1(5)
+      | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_1(15)
       );
 
-  T0V(VAP_VSM_VTX_ASSM
-      , 0x00000001); // undocumented
+  T0V(VAP_VSM_VTX_ASSM, 0x00000401); // undocumented
+
   T0V(VAP_OUT_VTX_FMT_0
       , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
   T0V(VAP_OUT_VTX_FMT_1
-      , 0x0);
+      , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4)
+      );
 
   //////////////////////////////////////////////////////////////////////////////
   // VAP_PVS
@@ -353,19 +366,24 @@ int indirect_buffer()
 
   T0V(VAP_PVS_CODE_CNTL_0
       , VAP_PVS_CODE_CNTL_0__PVS_FIRST_INST(0)
-      | VAP_PVS_CODE_CNTL_0__PVS_XYZW_VALID_INST(0)
-      | VAP_PVS_CODE_CNTL_0__PVS_LAST_INST(0)
+      | VAP_PVS_CODE_CNTL_0__PVS_XYZW_VALID_INST(1)
+      | VAP_PVS_CODE_CNTL_0__PVS_LAST_INST(1)
       );
   T0V(VAP_PVS_CODE_CNTL_1
-      , VAP_PVS_CODE_CNTL_1__PVS_LAST_VTX_SRC_INST(0)
+      , VAP_PVS_CODE_CNTL_1__PVS_LAST_VTX_SRC_INST(1)
       );
+
   T0V(VAP_PVS_VECTOR_INDX_REG
       , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(0)
       );
 
   const uint32_t vertex_shader[] = {
+    0x00702203,
+    0x01d10021,
+    0x01248021,
+    0x01248021,
     0x00f00203,
-    0x00d10001,
+    0x01510001,
     0x01248001,
     0x01248001,
   };
@@ -377,27 +395,40 @@ int indirect_buffer()
     ib[ix++].u32 = vertex_shader[i];
   }
 
+  T0V(VAP_PVS_STATE_FLUSH_REG, 0x00000000);
+
   //////////////////////////////////////////////////////////////////////////////
   // RS
   //////////////////////////////////////////////////////////////////////////////
 
   T0V(RS_IP_0
       , RS_IP__TEX_PTR_S(0)
-      | RS_IP__TEX_PTR_T(0)
-      | RS_IP__TEX_PTR_R(0)
-      | RS_IP__TEX_PTR_Q(0)
+      | RS_IP__TEX_PTR_T(1)
+      | RS_IP__TEX_PTR_R(2)
+      | RS_IP__TEX_PTR_Q(3)
       | RS_IP__COL_PTR(0)
-      | RS_IP__COL_FMT(6) // Zero components (0,0,0,1)
+      | RS_IP__COL_FMT(0)
       | RS_IP__OFFSET_EN(0)
       );
   T0V(RS_COUNT
-      , RS_COUNT__IT_COUNT(0)
-      | RS_COUNT__IC_COUNT(1)
+      , RS_COUNT__IT_COUNT(4)
+      | RS_COUNT__IC_COUNT(0)
       | RS_COUNT__W_ADDR(0)
       | RS_COUNT__HIRES_EN(1)
       );
+  T0V(RS_INST_0
+      , RS_INST__TEX_ID(0)
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(0)
+      | RS_INST__COL_ID(0)
+      | RS_INST__COL_CN(0)
+      | RS_INST__COL_ADDR(0)
+      | RS_INST__TEX_ADJ(0)
+      | RS_INST__W_CN(0)
+      );
+
   T0V(RS_INST_COUNT, 0x00000000);
-  T0V(RS_INST_0, 0x00000000);
+
 
   //////////////////////////////////////////////////////////////////////////////
   // GA_US
@@ -417,10 +448,10 @@ int indirect_buffer()
 
   const uint32_t fragment_shader[] = {
     0x00078005,
+    0x08020000,
     0x08020080,
-    0x08020080,
-    0x1c9b04d8,
-    0x1c810003,
+    0x1c440220,
+    0x1cc18003,
     0x00000005,
   };
   const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
@@ -437,9 +468,10 @@ int indirect_buffer()
   //////////////////////////////////////////////////////////////////////////////
 
   const float vertices[] = {
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-     0.0f,  0.5f, 0.0f,  // top
+    // position          // color
+     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
+     0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top
   };
   const int vertices_length = (sizeof (vertices)) / (sizeof (vertices[0]));
   printf("vtx length %d\n", vertices_length);

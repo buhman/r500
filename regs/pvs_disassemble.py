@@ -10,6 +10,29 @@ code = [
     0x1248001
 ]
 
+# Radeon Compiler Program
+#  0: MOV output[1].xyz, input[1].xyz_;
+#  1: MOV output[0], input[0].xyz1;
+# Final vertex program code:
+# 0: op: 0x00702203 dst: 1o op:                    VE_ADD
+#  src0: 0x01d10021 reg: 1i swiz:  X/ Y/ Z/ U
+#  src1: 0x01248021 reg: 1i swiz:  0/ 0/ 0/ 0
+#  src2: 0x01248021 reg: 1i swiz:  0/ 0/ 0/ 0
+# 1: op: 0x00f00203 dst: 0o op:                    VE_ADD
+#  src0: 0x01510001 reg: 0i swiz:  X/ Y/ Z/ 1
+#  src1: 0x01248001 reg: 0i swiz:  0/ 0/ 0/ 0
+#  src2: 0x01248001 reg: 0i swiz:  0/ 0/ 0/ 0
+code = [
+    0x00702203,
+    0x01d10021,
+    0x01248021,
+    0x01248021,
+    0x00f00203,
+    0x01510001,
+    0x01248001,
+    0x01248001,
+]
+
 def out(level, *args):
     sys.stdout.write("    " * level + " ".join(args))
 

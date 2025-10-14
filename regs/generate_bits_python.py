@@ -26,7 +26,7 @@ def render_descriptor(prefix, d):
     print(f"#define {prefix}__{d.field_name}(n) (((n) & {hex(mask)}) << {low})")
 
 def prefix_from_filename(filename):
-    prefix = sys.argv[1].removesuffix('.txt')
+    prefix = filename.removesuffix('.txt')
     prefix = path.split(prefix)[1].upper()
     return prefix
 

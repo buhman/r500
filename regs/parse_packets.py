@@ -1,5 +1,8 @@
 import sys
+from textwrap import indent
+
 from registers_lookup import registers_lookup
+from decode_bits import decode_bits
 
 with open(sys.argv[1]) as f:
     values = [
@@ -38,15 +41,25 @@ class Parser:
         if one_reg:
             print(f"type 0: {base_index:04x} {count} ONE_REG")
         else:
-            print(f"type 0: {base_index:04x} {count}")
+            #print(f"type 0: {base_index:04x} {count}")
+            pass
         while count >= 0:
             address = base_index << 2
             value = self.consume()
             #print(f"  {address:04x} = {value:08x}")
             if address in registers_lookup:
-                print(f"  {registers_lookup[address]} = {value:08x}")
+                register_name = registers_lookup[address]
+                try:
+                    if one_reg or value == 0:
+                        assert False
+                    decoded_value = decode_bits(register_name, value)
+                    head = decoded_value[0][2:]
+                    tail = indent('\n'.join(decoded_value[1:]), '      ')
+                    print(f"  {register_name} = {head}\n{tail}")
+                except AssertionError:
+                    print(f"  {register_name} = 0x{value:08x}")
             else:
-                print(f"  {undocumented_registers[address]} = {value:08x}")
+                print(f"  {undocumented_registers[address]} = 0x{value:08x}")
             count -= 1
             if not one_reg:
                 base_index += 1
@@ -69,7 +82,7 @@ class Parser:
         print(f"type 3: op:{it_opcode:02x} count:{count:04x}")
         while count >= 0:
             value = self.consume()
-            print(f"  {value:08x}")
+            print(f"    {value:08x}")
             count -= 1
 
     def packet(self):

@@ -54,12 +54,33 @@ def parse_registers():
 registers = dict(parse_registers())
 US_CMN_INST = registers["US_CMN_INST"]
 
+"""
 code = [
     0x00078005,
     0x08020080,
     0x08020080,
     0x1c9b04d8,
     0x1c810003,
+    0x00000005,
+]
+"""
+
+# DCL IN[0].xyz, GENERIC[0], PERSPECTIVE
+# DCL OUT[0], COLOR
+# IMM[0] FLT32 {    1.0000,     0.0000,     0.0000,     0.0000}
+#   0: MOV OUT[0].xyz, IN[0].xyzx
+#   1: MOV OUT[0].w, IMM[0].xxxx
+#   2: END
+# Radeon Compiler Program
+#  0: src0.xyz = input[0]
+#     MAX color[0].xyz (OMOD DISABLE), src0.xyz, src0.xyz
+#     MAX color[0].w (OMOD DISABLE), src0.1, src0.1
+code = [
+    0x00078005,
+    0x08020000,
+    0x08020080,
+    0x1c440220,
+    0x1cc18003,
     0x00000005,
 ]
 
