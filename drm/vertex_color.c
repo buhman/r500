@@ -352,12 +352,14 @@ int indirect_buffer()
       | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_1(15)
       );
 
-  T0V(VAP_VSM_VTX_ASSM, 0x00000401); // undocumented
+  T0V(VAP_VSM_VTX_ASSM, 0x00000005); // undocumented
 
   T0V(VAP_OUT_VTX_FMT_0
-      , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
+      , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1)
+      | VAP_OUT_VTX_FMT_0__VTX_COLOR_0_PRESENT(1)
+      );
   T0V(VAP_OUT_VTX_FMT_1
-      , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4)
+      , 0
       );
 
   //////////////////////////////////////////////////////////////////////////////
@@ -378,7 +380,7 @@ int indirect_buffer()
       );
 
   const uint32_t vertex_shader[] = {
-    0x00702203,
+    0x01702203,
     0x01d10021,
     0x01248021,
     0x01248021,
@@ -401,27 +403,19 @@ int indirect_buffer()
   // RS
   //////////////////////////////////////////////////////////////////////////////
 
-  T0V(RS_IP_0
-      , RS_IP__TEX_PTR_S(0)
-      | RS_IP__TEX_PTR_T(1)
-      | RS_IP__TEX_PTR_R(2)
-      | RS_IP__TEX_PTR_Q(3)
-      | RS_IP__COL_PTR(0)
-      | RS_IP__COL_FMT(0)
-      | RS_IP__OFFSET_EN(0)
-      );
+  T0V(RS_IP_0, 0);
   T0V(RS_COUNT
-      , RS_COUNT__IT_COUNT(4)
-      | RS_COUNT__IC_COUNT(0)
+      , RS_COUNT__IT_COUNT(0)
+      | RS_COUNT__IC_COUNT(1)
       | RS_COUNT__W_ADDR(0)
       | RS_COUNT__HIRES_EN(1)
       );
   T0V(RS_INST_0
       , RS_INST__TEX_ID(0)
-      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_CN(0)
       | RS_INST__TEX_ADDR(0)
       | RS_INST__COL_ID(0)
-      | RS_INST__COL_CN(0)
+      | RS_INST__COL_CN(1)
       | RS_INST__COL_ADDR(0)
       | RS_INST__TEX_ADJ(0)
       | RS_INST__W_CN(0)
