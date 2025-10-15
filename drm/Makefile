@@ -4,7 +4,7 @@ CFLAGS += -g
 CFLAGS += -Wall -Werror -Wfatal-errors
 CFLAGS += $(shell pkg-config --cflags libdrm)
 
-LDFLAGS += $(shell pkg-config --libs libdrm)
+LDFLAGS += $(shell pkg-config --libs libdrm) -lm
 
 %: %.c
 	$(CC) $(ARCH) $(CFLAGS) $(LDFLAGS) $(OPT) $< -o $@
