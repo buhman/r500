@@ -4,10 +4,10 @@ import pvs_dst_bits
 from pprint import pprint
 
 code = [
-    0xf00203,
-    0xd10001,
-    0x1248001,
-    0x1248001
+    0x00f00203,
+    0x00d10001,
+    0x01248001,
+    0x01248001,
 ]
 
 # Radeon Compiler Program

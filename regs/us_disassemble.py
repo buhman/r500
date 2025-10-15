@@ -1,6 +1,7 @@
 import parse_bits
 from pprint import pprint
 from collections import OrderedDict
+from os import path
 
 register_names = [
     "US_CMN_INST",
@@ -45,7 +46,7 @@ fc = [
 
 def parse_registers():
     for register in register_names:
-        filename = register.lower() + ".txt"
+        filename = path.join("bits", register.lower() + ".txt")
         l = list(parse_bits.parse_file_fields(filename))
         yield register, OrderedDict(
             (d.field_name, d) for d in parse_bits.aggregate(l)
@@ -54,7 +55,6 @@ def parse_registers():
 registers = dict(parse_registers())
 US_CMN_INST = registers["US_CMN_INST"]
 
-"""
 code = [
     0x00078005,
     0x08020080,
@@ -63,7 +63,6 @@ code = [
     0x1c810003,
     0x00000005,
 ]
-"""
 
 # DCL IN[0].xyz, GENERIC[0], PERSPECTIVE
 # DCL OUT[0], COLOR
