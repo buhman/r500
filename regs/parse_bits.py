@@ -83,13 +83,30 @@ def aggregate(fields):
         if not fields[ix+1][3] == 'POSSIBLE VALUES:':
             return
         ix += 1
+
         while ix + 1 < len(fields) and fields[ix+1][0] == '' and fields[ix+1][3] != '':
             field_name, bits, default, description = fields[ix+1]
             assert not field_name, field_name
             assert not bits, bits
             assert not default, default
-            assert re.match('^[0-9]{2} - ', description), repr(description)
-            yield description
+            m = re.match('^([0-9]{2}) - (.*)$', description)
+            assert m, repr(description)
+            value, desc = m.groups()
+            if ": " in desc and ' ' not in desc.split(": ")[0].strip():
+                name, desc = desc.split(": ")
+                name = name
+            elif len(desc.strip().split()) == 1:
+                name = desc
+                desc = None
+            else:
+                name = None
+
+            if name is not None:
+                name = name.strip().upper().replace('.', '_').replace('-', '_').replace(',', '_').replace('*', 'x').replace('+', 'p')
+
+            if name != 'RESERVED':
+                yield int(value, 10), (name, desc)
+
             ix += 1
 
     def parse_description_lines():
@@ -106,15 +123,6 @@ def aggregate(fields):
                 yield description
                 ix += 1
 
-    def parse_possible_value_num(s):
-        num, description = s.split(' - ', maxsplit=1)
-        num = int(num, 10)
-        if ": " in description:
-            name, description = description.split(": ")
-        else:
-            name = None
-        return num, (name, description)
-
     while ix < len(fields):
         field_name, bits, default, description = fields[ix]
         if description == 'POSSIBLE VALUES:':
@@ -123,9 +131,7 @@ def aggregate(fields):
         else:
             description_lines = [description]
             description_lines.extend(parse_description_lines())
-        possible_values = OrderedDict(
-            map(parse_possible_value_num, parse_possible_values())
-        )
+        possible_values = OrderedDict(parse_possible_values())
 
         assert default.startswith('0x') or default == 'none', default
         yield Descriptor(

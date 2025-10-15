@@ -24,6 +24,11 @@ def render_descriptor(prefix, d):
     mask = mask_from_bits(d.bits)
     low = low_from_bits(d.bits)
     print(f"#define {prefix}__{d.field_name}(n) (((n) & {hex(mask)}) << {low})")
+    seen_names = set()
+    for value, (name, description) in d.possible_values.items():
+        if name != None and name not in seen_names:
+            seen_names.add(name)
+            print(f"#define {prefix}__{d.field_name}__{name} ({hex(value)} << {low})")
 
 def prefix_from_filename(filename):
     prefix = filename.removesuffix('.txt')
@@ -33,6 +38,6 @@ def prefix_from_filename(filename):
 if __name__ == "__main__":
     assert sys.argv[1].endswith('.txt')
     l = list(parse_file_fields(sys.argv[1]))
-    prefix = prefix_from_filename(sys.argv[2])
+    prefix = prefix_from_filename(sys.argv[1])
     for descriptor in aggregate(l):
         render_descriptor(prefix, descriptor)

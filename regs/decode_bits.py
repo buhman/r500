@@ -30,6 +30,12 @@ def bit_definition_filename(s):
 
     assert False, s
 
+def find_name(descriptor, bit_value):
+    for value, (name, _) in descriptor.possible_values.items():
+        if value == bit_value and name is not None:
+            return f"{descriptor.field_name}__{name} // {bit_value}"
+    return f"{descriptor.field_name}({bit_value})"
+
 def decode_bits(reg_name, value):
     filename = bit_definition_filename(reg_name)
     l = list(parse_file_fields(filename))
@@ -44,7 +50,8 @@ def decode_bits(reg_name, value):
         low = low_from_bits(descriptor.bits)
         bit_value = (value >> low) & mask
         dot = ',' if i == 0 else '|'
-        lines.append(f"{dot} {prefix}__{descriptor.field_name}({bit_value})")
+
+        lines.append(f"{dot} {prefix}__{find_name(descriptor, bit_value)}")
         value &= ~(mask << low)
         gen_value |= (bit_value << low)
     assert value == 0, (hex(value), hex(orig_value))
