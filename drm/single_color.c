@@ -47,17 +47,6 @@ int indirect_buffer()
       , RB3D_CCTL__INDEPENDENT_COLORFORMAT_ENABLE(1)
       );
 
-  T0V(RB3D_COLOROFFSET0, 0x00000000); // value replaced by kernel from relocs
-  ib[ix++].u32 = 0xc0001000;
-  ib[ix++].u32 = 0x0;
-
-  T0V(RB3D_COLORPITCH0
-      , RB3D_COLORPITCH__COLORPITCH(1600 >> 1)
-      | RB3D_COLORPITCH__COLORFORMAT(6) // ARGB8888
-      );
-  ib[ix++].u32 = 0xc0001000;
-  ib[ix++].u32 = 0x0;
-
   T0V(ZB_BW_CNTL, 0x00000000);
   T0V(ZB_DEPTHCLEARVALUE, 0x00000000);
   T0V(SC_HYPERZ_EN, 0x00000000);
@@ -278,6 +267,25 @@ int indirect_buffer()
       | GA_COLOR_CONTROL__ALPHA3_SHADING(2)
       | GA_COLOR_CONTROL__PROVOKING_VERTEX(3)
       );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // CB
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(RB3D_COLOROFFSET0
+      , 0x00000000 // value replaced by kernel from relocs
+      );
+  T3(_NOP, 0);
+  ib[ix++].u32 = 0 * 4; // index into relocs array
+
+  T0V(RB3D_COLORPITCH0
+      , RB3D_COLORPITCH__COLORPITCH(1600 >> 1)
+      | RB3D_COLORPITCH__COLORFORMAT(6) // ARGB8888
+      );
+  // The COLORPITCH NOP is ignored/not applied due to
+  // RADEON_CS_KEEP_TILING_FLAGS, but is still required.
+  T3(_NOP, 0);
+  ib[ix++].u32 = 0 * 4; // index into relocs array
 
   //////////////////////////////////////////////////////////////////////////////
   // SC
