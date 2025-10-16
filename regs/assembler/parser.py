@@ -1,15 +1,16 @@
-import lexer
-from lexer import TT
-from keywords import KW, ME, VE
 from itertools import pairwise
 from dataclasses import dataclass
 from typing import Union
+
+from assembler import lexer
+from assembler.lexer import TT
+from assembler.keywords import KW, ME, VE
 
 """
 temp[0].xyzw = VE_ADD    const[1].xyzw     const[1].0000     const[1].0000
 temp[1].xyzw = VE_ADD    const[1].xyzw     const[1].0000     const[1].0000
 temp[0].x    = VE_MAD    const[0].x___     temp[1].x___      temp[0].y___
-temp[0].x    = VE_FRAC   temp[0].x___      temp[0].0000      temp[0].0000
+temp[0].x    = VE_FRC    temp[0].x___      temp[0].0000      temp[0].0000
 temp[0].x    = VE_MAD    temp[0].x___      const[1].z___     const[1].w___
 temp[0].y    = ME_COS    temp[0].xxxx      temp[0].0000      temp[0].0000
 temp[0].x    = ME_SIN    temp[0].xxxx      temp[0].0000      temp[0].0000
@@ -54,15 +55,21 @@ def identifier_to_number(token):
         raise ParseError("expected number", token)
     return int(bytes(token.lexeme), 10)
 
+def we_ord(c):
+    if c == ord("w"):
+        return 3
+    else:
+        return c - ord("x")
+
 def parse_dest_write_enable(token):
     we_chars = set(b"xyzw")
     assert token.type is TT.identifier
     we = bytes(token.lexeme).lower()
     if not all(c in we_chars for c in we):
         raise ParseError("expected destination write enable", token)
-    if not all(a < b for a, b in pairwise(we)) or len(set(we)) != len(we):
+    if not all(we_ord(a) < we_ord(b) for a, b in pairwise(we)) or len(set(we)) != len(we):
         raise ParseError("misleading non-sequential write enable", token)
-    return set(c - ord('x') for c in we)
+    return set(we_ord(c) for c in we)
 
 def parse_source_swizzle(token):
     select_mapping = {
@@ -109,7 +116,9 @@ class Parser:
         self.tokens = tokens
 
     def peek(self):
-        return self.tokens[self.current_ix]
+        token = self.tokens[self.current_ix]
+        #print(token)
+        return token
 
     def at_end_p(self):
         return self.peek().type == TT.eof
@@ -119,8 +128,8 @@ class Parser:
         self.current_ix += 1
         return token
 
-    def match(self, token_type, message):
-        token = self.advance()
+    def match(self, token_type):
+        token = self.peek()
         return token.type == token_type
 
     def consume(self, token_type, message):
@@ -134,15 +143,6 @@ class Parser:
         if token.type != token_type1 and token.type != token_type2:
             raise ParseError(message, token)
         return token
-
-
-    """
-    def consume_keyword(self, keyword, message):
-        token = self.consume(TT.keyword, message)
-        assert token.keyword is not None
-        if token.keyword != keyword:
-            raise ParseError(message, token)
-    """
 
     def destination_type(self):
         token = self.consume(TT.keyword, "expected destination type")
@@ -194,6 +194,8 @@ class Parser:
         return Source(source_type, offset, source_swizzle)
 
     def instruction(self):
+        while self.match(TT.eol):
+            self.advance()
         destination_op = self.destination_op()
         source0 = self.source()
         source1 = self.source()
@@ -201,8 +203,12 @@ class Parser:
         self.consume_either(TT.eol, TT.eof, "expected newline or EOF")
         return Instruction(destination_op, source0, source1, source2)
 
+    def instructions(self):
+        while not self.match(TT.eof):
+            yield self.instruction()
+
 if __name__ == "__main__":
-    from lexer import Lexer
+    from assembler.lexer import Lexer
     buf = b"out[0].xz    = VE_MAD    input[0].-y-_-0-_ temp[0].x_0_      temp[0].y_0_"
     lexer = Lexer(buf)
     tokens = list(lexer.lex_tokens())

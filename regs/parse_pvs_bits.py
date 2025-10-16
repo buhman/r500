@@ -27,4 +27,5 @@ while ix < len(lines):
         print(f'    {value.strip()}: "{key.strip()}",')
         ix += 1
     print("}")
+    print(f"{name}_gen = dict((v, k) for k, v in {name}.items())")
     print()

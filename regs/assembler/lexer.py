@@ -3,7 +3,7 @@ from enum import Enum, auto
 from itertools import chain
 from typing import Union
 
-import keywords
+from assembler import keywords
 
 DEBUG = True
 

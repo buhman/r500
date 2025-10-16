@@ -67,12 +67,15 @@ def low_from_bits(bits):
         return bits
 
 def generate_python(prefix, fields):
-    #out(0, f"class {prefix}:")
     fields = list(fields)
     for field_name, bits, description in fields:
-        #out(1, f"@staticmethod")
         out(0, f"def {field_name}(n):")
-        out(1, f"return (n >> {low_from_bits(bits)}) & {mask_from_bits(bits)}")
+        out(1, f"return (n >> {low_from_bits(bits)}) & {hex(mask_from_bits(bits))}")
+        out(0, "")
+
+        out(0, f"def {field_name}_gen(n):")
+        out(1, f"assert ({hex(mask_from_bits(bits))} & n) == n, (n, {hex(mask_from_bits(bits))})")
+        out(1, f"return n << {low_from_bits(bits)}")
         out(0, "")
 
     out(0, "table = [")

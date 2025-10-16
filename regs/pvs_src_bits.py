@@ -4,6 +4,7 @@ PVS_SRC_REG_TYPE = {
     2: "PVS_SRC_REG_CONSTANT",
     3: "PVS_SRC_REG_ALT_TEMPORARY",
 }
+PVS_SRC_REG_TYPE_gen = dict((v, k) for k, v in PVS_SRC_REG_TYPE.items())
 
 PVS_SRC_SWIZZLE_SEL = {
     0: "PVS_SRC_SELECT_X",
@@ -13,10 +14,12 @@ PVS_SRC_SWIZZLE_SEL = {
     4: "PVS_SRC_SELECT_FORCE_0",
     5: "PVS_SRC_SELECT_FORCE_1",
 }
+PVS_SRC_SWIZZLE_SEL_gen = dict((v, k) for k, v in PVS_SRC_SWIZZLE_SEL.items())
 
 PVS_SRC_ADDR_MODE = {
     0: "Absolute addressing",
     1: "Relative addressing using A0 register",
     2: "Relative addressing using I0 register",
 }
+PVS_SRC_ADDR_MODE_gen = dict((v, k) for k, v in PVS_SRC_ADDR_MODE.items())
 
