@@ -60,23 +60,53 @@ def src_reg_type(kw):
     else:
         assert not "Invalid PVS_SRC_REG", kw
 
-def emit_source(src: Source):
-    value = (
-          pvs_src.REG_TYPE_gen(src_reg_type(src.type))
-        | pvs_src.OFFSET_gen(src.offset)
-        | pvs_src.SWIZZLE_X_gen(src.swizzle.select[0])
-        | pvs_src.SWIZZLE_Y_gen(src.swizzle.select[1])
-        | pvs_src.SWIZZLE_Z_gen(src.swizzle.select[2])
-        | pvs_src.SWIZZLE_W_gen(src.swizzle.select[3])
-        | pvs_src.MODIFIER_X_gen(int(src.swizzle.modifier[0]))
-        | pvs_src.MODIFIER_Y_gen(int(src.swizzle.modifier[1]))
-        | pvs_src.MODIFIER_Z_gen(int(src.swizzle.modifier[2]))
-        | pvs_src.MODIFIER_W_gen(int(src.swizzle.modifier[3]))
-    )
+def emit_source(src: Source, prev: Source):
+    if src is not None:
+        value = (
+              pvs_src.REG_TYPE_gen(src_reg_type(src.type))
+            | pvs_src.OFFSET_gen(src.offset)
+            | pvs_src.SWIZZLE_X_gen(src.swizzle.select[0])
+            | pvs_src.SWIZZLE_Y_gen(src.swizzle.select[1])
+            | pvs_src.SWIZZLE_Z_gen(src.swizzle.select[2])
+            | pvs_src.SWIZZLE_W_gen(src.swizzle.select[3])
+            | pvs_src.MODIFIER_X_gen(int(src.swizzle.modifier[0]))
+            | pvs_src.MODIFIER_Y_gen(int(src.swizzle.modifier[1]))
+            | pvs_src.MODIFIER_Z_gen(int(src.swizzle.modifier[2]))
+            | pvs_src.MODIFIER_W_gen(int(src.swizzle.modifier[3]))
+        )
+    else:
+        assert prev is not None
+        value = (
+              pvs_src.REG_TYPE_gen(src_reg_type(prev.type))
+            | pvs_src.OFFSET_gen(prev.offset)
+            | pvs_src.SWIZZLE_X_gen(7)
+            | pvs_src.SWIZZLE_Y_gen(7)
+            | pvs_src.SWIZZLE_Z_gen(7)
+            | pvs_src.SWIZZLE_W_gen(7)
+            | pvs_src.MODIFIER_X_gen(0)
+            | pvs_src.MODIFIER_Y_gen(0)
+            | pvs_src.MODIFIER_Z_gen(0)
+            | pvs_src.MODIFIER_W_gen(0)
+        )
     yield value
+
+def prev_source(ins, ix):
+    if ix == 0:
+        assert ins.source0 is not None
+        return ins.source0
+    elif ix == 1:
+        return ins.source0
+    elif ix == 2:
+        if ins.source1 is not None:
+            return ins.source1
+        else:
+            return ins.source0
+    else:
+        assert False, ix
 
 def emit_instruction(ins: Instruction):
     yield from emit_destination_op(ins.destination_op)
-    yield from emit_source(ins.source0)
-    yield from emit_source(ins.source1)
-    yield from emit_source(ins.source2)
+
+    yield from emit_source(ins.source0, prev_source(ins, 0))
+    yield from emit_source(ins.source1, prev_source(ins, 1))
+    yield from emit_source(ins.source2, prev_source(ins, 2))

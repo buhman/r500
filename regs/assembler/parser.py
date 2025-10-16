@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Union
 
 from assembler import lexer
-from assembler.lexer import TT
+from assembler.lexer import TT, Token
 from assembler.keywords import KW, ME, VE
 
 """
@@ -44,7 +44,7 @@ class Instruction:
     source1: Source
     source2: Source
 
-class ParseError(Exception):
+class ParserError(Exception):
     pass
 
 def identifier_to_number(token):
@@ -52,7 +52,7 @@ def identifier_to_number(token):
 
     assert token.type is TT.identifier
     if not all(d in digits for d in token.lexeme):
-        raise ParseError("expected number", token)
+        raise ParserError("expected number", token)
     return int(bytes(token.lexeme), 10)
 
 def we_ord(c):
@@ -66,9 +66,9 @@ def parse_dest_write_enable(token):
     assert token.type is TT.identifier
     we = bytes(token.lexeme).lower()
     if not all(c in we_chars for c in we):
-        raise ParseError("expected destination write enable", token)
+        raise ParserError("expected destination write enable", token)
     if not all(we_ord(a) < we_ord(b) for a, b in pairwise(we)) or len(set(we)) != len(we):
-        raise ParseError("misleading non-sequential write enable", token)
+        raise ParserError("misleading non-sequential write enable", token)
     return set(we_ord(c) for c in we)
 
 def parse_source_swizzle(token):
@@ -89,25 +89,25 @@ def parse_source_swizzle(token):
     swizzle_modifiers = [None] * 4
     lexeme = bytes(token.lexeme).lower()
     while state < 4:
-        if ix > len(token.lexeme):
-            raise ParseError("invalid source swizzle", token)
+        if ix >= len(token.lexeme):
+            raise ParserError("invalid source swizzle", token)
         c = lexeme[ix]
         if c == ord('-'):
             if (swizzle_modifiers[state] is not None) or (swizzle_selects[state] is not None):
-                raise ParseError("invalid source swizzle modifier", token)
+                raise ParserError("invalid source swizzle modifier", token)
             swizzle_modifiers[state] = True
         elif c in select_mapping:
             if swizzle_selects[state] is not None:
-                raise ParseError("invalid source swizzle select", token)
+                raise ParserError("invalid source swizzle select", token)
             swizzle_selects[state] = select_mapping[c]
             if swizzle_modifiers[state] is None:
                 swizzle_modifiers[state] = False
             state += 1
         else:
-            raise ParseError("invalid source swizzle", token)
+            raise ParserError("invalid source swizzle", token)
         ix += 1
     if ix != len(lexeme):
-        raise ParseError("invalid source swizzle", token)
+        raise ParserError("invalid source swizzle", token)
     return SourceSwizzle(swizzle_selects, swizzle_modifiers)
 
 class Parser:
@@ -115,8 +115,8 @@ class Parser:
         self.current_ix = 0
         self.tokens = tokens
 
-    def peek(self):
-        token = self.tokens[self.current_ix]
+    def peek(self, offset=0):
+        token = self.tokens[self.current_ix + offset]
         #print(token)
         return token
 
@@ -135,20 +135,20 @@ class Parser:
     def consume(self, token_type, message):
         token = self.advance()
         if token.type != token_type:
-            raise ParseError(message, token)
+            raise ParserError(message, token)
         return token
 
     def consume_either(self, token_type1, token_type2, message):
         token = self.advance()
         if token.type != token_type1 and token.type != token_type2:
-            raise ParseError(message, token)
+            raise ParserError(message, token)
         return token
 
     def destination_type(self):
         token = self.consume(TT.keyword, "expected destination type")
         destination_keywords = {KW.temporary, KW.a0, KW.out, KW.out_repl_x, KW.alt_temporary, KW.input}
         if token.keyword not in destination_keywords:
-            raise ParseError("expected destination type", token)
+            raise ParserError("expected destination type", token)
         return token.keyword
 
     def offset(self):
@@ -161,7 +161,7 @@ class Parser:
     def opcode(self):
         token = self.consume(TT.keyword, "expected opcode")
         if type(token.keyword) != VE and type(token.keyword) != ME:
-            raise ParseError("expected opcode", token)
+            raise ParserError("expected opcode", token)
         return token.keyword
 
     def destination_op(self):
@@ -178,7 +178,7 @@ class Parser:
         token = self.consume(TT.keyword, "expected source type")
         source_keywords = {KW.temporary, KW.input, KW.constant, KW.alt_temporary}
         if token.keyword not in source_keywords:
-            raise ParseError("expected source type", token)
+            raise ParserError("expected source type", token)
         return token.keyword
 
     def source_swizzle(self):
@@ -196,12 +196,23 @@ class Parser:
     def instruction(self):
         while self.match(TT.eol):
             self.advance()
+        first_token = self.peek()
         destination_op = self.destination_op()
         source0 = self.source()
-        source1 = self.source()
-        source2 = self.source()
+        if self.match(TT.eol) or self.match(TT.eof):
+            source1 = None
+        else:
+            source1 = self.source()
+        if self.match(TT.eol) or self.match(TT.eof):
+            source2 = None
+        else:
+            source2 = self.source()
+        last_token = self.peek(-1)
         self.consume_either(TT.eol, TT.eof, "expected newline or EOF")
-        return Instruction(destination_op, source0, source1, source2)
+        return (
+            Instruction(destination_op, source0, source1, source2),
+            (first_token.start_ix, last_token.start_ix + len(last_token.lexeme))
+        )
 
     def instructions(self):
         while not self.match(TT.eof):

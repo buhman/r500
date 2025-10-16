@@ -21,6 +21,7 @@ class TT(Enum):
 
 @dataclass
 class Token:
+    start_ix: int
     line: int
     col: int
     type: TT
@@ -64,7 +65,7 @@ class Lexer:
         return self.buf[self.current_ix]
 
     def pos(self):
-        return self.line, self.col - (self.current_ix - self.start_ix)
+        return self.start_ix, self.line, self.col - (self.current_ix - self.start_ix)
 
     def identifier(self):
         while not self.at_end_p() and self.peek() in identifier_characters:
@@ -96,7 +97,7 @@ class Lexer:
             elif c == ord('.'):
                 return Token(*self.pos(), TT.dot, self.lexeme())
             elif c == ord(';'):
-                while not at_end_p() and peek() != ord('\n'):
+                while not self.at_end_p() and self.peek() != ord('\n'):
                     self.advance()
             elif c == ord(' ') or c == ord('\r') or c == ord('\t'):
                 pass

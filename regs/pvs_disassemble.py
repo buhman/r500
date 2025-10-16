@@ -2,113 +2,9 @@ import pvs_src
 import pvs_src_bits
 import pvs_dst
 import pvs_dst_bits
-from pprint import pprint
 import itertools
 from functools import partial
-
-code = [
-    0x00f00203,
-    0x00d10001,
-    0x01248001,
-    0x01248001,
-]
-
-# Radeon Compiler Program
-#  0: MOV output[1].xyz, input[1].xyz_;
-#  1: MOV output[0], input[0].xyz1;
-# Final vertex program code:
-# 0: op: 0x00702203 dst: 1o op:                    VE_ADD
-#  src0: 0x01d10021 reg: 1i swiz:  X/ Y/ Z/ U
-#  src1: 0x01248021 reg: 1i swiz:  0/ 0/ 0/ 0
-#  src2: 0x01248021 reg: 1i swiz:  0/ 0/ 0/ 0
-# 1: op: 0x00f00203 dst: 0o op:                    VE_ADD
-#  src0: 0x01510001 reg: 0i swiz:  X/ Y/ Z/ 1
-#  src1: 0x01248001 reg: 0i swiz:  0/ 0/ 0/ 0
-#  src2: 0x01248001 reg: 0i swiz:  0/ 0/ 0/ 0
-code = [
-    0x00702203,
-    0x01d10021,
-    0x01248021,
-    0x01248021,
-    0x00f00203,
-    0x01510001,
-    0x01248001,
-    0x01248001,
-]
-
-code = [
-    0x00f00003,
-    0x00d10022,
-    0x01248022,
-    0x01248022,
-    0x00f02003,
-    0x00d10022,
-    0x01248022,
-    0x01248022,
-    0x00100004,
-    0x01ff0002,
-    0x01ff0020,
-    0x01ff2000,
-    0x00100006,
-    0x01ff0000,
-    0x01248000,
-    0x01248000,
-    0x00100004,
-    0x01ff0000,
-    0x01ff4022,
-    0x01ff6022,
-    0x00100050,
-    0x00000000,
-    0x01248000,
-    0x01248000,
-    0x00f00204,
-    0x0165a000,
-    0x01690001,
-    0x01240000,
-]
-
-code = [
-    0x00f00003,
-    0x00d10022,
-    0x01248022,
-    0x01248022,
-    0x00f02003,
-    0x00d10022,
-    0x01248022,
-    0x01248022,
-    0x00100004,
-    0x01ff0002,
-    0x01ff0020,
-    0x01ff2000,
-    0x00100006,
-    0x01ff0000,
-    0x01248000,
-    0x01248000,
-    0x00100004,
-    0x01ff0000,
-    0x01ff4022,
-    0x01ff6022,
-    0x00200051,
-    0x00000000,
-    0x01248000,
-    0x01248000,
-    0x00100050,
-    0x00000000,
-    0x01248000,
-    0x01248000,
-    0x00600002,
-    0x01c8e001,
-    0x01c9e000,
-    0x01248000,
-    0x00500204,
-    0x1fe72001,
-    0x01e70000,
-    0x01e72000,
-    0x00a00204,
-    0x0138e001,
-    0x0138e000,
-    0x017ae000,
-]
+import sys
 
 def out(level, *args):
     sys.stdout.write("    " * level + " ".join(args))
@@ -151,8 +47,6 @@ def parse_code(code):
 
         ix += 4
 
-#parse_code(code)
-
 def dst_swizzle_from_we(dst_op):
     table = [
         (pvs_dst.WE_X, "x"),
@@ -168,7 +62,7 @@ def dst_swizzle_from_we(dst_op):
 _op_substitutions = [
     ("DOT_PRODUCT", "DOT"),
     ("MULTIPLY_ADD", "MAD"),
-    ("FRACTION", "FRAC"),
+    ("FRACTION", "FRC"),
     ("MULTIPLY", "MUL"),
     ("MAXMIUM", "MAX"),
     ("MINIMUM", "MIN"),
@@ -280,5 +174,14 @@ def parse_instruction(instruction):
 
     print(dst.ljust(12), "=", op.ljust(9), " ".join(map(lambda s: s.ljust(17), rest)))
 
-for i in range(len(code) // 4):
-    parse_instruction(code[i*4:i*4+4])
+def parse_hex(s):
+    assert s.startswith('0x')
+    return int(s.removeprefix('0x'), 16)
+
+if __name__ == "__main__":
+    filename = sys.argv[1]
+    with open(filename) as f:
+        buf = f.read()
+    code = [parse_hex(c.strip()) for c in buf.split(',') if c.strip()]
+    for i in range(len(code) // 4):
+        parse_instruction(code[i*4:i*4+4])
