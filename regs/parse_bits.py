@@ -123,6 +123,8 @@ def aggregate(fields):
                 yield description
                 ix += 1
 
+    previous_fields = dict()
+
     while ix < len(fields):
         field_name, bits, default, description = fields[ix]
         if description == 'POSSIBLE VALUES:':
@@ -133,14 +135,24 @@ def aggregate(fields):
             description_lines.extend(parse_description_lines())
         possible_values = OrderedDict(parse_possible_values())
 
+        description = ' '.join(description_lines)
+
+        if len(description.split(' ')) == 2 and description.lower().startswith("see"):
+            _, see_field_name = description.split(' ')
+            assert see_field_name in previous_fields, see_field_name
+            description = previous_fields[see_field_name].description
+            possible_values = previous_fields[see_field_name].possible_values
+
         assert default.startswith('0x') or default == 'none', default
-        yield Descriptor(
+        descriptor = Descriptor(
             field_name = field_name,
             bits = parse_bits(bits),
             default = 0 if default == 'none' else int(default, 16),
-            description = ' '.join(description_lines),
+            description = description,
             possible_values = possible_values
         )
+        previous_fields[descriptor.field_name] = descriptor
+        yield descriptor
 
         ix += 1
         next_nonempty()

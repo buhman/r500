@@ -2,18 +2,18 @@ Field Name             Bits   Default Description
 DATA_TYPE_0            3:0    0x0     The data type for element 0
                                       * These data types use the SIGNED and NORMALIZE flags described below.
                                       POSSIBLE VALUES:
-                                      00 - FLOAT_1 (Single IEEE Float)
-                                      01 - FLOAT_2 (2 IEEE floats)
-                                      02 - FLOAT_3 (3 IEEE Floats)
-                                      03 - FLOAT_4 (4 IEEE Floats)
-                                      04 - BYTE * (1 DWORD w 4 8-bit fixed point values) (X = [7:0], Y = [15:8], Z = [23:16], W = [31:24])
-                                      05 - D3DCOLOR * (Same as BYTE except has X->Z,Z->X swap for D3D color def) (Z = [7:0], Y = [15:8], X = [23:16], W = [31:24])
-                                      06 - SHORT_2 * (1 DWORD with 2 16-bit fixed point values) (X = [15:0], Y = [31:16], Z = 0.0, W = 1.0)
-                                      07 - SHORT_4 * (2 DWORDS with 4(2 per dword) 16-bit fixed point values) (X = DW0 [15:0], Y = DW0 [31:16], Z = DW1 [15:0], W = DW1 [31:16])
-                                      08 - VECTOR_3_TTT * (1 DWORD with 3 10-bit fixed point values) (X = [9:0], Y = [19:10], Z = [29:20], W = 1.0)
-                                      09 - VECTOR_3_EET * (1 DWORD with 2 11-bit and 1 10-bit fixed point values) (X = [10:0], Y = [21:11], Z = [31:22], W = 1.0)
-                                      10 - FLOAT_8 (8 IEEE Floats) Sames as 2 FLOAT_4 but must use consecutive DST_VEC_LOC. Used to allow > 16 PSC for OGL path.
-                                      11 - FLT16_2 (1 DWORD with 2 16-bit floating point values (SE5M10 exp bias of 15, supports denormalized numbers)) (X = [15:0], Y = [31:16], Z = 0.0, W = 1.0)
+                                      00 - FLOAT_1: (Single IEEE Float)
+                                      01 - FLOAT_2: (2 IEEE floats)
+                                      02 - FLOAT_3: (3 IEEE Floats)
+                                      03 - FLOAT_4: (4 IEEE Floats)
+                                      04 - BYTE: * (1 DWORD w 4 8-bit fixed point values) (X = [7:0], Y = [15:8], Z = [23:16], W = [31:24])
+                                      05 - D3DCOLOR: * (Same as BYTE except has X->Z,Z->X swap for D3D color def) (Z = [7:0], Y = [15:8], X = [23:16], W = [31:24])
+                                      06 - SHORT_2: * (1 DWORD with 2 16-bit fixed point values) (X = [15:0], Y = [31:16], Z = 0.0, W = 1.0)
+                                      07 - SHORT_4: * (2 DWORDS with 4(2 per dword) 16-bit fixed point values) (X = DW0 [15:0], Y = DW0 [31:16], Z = DW1 [15:0], W = DW1 [31:16])
+                                      08 - VECTOR_3_TTT: * (1 DWORD with 3 10-bit fixed point values) (X = [9:0], Y = [19:10], Z = [29:20], W = 1.0)
+                                      09 - VECTOR_3_EET: * (1 DWORD with 2 11-bit and 1 10-bit fixed point values) (X = [10:0], Y = [21:11], Z = [31:22], W = 1.0)
+                                      10 - FLOAT_8: (8 IEEE Floats) Sames as 2 FLOAT_4 but must use consecutive DST_VEC_LOC. Used to allow > 16 PSC for OGL path.
+                                      11 - FLT16_2: (1 DWORD with 2 16-bit floating point values (SE5M10 exp bias of 15, supports denormalized numbers)) (X = [15:0], Y = [31:16], Z = 0.0, W = 1.0)
                                       12 - FLT16_4 (2 DWORDS with 4(2 per dword) 16-bit floating point values (SE5M10 exp bias of 15, supports denormalized numbers))) (X = DW0 [15:0], Y = DW0 [31:16], Z = DW1 [15:0], W = DW1 [31:16])
 SKIP_DWORDS_0          7:4    0x0     The number of DWORDS to skip (discard) after
                                       processing the current element.
@@ -40,7 +40,7 @@ NORMALIZE_0            15     0x0     Determines whether the fixed to floating p
                                       range is not evenly distributed around 0, there are 3
                                       different methods supported by R300. See the
                                       VAP_PSC_SGN_NORM_CNTL description for details.
-DATA_TYPE_1            19:16  0x0     Similar to DATA_TYPE_0
+DATA_TYPE_1            19:16  0x0     See DATA_TYPE_0
 SKIP_DWORDS_1          23:20  0x0     See SKIP_DWORDS_0
 DST_VEC_LOC_1          28:24  0x0     See DST_VEC_LOC_0
 LAST_VEC_1             29     0x0     See LAST_VEC_0

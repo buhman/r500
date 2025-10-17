@@ -5,69 +5,41 @@ SWIZZLE_SELECT_X_0     2:0    0x0     X-Component Swizzle Select
                                       01 - SELECT_Y
                                       02 - SELECT_Z
                                       03 - SELECT_W
-                                      04 - SELECT_FP_ZERO (Floating Point 0.0)
-                                      05 - SELECT_FP_ONE (Floating Point 1.0)
+                                      04 - SELECT_FP_ZERO: (Floating Point 0.0)
+                                      05 - SELECT_FP_ONE: (Floating Point 1.0)
 SWIZZLE_SELECT_Y_0     5:3    0x0     Y-Component Swizzle Select
                                       POSSIBLE VALUES:
                                       00 - SELECT_X
                                       01 - SELECT_Y
                                       02 - SELECT_Z
                                       03 - SELECT_W
-                                      04 - SELECT_FP_ZERO (Floating Point 0.0)
-                                      05 - SELECT_FP_ONE (Floating Point 1.0)
+                                      04 - SELECT_FP_ZERO: (Floating Point 0.0)
+                                      05 - SELECT_FP_ONE: (Floating Point 1.0)
 SWIZZLE_SELECT_Z_0     8:6    0x0     Z-Component Swizzle Select
                                       POSSIBLE VALUES:
                                       00 - SELECT_X
                                       01 - SELECT_Y
                                       02 - SELECT_Z
                                       03 - SELECT_W
-                                      04 - SELECT_FP_ZERO (Floating Point 0.0)
-                                      05 - SELECT_FP_ONE (Floating Point 1.0)
+                                      04 - SELECT_FP_ZERO: (Floating Point 0.0)
+                                      05 - SELECT_FP_ONE: (Floating Point 1.0)
 SWIZZLE_SELECT_W_0     11:9   0x0     W-Component Swizzle Select
                                       POSSIBLE VALUES:
                                       00 - SELECT_X
                                       01 - SELECT_Y
                                       02 - SELECT_Z
                                       03 - SELECT_W
-                                      04 - SELECT_FP_ZERO (Floating Point 0.0)
-                                      05 - SELECT_FP_ONE (Floating Point 1.0)
+                                      04 - SELECT_FP_ZERO: (Floating Point 0.0)
+                                      05 - SELECT_FP_ONE: (Floating Point 1.0)
 WRITE_ENA_0            15:12  0x0     4-bit write enable.
                                       Bit 0 maps to X
                                       Bit 1 maps to Y
                                       Bit 2 maps to Z
                                       Bit 3 maps to W
-SWIZZLE_SELECT_X_1     18:16  0x0     X-Component Swizzle Select
-                                      POSSIBLE VALUES:
-                                      00 - SELECT_X
-                                      01 - SELECT_Y
-                                      02 - SELECT_Z
-                                      03 - SELECT_W
-                                      04 - SELECT_FP_ZERO (Floating Point 0.0)
-                                      05 - SELECT_FP_ONE (Floating Point 1.0)
-SWIZZLE_SELECT_Y_1     21:19  0x0     Y-Component Swizzle Select
-                                      POSSIBLE VALUES:
-                                      00 - SELECT_X
-                                      01 - SELECT_Y
-                                      02 - SELECT_Z
-                                      03 - SELECT_W
-                                      04 - SELECT_FP_ZERO (Floating Point 0.0)
-                                      05 - SELECT_FP_ONE (Floating Point 1.0)
-SWIZZLE_SELECT_Z_1     24:22  0x0     Z-Component Swizzle Select
-                                      POSSIBLE VALUES:
-                                      00 - SELECT_X
-                                      01 - SELECT_Y
-                                      02 - SELECT_Z
-                                      03 - SELECT_W
-                                      04 - SELECT_FP_ZERO (Floating Point 0.0)
-                                      05 - SELECT_FP_ONE (Floating Point 1.0)
-SWIZZLE_SELECT_W_1     27:25  0x0     W-Component Swizzle Select
-                                      POSSIBLE VALUES:
-                                      00 - SELECT_X
-                                      01 - SELECT_Y
-                                      02 - SELECT_Z
-                                      03 - SELECT_W
-                                      04 - SELECT_FP_ZERO (Floating Point 0.0)
-                                      05 - SELECT_FP_ONE (Floating Point 1.0)
+SWIZZLE_SELECT_X_1     18:16  0x0     See SWIZZLE_SELECT_X_0
+SWIZZLE_SELECT_Y_1     21:19  0x0     See SWIZZLE_SELECT_Y_0
+SWIZZLE_SELECT_Z_1     24:22  0x0     See SWIZZLE_SELECT_Z_0
+SWIZZLE_SELECT_W_1     27:25  0x0     See SWIZZLE_SELECT_W_0
 WRITE_ENA_1            31:28  0x0     4-bit write enable.
                                       Bit 0 maps to X
                                       Bit 1 maps to Y

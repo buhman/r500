@@ -5,18 +5,18 @@ PVS_FC_OPC_0           1:0    0x0     This opcode field determines what type of 
                                       1 = JUMP
                                       2 = LOOP
                                       3 = JSR (Jump to Subroutine)
-PVS_FC_OPC_1           3:2    0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_2           5:4    0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_3           7:6    0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_4           9:8    0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_5           11:10  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_6           13:12  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_7           15:14  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_8           17:16  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_9           19:18  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_10          21:20  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_11          23:22  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_12          25:24  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_13          27:26  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_14          29:28  0x0     See PVS_FC_OPC_0.
-PVS_FC_OPC_15          31:30  0x0     See PVS_FC_OPC_0.
+PVS_FC_OPC_1           3:2    0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_2           5:4    0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_3           7:6    0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_4           9:8    0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_5           11:10  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_6           13:12  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_7           15:14  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_8           17:16  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_9           19:18  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_10          21:20  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_11          23:22  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_12          25:24  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_13          27:26  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_14          29:28  0x0     See PVS_FC_OPC_0
+PVS_FC_OPC_15          31:30  0x0     See PVS_FC_OPC_0
