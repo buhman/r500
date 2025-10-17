@@ -189,7 +189,8 @@ int indirect_buffer()
   for (int i = 0; i < 16; i++)
     ib[ix++].u32 = 0x00000000;
 
-  T0V(VAP_PVS_VECTOR_INDX_REG, 0x00000600);
+  T0V(VAP_PVS_VECTOR_INDX_REG
+      , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(1536));
   T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, 23);
   for (int i = 0; i < 24; i++)
     ib[ix++].u32 = 0x00000000;
@@ -289,7 +290,6 @@ int indirect_buffer()
   T0V(FG_DEPTH_SRC, 0x00000000);
   T0V(US_W_FMT, 0x00000000);
   T0V(VAP_PVS_CONST_CNTL, 0x00000000);
-  T0V(TX_INVALTAGS, 0x00000000);
   T0V(VAP_INDEX_OFFSET, 0x00000000);
   T0V(GA_COLOR_CONTROL
       , GA_COLOR_CONTROL__RGB0_SHADING(2)
@@ -339,7 +339,7 @@ int indirect_buffer()
   // VAP
   //////////////////////////////////////////////////////////////////////////////
 
-  T0Vf(VAP_VPORT_XSCALE,   800.0f);
+  T0Vf(VAP_VPORT_XSCALE,   600.0f);
   T0Vf(VAP_VPORT_XOFFSET,  800.0f);
   T0Vf(VAP_VPORT_YSCALE,  -600.0f);
   T0Vf(VAP_VPORT_YOFFSET,  600.0f);
@@ -389,7 +389,7 @@ int indirect_buffer()
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_1__SELECT_Y
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_1__SELECT_FP_ZERO
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_1__SELECT_FP_ONE
-      | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(0b1111) // XYZW
+      | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_1(0b1111) // XYZW
       );
 
   T0V(VAP_VSM_VTX_ASSM
@@ -410,14 +410,15 @@ int indirect_buffer()
   printf("vs length %d\n", vertex_shader_length);
   assert(vertex_shader_length % 4 == 0);
   const int vertex_shader_instructions = vertex_shader_length / 4;
+  printf("vs instructions %d\n", vertex_shader_instructions);
 
   T0V(VAP_PVS_CODE_CNTL_0
       , VAP_PVS_CODE_CNTL_0__PVS_FIRST_INST(0)
-      | VAP_PVS_CODE_CNTL_0__PVS_XYZW_VALID_INST(vertex_shader_instructions - 1)
-      | VAP_PVS_CODE_CNTL_0__PVS_LAST_INST(vertex_shader_instructions - 1)
+      | VAP_PVS_CODE_CNTL_0__PVS_XYZW_VALID_INST((vertex_shader_instructions - 1))
+      | VAP_PVS_CODE_CNTL_0__PVS_LAST_INST((vertex_shader_instructions - 1))
       );
   T0V(VAP_PVS_CODE_CNTL_1
-      , VAP_PVS_CODE_CNTL_1__PVS_LAST_VTX_SRC_INST(vertex_shader_instructions - 1)
+      , VAP_PVS_CODE_CNTL_1__PVS_LAST_VTX_SRC_INST((vertex_shader_instructions - 1))
       );
 
   T0V(VAP_PVS_VECTOR_INDX_REG
@@ -450,11 +451,15 @@ int indirect_buffer()
   T0V(RS_INST_COUNT, 0x00000000);
   T0V(RS_INST_0
       , RS_INST__TEX_ID(0)
-      | RS_INST__TEX_CN(1));
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(0)
+      );
 
   //////////////////////////////////////////////////////////////////////////////
   // TX
   //////////////////////////////////////////////////////////////////////////////
+
+  T0V(TX_INVALTAGS, 0x00000000);
 
   T0V(TX_ENABLE
       , TX_ENABLE__TEX_0_ENABLE__ENABLE);
@@ -477,6 +482,7 @@ int indirect_buffer()
       | TX_FORMAT1__SEL_RED(0)
       | TX_FORMAT1__SEL_GREEN(1)
       | TX_FORMAT1__SEL_BLUE(2)
+      | TX_FORMAT1__TEX_COORD_TYPE__2D
       );
   T0V(TX_FORMAT2_0, 0);
 
@@ -499,7 +505,8 @@ int indirect_buffer()
   const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
   printf("fs length %d\n", fragment_shader_length);
   assert(fragment_shader_length % 6 == 0);
-  const int fragment_shader_instructions = vertex_shader_length / 6;
+  const int fragment_shader_instructions = fragment_shader_length / 6;
+  printf("fs instructions %d\n", fragment_shader_instructions);
 
   T0V(US_CODE_RANGE
       , US_CODE_RANGE__CODE_ADDR(0)
@@ -675,7 +682,6 @@ int main()
     assert(args.handle != 0);
     flush_handle = args.handle;
   }
-
 
   fprintf(stderr, "colorbuffer handle %d\n", colorbuffer_handle);
 
