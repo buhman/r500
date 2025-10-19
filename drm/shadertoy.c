@@ -251,7 +251,6 @@ int indirect_buffer()
 
   T0V(FG_DEPTH_SRC, 0x00000000);
   T0V(US_W_FMT, 0x00000000);
-  T0V(VAP_PVS_CONST_CNTL, 0x00000000);
   T0V(TX_INVALTAGS, 0x00000000);
   T0V(TX_ENABLE, 0x00000000);
   T0V(VAP_INDEX_OFFSET, 0x00000000);
@@ -360,6 +359,23 @@ int indirect_buffer()
   //////////////////////////////////////////////////////////////////////////////
   // VAP_PVS
   //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_PVS_CONST_CNTL
+      , VAP_PVS_CONST_CNTL__PVS_CONST_BASE_OFFSET(0)
+      | VAP_PVS_CONST_CNTL__PVS_MAX_CONST_ADDR(1)
+      );
+
+  T0V(VAP_PVS_VECTOR_INDX_REG
+      , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(1024)
+      );
+
+  const float consts[] = {
+    4.0f / 3.0f, 0.0f, 0.0f, 0.0f,
+  };
+  int consts_length = (sizeof (consts)) / (sizeof (consts[0]));
+  T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, (consts_length - 1));
+  for (int i = 0; i < consts_length; i++)
+    ib[ix++].f32 = consts[i];
 
   T0V(VAP_PVS_CODE_CNTL_0
       , VAP_PVS_CODE_CNTL_0__PVS_FIRST_INST(0)

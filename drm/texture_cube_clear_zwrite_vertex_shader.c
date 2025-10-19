@@ -436,7 +436,7 @@ int _3d_cube(int ix, float theta)
   float theta1 = theta;
   //float theta2 = 3.14f * theta;
   float theta2 = theta;
-  float consts[] = {
+  const float consts[] = {
     I_PI_2, 0.5f, PI_2, -PI,
     theta1, theta2, 0.2f, 0.5f,
   };
