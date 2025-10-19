@@ -86,17 +86,38 @@ def disassemble(code, ix):
     print(f"{ix:04x}")
     max_length = max(map(len, US_CMN_INST.keys())) + 1
 
+    def inner2(i, register_name):
+        value = code[ix + i]
+        yield ' '.join([f"{value:08x}", f"{register_name}"])
+        if register_name == 0:
+            assert value == 0
+            return
+        register = registers[register_name]
+        for d in register.values():
+            field_pv_name = get_field_pv_name(value, d)
+            yield ' '.join([d.field_name.ljust(max_length), f"{field_pv_name}"])
+
     def inner(register_name_list):
+        columns = []
         for i, register_name in enumerate(register_name_list):
-            value = code[ix + i]
-            print(" ", f"{value:08x}", register_name)
-            if register_name == 0:
-                assert value == 0
-                continue
-            register = registers[register_name]
-            for d in register.values():
-                field_pv_name = get_field_pv_name(value, d)
-                print("   ", d.field_name.ljust(max_length), field_pv_name)
+            columns.append(list(inner2(i, register_name)))
+        column_widths = [35, 30, 28, 28, 28, 27]
+        column_height = max(len(column) for column in columns)
+        assert len(columns) == 6
+
+        def get_row(column, rix, cix):
+            if rix < len(column):
+                value = column[rix]
+            else:
+                value = ''
+            return value.ljust(column_widths[cix]) + '| '
+
+        for rix in range(column_height):
+            row = ''.join([
+                get_row(column, rix, cix)
+                for cix, column in enumerate(columns)
+            ])
+            print("  ", row)
 
     inst_type = get_field_pv_name(us_cmn_inst, US_CMN_INST["TYPE"])
     if inst_type in {"US_INST_TYPE_OUT", "US_INST_TYPE_ALU"}:
@@ -118,4 +139,5 @@ if __name__ == "__main__":
         buf = f.read()
     code = [parse_hex(c.strip()) for c in buf.split(',') if c.strip()]
     for i in range(len(code) // 6):
+
         disassemble(code, i * 6)
