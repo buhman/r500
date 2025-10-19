@@ -1,9 +1,9 @@
-; CONST[0] = {rotate, _, _, _}
-; CONST[1] = {0.159155, 0.5, 6.283185, -3.141593}
+; CONST[0] = {0.159155, 0.5, 6.283185, -3.141593}
+; CONST[1] = {rotate, _, _, _}
 
 ; each instruction is only allowed to use a single unique `const` address
 ;
-; instructions may use multiple `temp` addresses, so const[0] is moved to
+; instructions may use multiple `temp` addresses, so const[1] is moved to
 ; temp[0]:
 ;
 temp[0].x    = VE_ADD  const[1].x___  const[1].0___
