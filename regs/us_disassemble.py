@@ -84,11 +84,13 @@ def get_field_pv_name(value, descriptor):
 def disassemble(code, ix):
     us_cmn_inst = code[ix + 0]
     print(f"{ix:04x}")
-    max_length = max(map(len, US_CMN_INST.keys())) + 1
 
     def inner2(i, register_name):
+        max_length = max(map(len, registers[register_name])) + 1
+
         value = code[ix + i]
-        yield ' '.join([f"{value:08x}", f"{register_name}"])
+        yield f"{register_name}"
+        yield f"  [{value:08x}]"
         if register_name == 0:
             assert value == 0
             return
@@ -98,10 +100,11 @@ def disassemble(code, ix):
             yield ' '.join([d.field_name.ljust(max_length), f"{field_pv_name}"])
 
     def inner(register_name_list):
+
         columns = []
         for i, register_name in enumerate(register_name_list):
             columns.append(list(inner2(i, register_name)))
-        column_widths = [35, 30, 28, 28, 28, 27]
+        column_widths = [35, 26, 24, 24, 27, 22]
         column_height = max(len(column) for column in columns)
         assert len(columns) == 6
 
