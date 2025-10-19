@@ -1,4 +1,4 @@
-from assembler.keywords import ME, VE, KW
+from assembler.keywords import ME, VE, MVE, KW
 from assembler.parser import Instruction, DestinationOp, Source
 import pvs_dst
 import pvs_src
@@ -34,8 +34,10 @@ def dst_reg_type(kw):
         assert not "Invalid PVS_DST_REG", kw
 
 def emit_destination_op(dst_op: DestinationOp):
-    assert type(dst_op.opcode) in {ME, VE}
+    assert type(dst_op.opcode) in {ME, VE, MVE}
     math_inst = int(type(dst_op.opcode) is ME)
+    if dst_op.macro:
+        assert dst_op.opcode.value in {0, 1}
     value = (
           pvs_dst.OPCODE_gen(dst_op.opcode.value)
         | pvs_dst.MATH_INST_gen(math_inst)
@@ -45,6 +47,7 @@ def emit_destination_op(dst_op: DestinationOp):
         | pvs_dst.WE_Y_gen(we_y(dst_op.write_enable))
         | pvs_dst.WE_Z_gen(we_z(dst_op.write_enable))
         | pvs_dst.WE_W_gen(we_w(dst_op.write_enable))
+        | pvs_dst.MACRO_INST_gen(int(dst_op.macro))
     )
     yield value
 

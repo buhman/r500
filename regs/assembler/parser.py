@@ -25,6 +25,7 @@ class DestinationOp:
     offset: int
     write_enable: set[int]
     opcode: Union[VE, ME]
+    macro: bool
 
 @dataclass
 class SourceSwizzle:
@@ -172,7 +173,8 @@ class Parser:
         write_enable = parse_dest_write_enable(write_enable_token)
         self.consume(TT.equal, "expected equals")
         opcode = self.opcode()
-        return DestinationOp(destination_type, offset_value, write_enable, opcode)
+        macro = False
+        return DestinationOp(destination_type, offset_value, write_enable, opcode, macro)
 
     def source_type(self):
         token = self.consume(TT.keyword, "expected source type")

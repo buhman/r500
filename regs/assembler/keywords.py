@@ -3,6 +3,12 @@ from typing import Optional
 from enum import Enum, auto
 
 @dataclass
+class MVE:
+    name: str
+    synonym: Optional[str]
+    value: int
+
+@dataclass
 class VE:
     name: str
     synonym: Optional[str]
@@ -13,6 +19,11 @@ class ME:
     name: str
     synonym: Optional[str]
     value: int
+
+macro_vector_operations = [
+    MVE(b"MACRO_OP_2CLK_MADD"       , None      , 0),
+    MVE(b"MACRO_OP_2CLK_M2X_ADD"    , None      , 1),
+]
 
 vector_operations = [
        # name                       synonym    value

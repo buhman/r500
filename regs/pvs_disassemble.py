@@ -88,7 +88,6 @@ def parse_dst_op(dst_op):
     addr_sel = pvs_dst.ADDR_SEL(dst_op)
 
     assert addr_mode == 0
-    assert macro_inst == 0
     assert pred_enable == 0
     assert pred_sense == 0
     assert dual_math_op == 0
@@ -102,7 +101,10 @@ def parse_dst_op(dst_op):
     parts.append(f"{reg_str}[{offset}].{we_swizzle}")
 
     if math_inst:
+        assert not macro_inst
         parts.append(op_substitutions(pvs_dst_bits.MATH_OPCODE[opcode]))
+    elif macro_inst:
+        parts.append(op_substitutions(pvs_dst_bits.MACRO_OPCODE[opcode]))
     else:
         parts.append(op_substitutions(pvs_dst_bits.VECTOR_OPCODE[opcode]))
 

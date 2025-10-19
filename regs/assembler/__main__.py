@@ -3,6 +3,7 @@ import sys
 from assembler.lexer import Lexer, LexerError
 from assembler.parser import Parser, ParserError
 from assembler.emitter import emit_instruction
+from assembler.validator import validate_instruction
 
 sample = b"""
 temp[0].xyzw = VE_ADD    const[1].xyzw     const[1].0000     const[1].0000
@@ -22,6 +23,7 @@ def frontend_inner(buf):
     tokens = list(lexer.lex_tokens())
     parser = Parser(tokens)
     for ins, start_end in parser.instructions():
+        ins = validate_instruction(ins)
         yield list(emit_instruction(ins)), start_end
 
 def print_error(filename, buf, e):

@@ -159,9 +159,10 @@ static const int fragment_shader_instructions = (fragment_shader_length / 6) - 1
 static const uint32_t vertex_shader[] = {
   //#include "../shader_examples/mesa/texture_cube.vs.txt"
   #include "cube_rotate.vs.inc"
+  #include "clear_nop.vs.inc"
 };
 static const int vertex_shader_length = (sizeof (vertex_shader)) / (sizeof (vertex_shader[0]));
-static const int vertex_shader_instructions = vertex_shader_length / 4;
+static const int vertex_shader_instructions = (vertex_shader_length / 4) - 1;
 
 union u32_f32 {
   uint32_t u32;
@@ -229,6 +230,19 @@ int _3d_clear(int ix)
   T0V(TX_ENABLE, 0x00000000);
 
   //////////////////////////////////////////////////////////////////////////////
+  // VAP_PVS
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_PVS_CODE_CNTL_0
+      , VAP_PVS_CODE_CNTL_0__PVS_FIRST_INST(vertex_shader_instructions)
+      | VAP_PVS_CODE_CNTL_0__PVS_XYZW_VALID_INST(vertex_shader_instructions)
+      | VAP_PVS_CODE_CNTL_0__PVS_LAST_INST(vertex_shader_instructions)
+      );
+  T0V(VAP_PVS_CODE_CNTL_1
+      , VAP_PVS_CODE_CNTL_1__PVS_LAST_VTX_SRC_INST(vertex_shader_instructions)
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
   // VAP
   //////////////////////////////////////////////////////////////////////////////
 
@@ -241,7 +255,7 @@ int _3d_clear(int ix)
       | VAP_VTE_CNTL__VTX_Z_FMT(1)
       );
 
-  T0V(VAP_CNTL_STATUS, VAP_CNTL_STATUS__PVS_BYPASS(1));
+  T0V(VAP_CNTL_STATUS, VAP_CNTL_STATUS__PVS_BYPASS(0));
 
   T0V(VAP_PROG_STREAM_CNTL_0
       , VAP_PROG_STREAM_CNTL__DATA_TYPE_0__FLOAT_2
@@ -252,7 +266,7 @@ int _3d_clear(int ix)
   T0V(VAP_PROG_STREAM_CNTL_EXT_0
       , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0__SELECT_X
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_0__SELECT_Y
-      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_FP_ONE
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_FP_ZERO
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0__SELECT_FP_ONE
       | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(0b1111)
       );
@@ -321,8 +335,7 @@ int _3d_cube(int ix, float theta)
       | ZB_CNTL__ZWRITEENABLE__ENABLE // 1
       );
   T0V(ZB_ZSTENCILCNTL
-      //, ZB_ZSTENCILCNTL__ZFUNC(5) // greater than
-      , ZB_ZSTENCILCNTL__ZFUNC__ALWAYS
+      , ZB_ZSTENCILCNTL__ZFUNC(5) // greater than
       );
 
   T0V(ZB_FORMAT
@@ -408,7 +421,7 @@ int _3d_cube(int ix, float theta)
   ib[ix++].u32 = 2 * 4; // index into relocs array
 
   //////////////////////////////////////////////////////////////////////////////
-  // VAP
+  // VAP_PVS
   //////////////////////////////////////////////////////////////////////////////
 
   T0V(VAP_PVS_CONST_CNTL
@@ -421,7 +434,8 @@ int _3d_cube(int ix, float theta)
       );
 
   float theta1 = theta;
-  float theta2 = 3.14 * theta;
+  //float theta2 = 3.14f * theta;
+  float theta2 = theta;
   float consts[] = {
     I_PI_2, 0.5f, PI_2, -PI,
     theta1, theta2, 0.2f, 0.5f,
@@ -430,6 +444,19 @@ int _3d_cube(int ix, float theta)
   T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, (consts_length - 1));
   for (int i = 0; i < consts_length; i++)
     ib[ix++].f32 = consts[i];
+
+  T0V(VAP_PVS_CODE_CNTL_0
+      , VAP_PVS_CODE_CNTL_0__PVS_FIRST_INST(0)
+      | VAP_PVS_CODE_CNTL_0__PVS_XYZW_VALID_INST((vertex_shader_instructions - 1))
+      | VAP_PVS_CODE_CNTL_0__PVS_LAST_INST((vertex_shader_instructions - 1))
+      );
+  T0V(VAP_PVS_CODE_CNTL_1
+      , VAP_PVS_CODE_CNTL_1__PVS_LAST_VTX_SRC_INST((vertex_shader_instructions - 1))
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP
+  //////////////////////////////////////////////////////////////////////////////
 
   T0V(VAP_CLIP_CNTL
       , VAP_CLIP_CNTL__PS_UCP_MODE(3)
@@ -824,15 +851,6 @@ int indirect_buffer(float theta)
   printf("vs length %d\n", vertex_shader_length);
   assert(vertex_shader_length % 4 == 0);
   printf("vs instructions %d\n", vertex_shader_instructions);
-
-  T0V(VAP_PVS_CODE_CNTL_0
-      , VAP_PVS_CODE_CNTL_0__PVS_FIRST_INST(0)
-      | VAP_PVS_CODE_CNTL_0__PVS_XYZW_VALID_INST((vertex_shader_instructions - 1))
-      | VAP_PVS_CODE_CNTL_0__PVS_LAST_INST((vertex_shader_instructions - 1))
-      );
-  T0V(VAP_PVS_CODE_CNTL_1
-      , VAP_PVS_CODE_CNTL_1__PVS_LAST_VTX_SRC_INST((vertex_shader_instructions - 1))
-      );
 
   T0V(VAP_PVS_VECTOR_INDX_REG
       , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(0)
