@@ -82,6 +82,8 @@ def parse_dst_op(dst_op):
     addr_mode = ( (pvs_dst.ADDR_MODE_1(dst_op) << 1)
                 | (pvs_dst.ADDR_MODE_0(dst_op) << 0))
     offset = pvs_dst.OFFSET(dst_op)
+    ve_sat = pvs_dst.VE_SAT(dst_op)
+    me_sat = pvs_dst.ME_SAT(dst_op)
     pred_enable = pvs_dst.PRED_ENABLE(dst_op)
     pred_sense = pvs_dst.PRED_SENSE(dst_op)
     dual_math_op = pvs_dst.DUAL_MATH_OP(dst_op)
@@ -100,13 +102,23 @@ def parse_dst_op(dst_op):
     we_swizzle = dst_swizzle_from_we(dst_op)
     parts.append(f"{reg_str}[{offset}].{we_swizzle}")
 
-    if math_inst:
-        assert not macro_inst
-        parts.append(op_substitutions(pvs_dst_bits.MATH_OPCODE[opcode]))
-    elif macro_inst:
-        parts.append(op_substitutions(pvs_dst_bits.MACRO_OPCODE[opcode]))
-    else:
-        parts.append(op_substitutions(pvs_dst_bits.VECTOR_OPCODE[opcode]))
+    def get_opcode_str():
+        if math_inst:
+            assert not macro_inst
+            return op_substitutions(pvs_dst_bits.MATH_OPCODE[opcode])
+        elif macro_inst:
+            return op_substitutions(pvs_dst_bits.MACRO_OPCODE[opcode])
+        else:
+            return op_substitutions(pvs_dst_bits.VECTOR_OPCODE[opcode])
+
+    opcode_str = get_opcode_str()
+    if ve_sat:
+        assert not math_inst
+        opcode_str += '.SAT'
+    if me_sat:
+        assert math_inst
+        opcode_str += '.SAT'
+    parts.append(opcode_str)
 
     return parts
 
@@ -174,7 +186,7 @@ def parse_instruction(instruction):
         ]
     )
 
-    print(dst.ljust(12), "=", op.ljust(9), " ".join(map(lambda s: s.ljust(17), rest)))
+    print(dst.ljust(12), "=", op.ljust(12), " ".join(map(lambda s: s.ljust(17), rest)))
 
 def parse_hex(s):
     assert s.startswith('0x')
