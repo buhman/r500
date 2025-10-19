@@ -102,6 +102,7 @@ class KW(Enum):
     relative_a0 = auto()
     relative_i0 = auto()
     constant = auto()
+    saturation = auto()
 
 keywords = [
     (KW.temporary     , b"temporary"     , b"temp"),
@@ -114,6 +115,7 @@ keywords = [
     (KW.relative_a0   , b"relative_a0"   , None),
     (KW.relative_i0   , b"relative_i0"   , None),
     (KW.constant      , b"constant"      , b"const"),
+    (KW.saturation    , b"saturation"    , b"sat"),
 ]
 
 def find_keyword(b: memoryview):

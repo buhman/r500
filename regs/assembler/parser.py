@@ -25,6 +25,7 @@ class DestinationOp:
     offset: int
     write_enable: set[int]
     opcode: Union[VE, ME]
+    sat: bool
     macro: bool
 
 @dataclass
@@ -173,8 +174,21 @@ class Parser:
         write_enable = parse_dest_write_enable(write_enable_token)
         self.consume(TT.equal, "expected equals")
         opcode = self.opcode()
+        sat = False
+        if self.match(TT.dot):
+            self.advance()
+            suffix = self.consume(TT.keyword, "expected saturation suffix")
+            if suffix.keyword is not KW.saturation:
+                raise ParserError("expected saturation suffix", token)
+            sat = True
+
         macro = False
-        return DestinationOp(destination_type, offset_value, write_enable, opcode, macro)
+        return DestinationOp(type=destination_type,
+                             offset=offset_value,
+                             write_enable=write_enable,
+                             opcode=opcode,
+                             sat=sat,
+                             macro=macro)
 
     def source_type(self):
         token = self.consume(TT.keyword, "expected source type")

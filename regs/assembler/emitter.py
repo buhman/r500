@@ -38,16 +38,21 @@ def emit_destination_op(dst_op: DestinationOp):
     math_inst = int(type(dst_op.opcode) is ME)
     if dst_op.macro:
         assert dst_op.opcode.value in {0, 1}
+    ve_sat = int((not math_inst) and dst_op.sat)
+    me_sat = int(math_inst and dst_op.sat)
+
     value = (
           pvs_dst.OPCODE_gen(dst_op.opcode.value)
         | pvs_dst.MATH_INST_gen(math_inst)
+        | pvs_dst.MACRO_INST_gen(int(dst_op.macro))
         | pvs_dst.REG_TYPE_gen(dst_reg_type(dst_op.type))
         | pvs_dst.OFFSET_gen(dst_op.offset)
         | pvs_dst.WE_X_gen(we_x(dst_op.write_enable))
         | pvs_dst.WE_Y_gen(we_y(dst_op.write_enable))
         | pvs_dst.WE_Z_gen(we_z(dst_op.write_enable))
         | pvs_dst.WE_W_gen(we_w(dst_op.write_enable))
-        | pvs_dst.MACRO_INST_gen(int(dst_op.macro))
+        | pvs_dst.VE_SAT_gen(ve_sat)
+        | pvs_dst.ME_SAT_gen(me_sat)
     )
     yield value
 
