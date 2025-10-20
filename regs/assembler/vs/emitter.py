@@ -1,5 +1,5 @@
-from assembler.keywords import ME, VE, MVE, KW
-from assembler.parser import Instruction, DestinationOp, Source
+from assembler.vs.keywords import ME, VE, MVE, KW
+from assembler.vs.parser import Instruction, DestinationOp, Source
 import pvs_dst
 import pvs_src
 import pvs_dst_bits

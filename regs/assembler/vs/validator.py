@@ -1,4 +1,4 @@
-from assembler.keywords import ME, VE, macro_vector_operations
+from assembler.vs.keywords import ME, VE, macro_vector_operations
 
 class ValidatorError(Exception):
     pass

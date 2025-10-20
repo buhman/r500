@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 from itertools import chain
-from typing import Union
-
-from assembler import keywords
+from typing import Union, Any
 
 DEBUG = True
 
@@ -18,6 +16,10 @@ class TT(Enum):
     dot = auto()
     identifier = auto()
     keyword = auto()
+    colon = auto()
+    semicolon = auto()
+    bar = auto()
+    comma = auto()
 
 @dataclass
 class Token:
@@ -26,7 +28,7 @@ class Token:
     col: int
     type: TT
     lexeme: memoryview
-    keyword: Union[keywords.VE, keywords.ME, keywords.KW] = None
+    keyword: Any = None
 
 identifier_characters = set(chain(
     b'abcdefghijklmnopqrstuvwxyz'
@@ -39,12 +41,14 @@ class LexerError(Exception):
     pass
 
 class Lexer:
-    def __init__(self, buf: memoryview):
+    def __init__(self, buf: memoryview, find_keyword, emit_newlines=True):
         self.start_ix = 0
         self.current_ix = 0
         self.buf = memoryview(buf)
         self.line = 1
         self.col = 0
+        self.find_keyword = find_keyword
+        self.emit_newlines = emit_newlines
 
     def at_end_p(self):
         return self.current_ix >= len(self.buf)
@@ -70,7 +74,7 @@ class Lexer:
     def identifier(self):
         while not self.at_end_p() and self.peek() in identifier_characters:
             self.advance()
-        keyword = keywords.find_keyword(self.lexeme())
+        keyword = self.find_keyword(self.lexeme())
         if keyword is not None:
             return Token(*self.pos(), TT.keyword, self.lexeme(), keyword)
         else:
@@ -96,7 +100,15 @@ class Lexer:
                 return Token(*self.pos(), TT.equal, self.lexeme())
             elif c == ord('.'):
                 return Token(*self.pos(), TT.dot, self.lexeme())
+            elif c == ord('|'):
+                return Token(*self.pos(), TT.bar, self.lexeme())
+            elif c == ord(':'):
+                return Token(*self.pos(), TT.colon, self.lexeme())
             elif c == ord(';'):
+                return Token(*self.pos(), TT.semicolon, self.lexeme())
+            elif c == ord(','):
+                return Token(*self.pos(), TT.comma, self.lexeme())
+            elif c == ord('#'):
                 while not self.at_end_p() and self.peek() != ord('\n'):
                     self.advance()
             elif c == ord(' ') or c == ord('\r') or c == ord('\t'):
@@ -105,11 +117,15 @@ class Lexer:
                 pos = self.pos()
                 self.line += 1
                 self.col = 0
-                return Token(*pos, TT.eol, self.lexeme())
+                if self.emit_newlines:
+                    return Token(*pos, TT.eol, self.lexeme())
+                else:
+                    continue
             elif c in identifier_characters:
                 return self.identifier()
             else:
-                raise LexerError(f"unexpected character at line:{self.line} col:{self.col}")
+                token = Token(*self.pos(), None, self.lexeme())
+                raise LexerError(f"unexpected character at line:{self.line} col:{self.col}", token)
 
     def lex_tokens(self):
         while True:
@@ -119,7 +135,16 @@ class Lexer:
                 break
 
 if __name__ == "__main__":
-    test = b"out[0].xz    = VE_MAD    input[0].-y-_-0-_ temp[0].x_0_      temp[0].y_0_"
-    lexer = Lexer(test)
-    for token in lexer.lex_tokens():
-        print(token)
+    def vs_test():
+        from assembler.vskeywords import find_keyword
+        test = b"out[0].xz    = VE_MAD    input[0].-y-_-0-_ temp[0].x_0_      temp[0].y_0_"
+        lexer = Lexer(test, find_keyword)
+        for token in lexer.lex_tokens():
+            print(token)
+    def fs_test():
+        from assembler.fs.keywords import find_keyword
+        test = b"src0.rgb = temp[0] : temp[0].a    = OP_RSQ |src0.r| ;"
+        lexer = Lexer(test, find_keyword)
+        for token in lexer.lex_tokens():
+            print(token)
+    fs_test()
