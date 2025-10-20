@@ -139,8 +139,16 @@ class RGBOperation:
     opcode: RGBOp
     sels: list[SwizzleSel]
 
+class InstructionType(IntEnum):
+    ALU = 0
+    OUT = 1
+    FC = 2
+    TEX = 3
+
 @dataclass
 class Instruction:
+    type: InstructionType
+    tex_sem_wait: bool
     addr: Addr
     alpha_op: AlphaOperation
     rgb_op: RGBOperation
@@ -474,7 +482,17 @@ def validate_instruction_operations(operations):
 
 def validate_instruction(ins):
     addr_rgb_alpha = validate_instruction_let_expressions(ins.let_expressions)
-    instruction = Instruction(addr_rgb_alpha, None, None)
+
+    instruction_type = InstructionType.OUT if ins.out else InstructionType.ALU
+    tex_sem_wait = ins.tex_sem_wait
+
+    instruction = Instruction(
+        instruction_type,
+        tex_sem_wait,
+        addr_rgb_alpha,
+        None,
+        None
+    )
     for op in validate_instruction_operations(ins.operations):
         if type(op) is RGBOperation:
             instruction.rgb_op = op

@@ -1,5 +1,7 @@
 from typing import Any
 
+from assembler.lexer import TT
+
 class ParserError(Exception):
     pass
 
@@ -23,6 +25,13 @@ class BaseParser:
     def match(self, token_type):
         token = self.peek()
         return token.type == token_type
+
+    def match_keyword(self, keyword):
+        if self.match(TT.keyword):
+            token = self.peek()
+            return token.keyword == keyword
+        else:
+            return False
 
     def consume(self, token_type, message):
         token = self.advance()

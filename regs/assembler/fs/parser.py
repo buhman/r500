@@ -40,6 +40,8 @@ class Operation:
 
 @dataclass
 class Instruction:
+    out: bool
+    tex_sem_wait: bool
     let_expressions: list[LetExpression]
     operations: list[Operation]
 
@@ -160,6 +162,15 @@ class Parser(BaseParser):
         )
 
     def instruction(self):
+        out = False
+        if self.match_keyword(KW.OUT):
+            self.advance()
+            out = True
+        tex_sem_wait = False
+        if self.match_keyword(KW.TEX_SEM_WAIT):
+            self.advance()
+            tex_sem_wait = True
+
         let_expressions = []
         while not self.match(TT.colon):
             let_expressions.append(self.let_expression())
@@ -177,6 +188,8 @@ class Parser(BaseParser):
         self.consume(TT.semicolon, "expected semicolon")
 
         return Instruction(
+            out,
+            tex_sem_wait,
             let_expressions,
             operations,
         )
@@ -193,6 +206,7 @@ src0.a = float(0), src0.rgb = temp[0] :
   out[0].none = temp[0].r    = DP3 src0.rg0 src0.rg0 ;
     """
     buf = b"""
+OUT TEX_SEM_WAIT
 src0.a = float(0), src1.a = float(0), src2.a = float(0), srcp.a = neg2, src0.rgb = temp[0], src1.rgb = float(0), src2.rgb = float(0), srcp.rgb = neg2 :
   out[0].none = temp[0].none = MAD src0.r src0.r src0.r ,
   out[0].none = temp[0].r    = DP3 src0.rg0 src0.rg0 src0.rrr ;

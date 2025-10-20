@@ -161,6 +161,9 @@ def emit_addr(code, addr):
         US_ALU_RGB_ADDR.SRCP_OP(code, addr.rgb.srcp.value)
 
 def emit_instruction(code, ins):
+    US_CMN_INST.TYPE(code, ins.type.value)
+    US_CMN_INST.TEX_SEM_WAIT(code, int(ins.tex_sem_wait))
+
     emit_addr(code, ins.addr)
     emit_alpha_op(code, ins.alpha_op)
     emit_rgb_op(code, ins.rgb_op)
