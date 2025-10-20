@@ -181,6 +181,10 @@ class Parser(BaseParser):
             operations,
         )
 
+    def instructions(self):
+        while not self.match(TT.eof):
+            yield self.instruction()
+
 if __name__ == "__main__":
     from assembler.lexer import Lexer
     buf = b"""

@@ -181,14 +181,26 @@ def validate_instruction_let_expressions(let_expressions):
                 (KW.FLOAT, SrcAddrType.float),
             ])
             src_addr_type_strs = keywords_to_string(keyword_to_src_addr_type.keys())
-            type = expr.addr_keyword.keyword
-            if type not in keyword_to_src_addr_type:
+            type_kw = expr.addr_keyword.keyword
+            if type_kw not in keyword_to_src_addr_type:
                 raise ValidatorError(f"invalid src addr type, expected one of {src_addr_type_strs}", expr.addr_keyword)
 
+            type = keyword_to_src_addr_type[type_kw]
             value = validate_identifier_number(expr.addr_value_identifier)
+            if type is SrcAddrType.float:
+                if value >= 128:
+                    raise ValidatorError(f"invalid float value", expr.addr_value_identifier)
+            elif type is SrcAddrType.temp:
+                if value >= 128:
+                    raise ValidatorError(f"invalid temp value", expr.addr_value_identifier)
+            elif type is SrcAddrType.const:
+                if value >= 256:
+                    raise ValidatorError(f"invalid const value", expr.addr_value_identifier)
+            else:
+                assert False, (id(type), id(SrcAddrType.float))
 
             return SrcAddr(
-                keyword_to_src_addr_type[type],
+                type,
                 value,
             )
         elif src == KW.SRCP:
@@ -403,7 +415,7 @@ swizzle_kws = OrderedDict([
     (ord("_"), Swizzle.unused),
 ])
 
-def validate_instruction_operation_sels(swizzle_sels):
+def validate_instruction_operation_sels(swizzle_sels, is_alpha):
     if len(swizzle_sels) > 3:
         raise ValidatorError("too many swizzle sels", swizzle_sels[-1].sel_keyword)
 
@@ -414,10 +426,11 @@ def validate_instruction_operation_sels(swizzle_sels):
         src = swizzle_sel_src_kws[swizzle_sel.sel_keyword.keyword]
 
         swizzle_lexeme = swizzle_sel.swizzle_identifier.lexeme.lower()
-        if len(swizzle_lexeme) > 4:
-            raise ValidatorError("invalid swizzle", swizzle_sel.swizzle_identifier)
+        swizzles_length = 1 if is_alpha else 3
+        if len(swizzle_lexeme) != swizzles_length:
+            raise ValidatorError("invalid swizzle length", swizzle_sel.swizzle_identifier)
         if not all(c in swizzle_kws for c in swizzle_lexeme):
-            raise ValidatorError("invalid swizzle", swizzle_sel.swizzle_identifier)
+            raise ValidatorError("invalid swizzle characters", swizzle_sel.swizzle_identifier)
         swizzle = [
             swizzle_kws[c] for c in swizzle_lexeme
         ]
@@ -431,7 +444,7 @@ def validate_alpha_instruction_operation(operation):
                                                mask_lookup=alpha_masks,
                                                type_cls=AlphaDest)
     opcode = alpha_op_kws[operation.opcode_keyword.keyword]
-    sels = validate_instruction_operation_sels(operation.swizzle_sels)
+    sels = validate_instruction_operation_sels(operation.swizzle_sels, is_alpha=True)
     return AlphaOperation(
         dest,
         opcode,
@@ -443,7 +456,7 @@ def validate_rgb_instruction_operation(operation):
                                                mask_lookup=rgb_masks,
                                                type_cls=RGBDest)
     opcode = rgb_op_kws[operation.opcode_keyword.keyword]
-    sels = validate_instruction_operation_sels(operation.swizzle_sels)
+    sels = validate_instruction_operation_sels(operation.swizzle_sels, is_alpha=False)
     return RGBOperation(
         dest,
         opcode,
@@ -472,9 +485,10 @@ def validate_instruction(ins):
     return instruction
 
 if __name__ == "__main__":
+    from assembler.lexer import Lexer, LexerError
     from assembler.fs.parser import Parser, ParserError
     from assembler.fs.keywords import find_keyword
-    from assembler.lexer import Lexer
+
     buf = b"""
 src0.a = float(0), src0.rgb = temp[0] , srcp.a = neg :
   out[0].none = temp[0].none = MAD src0.r src0.r src0.r ,
@@ -484,8 +498,11 @@ src0.a = float(0), src0.rgb = temp[0] , srcp.a = neg :
     tokens = list(lexer.lex_tokens())
     parser = Parser(tokens)
     try:
-        ins = parser.instruction()
-        pprint(validate_instruction(ins))
+        ins_ast = parser.instruction()
+        pprint(validate_instruction(ins_ast))
+    except LexerError as e:
+        print_error(None, buf, e)
+        raise
     except ParserError as e:
         print_error(None, buf, e)
         raise

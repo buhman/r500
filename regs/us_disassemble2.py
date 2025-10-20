@@ -5,7 +5,7 @@ from collections import OrderedDict
 from functools import partial
 from pprint import pprint
 
-VERBOSE = True
+VERBOSE = False
 
 class BaseRegister:
     def get(self, code, *, code_ix, descriptor):
@@ -323,10 +323,10 @@ def disassemble_alu(code, is_output):
 
     print(", ".join([*a_addr_strs, *rgb_addr_strs]), ":")
     #print(", ".join(a_addr_strs), ":")
-    print(f"  {a_out_str} = {a_temp_str} = {a_op.ljust(6)} {' '.join(a_swizzle_sel)}", ",")
+    print(f"  {a_out_str} = {a_temp_str} = {a_op.removeprefix('OP_').ljust(3)} {' '.join(a_swizzle_sel)}", ",")
 
     #print(", ".join(rgb_addr_strs), ":")
-    print(f"  {rgb_out_str} = {rgb_temp_str} = {rgb_op.ljust(6)} {' '.join(rgb_swizzle_sel)}", ";")
+    print(f"  {rgb_out_str} = {rgb_temp_str} = {rgb_op.removeprefix('OP_').ljust(3)} {' '.join(rgb_swizzle_sel)}", ";")
 
 def disassemble(code):
     assert len(code) == 6, len(code)

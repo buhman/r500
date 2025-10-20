@@ -5,6 +5,7 @@ from assembler.vs.keywords import find_keyword
 from assembler.vs.parser import Parser, ParserError
 from assembler.vs.emitter import emit_instruction
 from assembler.vs.validator import validate_instruction
+from assembler.error import print_error
 
 sample = b"""
 temp[0].xyzw = VE_ADD    const[1].xyzw     const[1].0000     const[1].0000
