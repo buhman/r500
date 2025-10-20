@@ -137,38 +137,26 @@ def emit_rgb_op(code, rgb_op):
         mod_func(code, sel.mod)
 
 def emit_addr(code, addr):
-    if addr.alpha.src0 is not None:
-        is_const = int(addr.alpha.src0.type is SrcAddrType.const)
-        is_float = int(addr.alpha.src0.type is SrcAddrType.float)
-        US_ALU_ALPHA_ADDR.ADDR0(code, (is_float << 7) | addr.alpha.src0.value)
-        US_ALU_ALPHA_ADDR.ADDR0_CONST(code, is_const)
-    if addr.alpha.src1 is not None:
-        is_const = int(addr.alpha.src1.type is SrcAddrType.const)
-        is_float = int(addr.alpha.src1.type is SrcAddrType.float)
-        US_ALU_ALPHA_ADDR.ADDR1(code, (is_float << 7) | addr.alpha.src1.value)
-        US_ALU_ALPHA_ADDR.ADDR1_CONST(code, is_const)
-    if addr.alpha.src2 is not None:
-        is_const = int(addr.alpha.src2.type is SrcAddrType.const)
-        is_float = int(addr.alpha.src2.type is SrcAddrType.float)
-        US_ALU_ALPHA_ADDR.ADDR2(code, (is_float << 7) | addr.alpha.src2.value)
-        US_ALU_ALPHA_ADDR.ADDR2_CONST(code, is_const)
+    srcs = [
+        (addr.alpha.src0 , US_ALU_ALPHA_ADDR.ADDR0 , US_ALU_ALPHA_ADDR.ADDR0_CONST),
+        (addr.alpha.src1 , US_ALU_ALPHA_ADDR.ADDR1 , US_ALU_ALPHA_ADDR.ADDR1_CONST),
+        (addr.alpha.src2 , US_ALU_ALPHA_ADDR.ADDR2 , US_ALU_ALPHA_ADDR.ADDR2_CONST),
+        (addr.rgb.src0   , US_ALU_RGB_ADDR.ADDR0   , US_ALU_RGB_ADDR.ADDR0_CONST),
+        (addr.rgb.src1   , US_ALU_RGB_ADDR.ADDR1   , US_ALU_RGB_ADDR.ADDR1_CONST),
+        (addr.rgb.src2   , US_ALU_RGB_ADDR.ADDR2   , US_ALU_RGB_ADDR.ADDR2_CONST),
+    ]
+
+    for src, ADDR, ADDR_CONST in srcs:
+        if src is not None:
+            is_const = int(src.type is SrcAddrType.const)
+            is_float = int(src.type is SrcAddrType.float)
+            ADDR(code, (is_float << 7) | addr.alpha.src0.value)
+            ADDR_CONST(code, is_const)
+        else:
+            ADDR(code, (1 << 7) | 0)
+
     if addr.alpha.srcp is not None:
         US_ALU_ALPHA_ADDR.SRCP_OP(code, addr.alpha.srcp.value)
-    if addr.rgb.src0 is not None:
-        is_const = int(addr.rgb.src0.type is SrcAddrType.const)
-        is_float = int(addr.rgb.src0.type is SrcAddrType.float)
-        US_ALU_RGB_ADDR.ADDR0(code, (is_float << 7) | addr.rgb.src0.value)
-        US_ALU_RGB_ADDR.ADDR0_CONST(code, is_const)
-    if addr.rgb.src1 is not None:
-        is_const = int(addr.rgb.src1.type is SrcAddrType.const)
-        is_float = int(addr.rgb.src1.type is SrcAddrType.float)
-        US_ALU_RGB_ADDR.ADDR1(code, (is_float << 7) | addr.rgb.src1.value)
-        US_ALU_RGB_ADDR.ADDR1_CONST(code, is_const)
-    if addr.rgb.src2 is not None:
-        is_const = int(addr.rgb.src2.type is SrcAddrType.const)
-        is_float = int(addr.rgb.src2.type is SrcAddrType.float)
-        US_ALU_RGB_ADDR.ADDR2(code, (is_float << 7) | addr.rgb.src2.value)
-        US_ALU_RGB_ADDR.ADDR2_CONST(code, is_const)
     if addr.rgb.srcp is not None:
         US_ALU_RGB_ADDR.SRCP_OP(code, addr.rgb.srcp.value)
 

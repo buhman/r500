@@ -101,8 +101,7 @@ def disassemble(code, ix):
             field_pv_name = get_field_pv_name(value, d)
             yield ' '.join([d.field_name.ljust(max_length), f"{field_pv_name}"])
 
-    def inner(register_name_list):
-
+    def inner_columns(register_name_list):
         columns = []
         for i, register_name in enumerate(register_name_list):
             columns.append(list(inner2(i, register_name)))
@@ -123,6 +122,12 @@ def disassemble(code, ix):
                 for cix, column in enumerate(columns)
             ])
             print("  ", row)
+
+    def inner_rows(register_name_list):
+        for i, register_name in enumerate(register_name_list):
+            print('\n'.join(inner2(i, register_name)))
+
+    inner = inner_rows
 
     inst_type = get_field_pv_name(us_cmn_inst, US_CMN_INST["TYPE"])
     if inst_type in {"US_INST_TYPE_OUT", "US_INST_TYPE_ALU"}:
