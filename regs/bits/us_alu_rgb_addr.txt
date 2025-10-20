@@ -65,7 +65,7 @@ ADDR2_REL        29     0x0     Specifies whether the loop register is added to 
 SRCP_OP          31:30  0x0     Specifies how the pre-subtract value (SRCP) is
                                 computed.
                                 POSSIBLE VALUES:
-                                00 - 1.0-2.0*RGB0
-                                01 - RGB1-RGB0
-                                02 - RGB1+RGB0
-                                03 - 1.0-RGB0
+                                00 - neg2: 1.0-2.0*RGB0
+                                01 - sub: RGB1-RGB0
+                                02 - add: RGB1+RGB0
+                                03 - neg: 1.0-RGB0

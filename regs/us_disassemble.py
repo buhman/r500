@@ -45,8 +45,10 @@ fc = [
 ]
 
 def parse_registers():
+    base = path.dirname(__file__)
+
     for register in register_names:
-        filename = path.join("bits", register.lower() + ".txt")
+        filename = path.join(base, "bits", register.lower() + ".txt")
         l = list(parse_bits.parse_file_fields(filename))
         yield register, OrderedDict(
             (d.field_name, d) for d in parse_bits.aggregate(l)
@@ -142,5 +144,4 @@ if __name__ == "__main__":
         buf = f.read()
     code = [parse_hex(c.strip()) for c in buf.split(',') if c.strip()]
     for i in range(len(code) // 6):
-
         disassemble(code, i * 6)

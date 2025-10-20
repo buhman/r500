@@ -64,7 +64,7 @@ ADDR2_REL        29     0x0     Specifies whether the loop register is added to 
                                 01 - RELATIVE: Add aL before lookup.
 SRCP_OP          31:30  0x0     Specifies how the pre-subtract value (SRCP) is computed.
                                 POSSIBLE VALUES:
-                                00 - 1.0-2.0*A0
-                                01 - A1-A0
-                                02 - A1+A0
-                                03 - 1.0-A0
+                                00 - neg2: 1.0-2.0*A0
+                                01 - sub: A1-A0
+                                02 - add: A1+A0
+                                03 - neg: 1.0-A0
