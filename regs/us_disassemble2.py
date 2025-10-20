@@ -5,7 +5,7 @@ from collections import OrderedDict
 from functools import partial
 from pprint import pprint
 
-VERBOSE = False
+VERBOSE = True
 
 class BaseRegister:
     def get(self, code, *, code_ix, descriptor):

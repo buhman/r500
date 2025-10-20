@@ -50,17 +50,21 @@ class Parser(BaseParser):
         src_swizzle_identifier = self.consume(TT.identifier, "expected src swizzle identifier")
         self.consume(TT.equal, "expected equal")
         addr_keyword = self.consume(TT.keyword, "expected addr keyword")
-        if addr_keyword.keyword is KW.FLOAT:
-            self.consume(TT.left_paren, "expected left paren")
-        else:
-            self.consume(TT.left_square, "expected left square")
 
-        addr_value_identifier = self.consume(TT.identifier, "expected address identifier")
-
-        if addr_keyword.keyword is KW.FLOAT:
-            self.consume(TT.right_paren, "expected right paren")
+        if addr_keyword.keyword in {KW.NEG2, KW.SUB, KW.ADD, KW.NEG}:
+            addr_value_identifier = None
         else:
-            self.consume(TT.right_square, "expected right square")
+            if addr_keyword.keyword is KW.FLOAT:
+                self.consume(TT.left_paren, "expected left paren")
+            else:
+                self.consume(TT.left_square, "expected left square")
+
+            addr_value_identifier = self.consume(TT.identifier, "expected address identifier")
+
+            if addr_keyword.keyword is KW.FLOAT:
+                self.consume(TT.right_paren, "expected right paren")
+            else:
+                self.consume(TT.right_square, "expected right square")
 
         return LetExpression(
             src_keyword,
@@ -77,6 +81,11 @@ class Parser(BaseParser):
         self.consume(TT.dot, "expected dot")
         swizzle_identifier = self.consume(TT.identifier, "expected dest swizzle identifier")
         self.consume(TT.equal, "expected equal")
+        return DestAddrSwizzle(
+            dest_keyword,
+            addr_identifier,
+            swizzle_identifier,
+        )
 
     def is_opcode(self):
         opcode_keywords = {
@@ -179,6 +188,11 @@ src0.a = float(0), src0.rgb = temp[0] :
   out[0].none = temp[0].none = MAD src0.r src0.r src0.r ,
   out[0].none = temp[0].r    = DP3 src0.rg0 src0.rg0 ;
     """
+    buf = b"""
+src0.a = float(0), src1.a = float(0), src2.a = float(0), srcp.a = neg2, src0.rgb = temp[0], src1.rgb = float(0), src2.rgb = float(0), srcp.rgb = neg2 :
+  out[0].none = temp[0].none = MAD src0.r src0.r src0.r ,
+  out[0].none = temp[0].r    = DP3 src0.rg0 src0.rg0 src0.rrr ;
+"""
     lexer = Lexer(buf, find_keyword, emit_newlines=False)
     tokens = list(lexer.lex_tokens())
     parser = Parser(tokens)

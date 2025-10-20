@@ -32,6 +32,12 @@ class KW(Enum):
     SRC2 = auto()
     SRCP = auto()
 
+    # srcp_op
+    NEG2 = auto()
+    SUB = auto()
+    ADD = auto()
+    NEG = auto()
+
     # modifiers
     TEX_SEM_WAIT = auto()
 
@@ -63,8 +69,13 @@ _string_to_keyword = {
     b"SRC1": KW.SRC1,
     b"SRC2": KW.SRC2,
     b"SRCP": KW.SRCP,
+    b"NEG2": KW.NEG2,
+    b"SUB": KW.SUB,
+    b"ADD": KW.ADD,
+    b"NEG": KW.NEG,
     b"TEX_SEM_WAIT": KW.TEX_SEM_WAIT,
 }
+_keyword_to_string = {v:k for k,v in _string_to_keyword.items()}
 
 def find_keyword(s):
     if s.upper() in _string_to_keyword:
