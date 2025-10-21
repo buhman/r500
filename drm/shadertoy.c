@@ -16,6 +16,19 @@
 #include "3d_registers_bits.h"
 #include "command_processor.h"
 
+static inline uint32_t rreg(void * rmmio, uint32_t offset)
+{
+  uint32_t value = *((volatile uint32_t *)(((uintptr_t)rmmio) + offset));
+  asm volatile ("" ::: "memory");
+  return value;
+}
+
+static inline void wreg(void * rmmio, uint32_t offset, uint32_t value)
+{
+  *((volatile uint32_t *)(((uintptr_t)rmmio) + offset)) = value;
+  asm volatile ("" ::: "memory");
+}
+
 union u32_f32 {
   uint32_t u32;
   float f32;
@@ -23,7 +36,7 @@ union u32_f32 {
 
 static union u32_f32 ib[16384];
 
-int indirect_buffer()
+int indirect_buffer(float time)
 {
   int ix = 0;
 
@@ -437,7 +450,7 @@ int indirect_buffer()
   // fragment constants
 
   const float fragment_consts[] = {
-    -0.1f, 0, 0, 0,
+    time, 0, 0, 0,
   };
   int fragment_consts_length = (sizeof (fragment_consts)) / (sizeof (fragment_consts[0]));
 
@@ -452,7 +465,7 @@ int indirect_buffer()
   // fragment code
 
   const uint32_t fragment_shader[] = {
-    #include "shadertoy_circle.fs.inc"
+    #include "shadertoy_sin.fs.inc"
   };
   const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
   assert(fragment_shader_length % 6 == 0);
@@ -526,56 +539,85 @@ int indirect_buffer()
   return ix;
 }
 
+int create_colorbuffer(int fd, int colorbuffer_size)
+{
+  int ret;
+
+  struct drm_radeon_gem_create args = {
+    .size = colorbuffer_size,
+    .alignment = 4096,
+    .handle = 0,
+    .initial_domain = 4, // RADEON_GEM_DOMAIN_VRAM
+    .flags = 4
+  };
+
+  ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_CREATE, &args, (sizeof (struct drm_radeon_gem_create)));
+  if (ret != 0) {
+    perror("drmCommandWriteRead(DRM_RADEON_GEM_CREATE)");
+  }
+  assert(args.handle != 0);
+
+  struct drm_radeon_gem_mmap mmap_args = {
+    .handle = args.handle,
+    .offset = 0,
+    .size = colorbuffer_size,
+  };
+  ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_MMAP, &mmap_args, (sizeof (struct drm_radeon_gem_mmap)));
+  if (ret != 0) {
+    perror("drmCommandWriteRead(DRM_RADEON_GEM_MMAP)");
+  }
+
+  void * ptr = mmap(0,
+                    colorbuffer_size,
+                    PROT_READ | PROT_WRITE,
+                    MAP_SHARED,
+                    fd,
+                    mmap_args.addr_ptr);
+  assert(ptr != MAP_FAILED);
+
+  // clear colorbuffer
+  for (int i = 0; i < colorbuffer_size / 4; i++) {
+    ((uint32_t*)ptr)[i] = 0x00000000;
+  }
+  asm volatile ("" ::: "memory");
+
+  munmap(ptr, colorbuffer_size);
+
+  return args.handle;
+}
+
 int main()
 {
+  //////////////////////////////////////////////////////////////////////////////
+  // PCI resource0
+  //////////////////////////////////////////////////////////////////////////////
+  const char * resource2_path = "/sys/bus/pci/devices/0000:01:00.0/resource2";
+  int resource2_fd = open(resource2_path, O_RDWR | O_SYNC);
+  assert(resource2_fd >= 0);
+
+  uint32_t resource2_size = 0x10000;
+  void * resource2_base = mmap(0, resource2_size, PROT_READ | PROT_WRITE, MAP_SHARED, resource2_fd, 0);
+  assert(resource2_base != MAP_FAILED);
+
+  void * rmmio = resource2_base;
+
+  //////////////////////////////////////////////////////////////////////////////
+  // DRI card0
+  //////////////////////////////////////////////////////////////////////////////
+
   int ret;
   int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
 
   const int colorbuffer_size = 1600 * 1200 * 4;
-  int colorbuffer_handle;
-  void * colorbuffer_ptr;
+  int colorbuffer_handle[2];
   int flush_handle;
 
   // colorbuffer
-  {
-    struct drm_radeon_gem_create args = {
-      .size = colorbuffer_size,
-      .alignment = 4096,
-      .handle = 0,
-      .initial_domain = 4, // RADEON_GEM_DOMAIN_VRAM
-      .flags = 4
-    };
+  colorbuffer_handle[0] = create_colorbuffer(fd, colorbuffer_size);
+  colorbuffer_handle[1] = create_colorbuffer(fd, colorbuffer_size);
 
-    ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_CREATE, &args, (sizeof (struct drm_radeon_gem_create)));
-    if (ret != 0) {
-      perror("drmCommandWriteRead(DRM_RADEON_GEM_CREATE)");
-    }
-    assert(args.handle != 0);
-
-    colorbuffer_handle = args.handle;
-  }
-
-  {
-    struct drm_radeon_gem_mmap mmap_args = {
-      .handle = colorbuffer_handle,
-      .offset = 0,
-      .size = colorbuffer_size,
-    };
-    ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_MMAP, &mmap_args, (sizeof (struct drm_radeon_gem_mmap)));
-    if (ret != 0) {
-      perror("drmCommandWriteRead(DRM_RADEON_GEM_MMAP)");
-    }
-
-    colorbuffer_ptr = mmap(0, mmap_args.size, PROT_READ|PROT_WRITE, MAP_SHARED,
-                           fd, mmap_args.addr_ptr);
-  }
-
-  { // clear colorbuffer
-    for (int i = 0; i < colorbuffer_size / 4; i++) {
-      ((uint32_t*)colorbuffer_ptr)[i] = 0;
-    }
-    asm volatile ("" ::: "memory");
-  }
+  fprintf(stderr, "colorbuffer handle[0] %d\n", colorbuffer_handle[0]);
+  fprintf(stderr, "colorbuffer handle[1] %d\n", colorbuffer_handle[1]);
 
   // flush
   {
@@ -596,74 +638,100 @@ int main()
     flush_handle = args.handle;
   }
 
-
-  fprintf(stderr, "colorbuffer handle %d\n", colorbuffer_handle);
-
-  struct drm_radeon_cs_reloc relocs[] = {
-    {
-      .handle = colorbuffer_handle,
-      .read_domains = 4, // RADEON_GEM_DOMAIN_VRAM
-      .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM
-      .flags = 8,
-    },
-    {
-      .handle = flush_handle,
-      .read_domains = 2, // RADEON_GEM_DOMAIN_GTT
-      .write_domain = 2, // RADEON_GEM_DOMAIN_GTT
-      .flags = 0,
-    }
-  };
-
   uint32_t flags[2] = {
     5, // RADEON_CS_KEEP_TILING_FLAGS | RADEON_CS_END_OF_FRAME
     0, // RADEON_CS_RING_GFX
   };
 
-  int ib_dwords = indirect_buffer();
-  //int ib_dwords = (sizeof (ib2)) / (sizeof (ib2[0]));
+  float time = 0;
 
-  struct drm_radeon_cs_chunk chunks[3] = {
-    {
-      .chunk_id = RADEON_CHUNK_ID_IB,
-      .length_dw = ib_dwords,
-      .chunk_data = (uint64_t)(uintptr_t)ib,
-    },
-    {
-      .chunk_id = RADEON_CHUNK_ID_RELOCS,
-      .length_dw = (sizeof (relocs)) / (sizeof (uint32_t)),
-      .chunk_data = (uint64_t)(uintptr_t)relocs,
-    },
-    {
-      .chunk_id = RADEON_CHUNK_ID_FLAGS,
-      .length_dw = (sizeof (flags)) / (sizeof (uint32_t)),
-      .chunk_data = (uint64_t)(uintptr_t)&flags,
-    },
-  };
+  int ib_dwords = indirect_buffer(time);
 
-  uint64_t chunks_array[3] = {
-    (uint64_t)(uintptr_t)&chunks[0],
-    (uint64_t)(uintptr_t)&chunks[1],
-    (uint64_t)(uintptr_t)&chunks[2],
-  };
+  int colorbuffer_ix = 0;
 
-  struct drm_radeon_cs cs = {
-    .num_chunks = 3,
-    .cs_id = 0,
-    .chunks = (uint64_t)(uintptr_t)chunks_array,
-    .gart_limit = 0,
-    .vram_limit = 0,
-  };
+  while (true) {
+    struct drm_radeon_cs_reloc relocs[] = {
+      {
+        .handle = colorbuffer_handle[colorbuffer_ix],
+        .read_domains = 4, // RADEON_GEM_DOMAIN_VRAM
+        .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM
+        .flags = 8,
+      },
+      {
+        .handle = flush_handle,
+        .read_domains = 2, // RADEON_GEM_DOMAIN_GTT
+        .write_domain = 2, // RADEON_GEM_DOMAIN_GTT
+        .flags = 0,
+      }
+    };
 
-  ret = drmCommandWriteRead(fd, DRM_RADEON_CS, &cs, (sizeof (struct drm_radeon_cs)));
-  if (ret != 0) {
-    perror("drmCommandWriteRead(DRM_RADEON_CS)");
+    struct drm_radeon_cs_chunk chunks[3] = {
+      {
+        .chunk_id = RADEON_CHUNK_ID_IB,
+        .length_dw = ib_dwords,
+        .chunk_data = (uint64_t)(uintptr_t)ib,
+      },
+      {
+        .chunk_id = RADEON_CHUNK_ID_RELOCS,
+        .length_dw = (sizeof (relocs)) / (sizeof (uint32_t)),
+        .chunk_data = (uint64_t)(uintptr_t)relocs,
+      },
+      {
+        .chunk_id = RADEON_CHUNK_ID_FLAGS,
+        .length_dw = (sizeof (flags)) / (sizeof (uint32_t)),
+        .chunk_data = (uint64_t)(uintptr_t)&flags,
+      },
+    };
+
+    uint64_t chunks_array[3] = {
+      (uint64_t)(uintptr_t)&chunks[0],
+      (uint64_t)(uintptr_t)&chunks[1],
+      (uint64_t)(uintptr_t)&chunks[2],
+    };
+
+    struct drm_radeon_cs cs = {
+      .num_chunks = 3,
+      .cs_id = 0,
+      .chunks = (uint64_t)(uintptr_t)chunks_array,
+      .gart_limit = 0,
+      .vram_limit = 0,
+    };
+
+    ret = drmCommandWriteRead(fd, DRM_RADEON_CS, &cs, (sizeof (struct drm_radeon_cs)));
+    if (ret != 0) {
+      perror("drmCommandWriteRead(DRM_RADEON_CS)");
+    }
+
+#define D1CRTC_DOUBLE_BUFFER_CONTROL 0x60ec
+#define D1GRPH_PRIMARY_SURFACE_ADDRESS 0x6110
+#define D1GRPH_UPDATE 0x6144
+#define D1GRPH_UPDATE__D1GRPH_SURFACE_UPDATE_PENDING (1 << 2)
+
+    uint32_t d1crtc_double_buffer_control = rreg(rmmio, D1CRTC_DOUBLE_BUFFER_CONTROL);
+    printf("D1CRTC_DOUBLE_BUFFER_CONTROL: %08x\n", d1crtc_double_buffer_control);
+    assert(d1crtc_double_buffer_control == (1 << 8));
+
+    // addresses were retrieved from /sys/kernel/debug/radeon_vram_mm
+    //
+    // This assumes GEM buffer allocation always starts from the lowest
+    // unallocated address.
+    const uint32_t colorbuffer_addresses[2] = {
+      0x813000,
+      0xf66000,
+    };
+
+    wreg(rmmio, D1GRPH_PRIMARY_SURFACE_ADDRESS, colorbuffer_addresses[colorbuffer_ix]);
+    while ((rreg(rmmio, D1GRPH_UPDATE) & D1GRPH_UPDATE__D1GRPH_SURFACE_UPDATE_PENDING) != 0);
+
+    // next state
+    time += 0.01f;
+    colorbuffer_ix = (colorbuffer_ix + 1) & 1;
+
+    // next indirect buffer
+    ib_dwords = indirect_buffer(time);
   }
 
-  struct drm_radeon_gem_wait_idle args = {
-    .handle = flush_handle
-  };
-  while (drmCommandWrite(fd, DRM_RADEON_GEM_WAIT_IDLE, &args, (sizeof (struct drm_radeon_gem_wait_idle))) == -EBUSY);
-
+  /*
   int out_fd = open("colorbuffer.data", O_RDWR|O_CREAT);
   assert(out_fd >= 0);
   ssize_t write_length = write(out_fd, colorbuffer_ptr, colorbuffer_size);
@@ -682,8 +750,7 @@ int main()
     }
   }
   close(mm_fd);
-
-  munmap(colorbuffer_ptr, colorbuffer_size);
+  */
 
   close(fd);
 }

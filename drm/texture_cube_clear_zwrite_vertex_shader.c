@@ -972,6 +972,10 @@ int main()
   colorbuffer_handle[1] = create_colorbuffer(fd, colorbuffer_size);
   zbuffer_handle = create_colorbuffer(fd, colorbuffer_size);
 
+  fprintf(stderr, "colorbuffer handle[0] %d\n", colorbuffer_handle[0]);
+  fprintf(stderr, "colorbuffer handle[1] %d\n", colorbuffer_handle[1]);
+  fprintf(stderr, "zbuffer handle %d\n", zbuffer_handle);
+
   // texture
   {
     const int texture_size = 1024 * 1024 * 4;
@@ -1037,16 +1041,12 @@ int main()
     flush_handle = args.handle;
   }
 
-  fprintf(stderr, "colorbuffer handle[0] %d\n", colorbuffer_handle[0]);
-  fprintf(stderr, "colorbuffer handle[1] %d\n", colorbuffer_handle[1]);
-
   uint32_t flags[2] = {
     5, // RADEON_CS_KEEP_TILING_FLAGS | RADEON_CS_END_OF_FRAME
     0, // RADEON_CS_RING_GFX
   };
 
   int ib_dwords = indirect_buffer(0);
-  //int ib_dwords = (sizeof (ib2)) / (sizeof (ib2[0]));
 
   int colorbuffer_ix = 0;
   float theta = 0;
