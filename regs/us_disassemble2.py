@@ -1,11 +1,11 @@
 import sys
-from os import path
+from os import path, environ
 import parse_bits
 from collections import OrderedDict
 from functools import partial
 from pprint import pprint
 
-VERBOSE = False
+VERBOSE = environ.get("VERBOSE", "false").lower() == "true"
 
 class BaseRegister:
     def get(self, code, *, code_ix, descriptor):
@@ -324,7 +324,13 @@ def disassemble_alu(code, is_output):
         rgb_swizzle_sel = rgb_swizzle_sel[:rgb_op_operands]
 
         a_sources = set(a_sels)
+        if 3 in a_sources:
+            a_sources.add(0)
+            a_sources.add(1)
         rgb_sources = set(rgb_sels)
+        if 3 in rgb_sources:
+            rgb_sources.add(0)
+            rgb_sources.add(1)
         a_addr_strs = [s for i, s in enumerate(a_addr_strs) if i in a_sources]
         rgb_addr_strs = [s for i, s in enumerate(rgb_addr_strs) if i in rgb_sources]
 
