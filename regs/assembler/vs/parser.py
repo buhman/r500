@@ -174,21 +174,19 @@ class Parser(BaseParser):
         return Source(source_type, offset, source_swizzle)
 
     def instruction(self):
-        while self.match(TT.eol):
-            self.advance()
         first_token = self.peek()
         destination_op = self.destination_op()
         source0 = self.source()
-        if self.match(TT.eol) or self.match(TT.eof):
+        if self.match(TT.semicolon) or self.match(TT.eof):
             source1 = None
         else:
             source1 = self.source()
-        if self.match(TT.eol) or self.match(TT.eof):
+        if self.match(TT.semicolon) or self.match(TT.eof):
             source2 = None
         else:
             source2 = self.source()
         last_token = self.peek(-1)
-        self.consume_either(TT.eol, TT.eof, "expected newline or EOF")
+        self.consume(TT.semicolon, "expected semicolon")
         return (
             Instruction(destination_op, source0, source1, source2),
             (first_token.start_ix, last_token.start_ix + len(last_token.lexeme))

@@ -20,6 +20,7 @@ class TT(Enum):
     semicolon = auto()
     bar = auto()
     comma = auto()
+    minus = auto()
 
 @dataclass
 class Token:
@@ -41,7 +42,9 @@ class LexerError(Exception):
     pass
 
 class Lexer:
-    def __init__(self, buf: memoryview, find_keyword, emit_newlines=True):
+    def __init__(self, buf: memoryview, find_keyword,
+                 emit_newlines=False,
+                 minus_is_token=False):
         self.start_ix = 0
         self.current_ix = 0
         self.buf = memoryview(buf)
@@ -49,6 +52,7 @@ class Lexer:
         self.col = 0
         self.find_keyword = find_keyword
         self.emit_newlines = emit_newlines
+        self.minus_is_token = minus_is_token
 
     def at_end_p(self):
         return self.current_ix >= len(self.buf)
@@ -108,6 +112,8 @@ class Lexer:
                 return Token(*self.pos(), TT.semicolon, self.lexeme())
             elif c == ord(','):
                 return Token(*self.pos(), TT.comma, self.lexeme())
+            elif self.minus_is_token and c == ord('-'):
+                return Token(*self.pos(), TT.minus, self.lexeme())
             elif c == ord('#'):
                 while not self.at_end_p() and self.peek() != ord('\n'):
                     self.advance()

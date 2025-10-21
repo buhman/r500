@@ -512,7 +512,7 @@ src0.a = float(0), src0.rgb = temp[0] , srcp.a = neg :
   out[0].none = temp[0].none = MAD src0.r src0.r src0.r ,
   out[0].none = temp[0].r    = DP3 src0.rg0 src0.rg0 ;
     """
-    lexer = Lexer(buf, find_keyword, emit_newlines=False)
+    lexer = Lexer(buf, find_keyword, emit_newlines=False, minus_is_token=True)
     tokens = list(lexer.lex_tokens())
     parser = Parser(tokens)
     try:

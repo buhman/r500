@@ -8,7 +8,7 @@ from assembler.fs.emitter import emit_instruction
 from assembler.error import print_error
 
 def frontend_inner(buf):
-    lexer = Lexer(buf, find_keyword, emit_newlines=False)
+    lexer = Lexer(buf, find_keyword, emit_newlines=False, minus_is_token=True)
     tokens = list(lexer.lex_tokens())
     parser = Parser(tokens)
     for ins_ast in parser.instructions():

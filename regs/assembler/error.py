@@ -18,7 +18,7 @@ def print_error(filename, buf, e):
         if i == token.col:
             sys.stderr.write(RED)
         sys.stderr.write(c)
-        if i == token.col + len(token.lexeme):
+        if i == token.col + len(token.lexeme) - 1:
             wrote_default = True
             sys.stderr.write(DEFAULT)
     if not wrote_default:

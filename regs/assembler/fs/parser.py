@@ -103,7 +103,7 @@ class Parser(BaseParser):
         return False
 
     def is_neg(self):
-        result = self.match(TT.identifier) and self.peek().lexeme == b'-'
+        result = self.match(TT.minus)
         if result:
             self.advance()
         return result
@@ -118,17 +118,12 @@ class Parser(BaseParser):
         neg = self.is_neg()
         abs = self.is_abs()
 
-        if neg:
-            self.consume(TT.left_paren, "expected left paren")
-
         sel_keyword = self.consume(TT.keyword, "expected sel keyword")
         self.consume(TT.dot, "expected dot")
         swizzle_identifier = self.consume(TT.identifier, "expected swizzle identifier")
 
         if abs:
             self.consume(TT.bar, "expected bar")
-        if neg:
-            self.consume(TT.right_paren, "expected right paren")
 
         mod_table = {
             # (neg, abs)
@@ -211,7 +206,7 @@ src0.a = float(0), src1.a = float(0), src2.a = float(0), srcp.a = neg2, src0.rgb
   out[0].none = temp[0].none = MAD src0.r src0.r src0.r ,
   out[0].none = temp[0].r    = DP3 src0.rg0 src0.rg0 src0.rrr ;
 """
-    lexer = Lexer(buf, find_keyword, emit_newlines=False)
+    lexer = Lexer(buf, find_keyword, emit_newlines=False, minus_is_token=True)
     tokens = list(lexer.lex_tokens())
     parser = Parser(tokens)
     from pprint import pprint
