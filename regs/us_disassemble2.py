@@ -299,6 +299,7 @@ def disassemble_alu(code, is_output):
     rgb_swizzle_sel, rgb_sels = disassemble_rgb_swizzle_sel(code)
     #print(", ".join([*rgb_swizzle_sel, *a_swizzle_sel]))
 
+    type = US_CMN_INST.TYPE(code)
     tex_sem_wait = US_CMN_INST.TEX_SEM_WAIT(code)
 
     _, a_op, _ = US_ALU_ALPHA_INST._ALPHA_OP(code)
@@ -309,8 +310,14 @@ def disassemble_alu(code, is_output):
 
     (a_out_str, a_temp_str), (rgb_out_str, rgb_temp_str) = disassemble_alu_dest(code)
 
+    tags = []
+    assert type in {0, 1}, type
+    if type == 1:
+        tags.append("OUT")
     if tex_sem_wait:
-        print("TEX_SEM_WAIT")
+        tags.append("TEX_SEM_WAIT")
+    if tags:
+        print(" ".join(tags))
 
     if not VERBOSE:
         a_swizzle_sel = a_swizzle_sel[:a_op_operands]

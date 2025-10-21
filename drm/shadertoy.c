@@ -244,9 +244,6 @@ int indirect_buffer()
   T0V(US_CONFIG
       , US_CONFIG__ZERO_TIMES_ANYTHING_EQUALS_ZERO(1)
       );
-  T0V(US_PIXSIZE
-      , US_PIXSIZE__PIX_SIZE(1)
-      );
   T0V(US_FC_CTRL, 0);
 
   T0V(FG_DEPTH_SRC, 0x00000000);
@@ -433,24 +430,30 @@ int indirect_buffer()
   // GA_US
   //////////////////////////////////////////////////////////////////////////////
 
+  const uint32_t fragment_shader[] = {
+    #include "shadertoy.fs.inc"
+  };
+  const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
+  assert(fragment_shader_length % 6 == 0);
+  printf("fs length %d\n", fragment_shader_length);
+  const int fragment_shader_instructions = fragment_shader_length / 6;
+  printf("fs instructions %d\n", fragment_shader_instructions);
+
+  T0V(US_PIXSIZE
+      , US_PIXSIZE__PIX_SIZE(1) // pixel shader stack frame size
+      );
+
   T0V(US_CODE_RANGE
       , US_CODE_RANGE__CODE_ADDR(0)
-      | US_CODE_RANGE__CODE_SIZE(0)
+      | US_CODE_RANGE__CODE_SIZE(fragment_shader_instructions - 1)
       );
   T0V(US_CODE_OFFSET
       , US_CODE_OFFSET__OFFSET_ADDR(0)
       );
   T0V(US_CODE_ADDR
       , US_CODE_ADDR__START_ADDR(0)
-      | US_CODE_ADDR__END_ADDR(0)
+      | US_CODE_ADDR__END_ADDR(fragment_shader_instructions - 1)
       );
-
-  const uint32_t fragment_shader[] = {
-    #include "../shader_examples/mesa/shadertoy.fs.txt"
-  };
-  const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
-  assert(fragment_shader_length % 6 == 0);
-  printf("fs length %d\n", fragment_shader_length);
 
   T0V(GA_US_VECTOR_INDEX, 0x00000000);
   T0_ONE_REG(GA_US_VECTOR_DATA, fragment_shader_length - 1);
