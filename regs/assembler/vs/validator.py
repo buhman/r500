@@ -1,15 +1,15 @@
-from assembler.vs.keywords import ME, VE, macro_vector_operations
+from assembler.vs.keywords import KW, ME, VE, macro_vector_operations
 
 class ValidatorError(Exception):
     pass
 
 def validate_instruction(ins):
-    addresses = len(set(
+    temp_addresses = len(set(
         source.offset
         for source in [ins.source0, ins.source1, ins.source2]
-        if source is not None
+        if (source is not None and source.type == KW.temporary)
     ))
-    if addresses > 2:
+    if temp_addresses > 2:
         if type(ins.destination_op.opcode) is not VE:
             raise ValidatorError("too many addresses for non-VE instruction", ins)
         if ins.destination_op.opcode.name not in {b"VE_MULTIPLYX2_ADD", b"VE_MULTIPLY_ADD"}:
