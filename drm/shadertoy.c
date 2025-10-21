@@ -357,6 +357,8 @@ int indirect_buffer()
   // VAP_PVS
   //////////////////////////////////////////////////////////////////////////////
 
+  // vertex constants
+
   T0V(VAP_PVS_CONST_CNTL
       , VAP_PVS_CONST_CNTL__PVS_CONST_BASE_OFFSET(0)
       | VAP_PVS_CONST_CNTL__PVS_MAX_CONST_ADDR(1)
@@ -366,13 +368,15 @@ int indirect_buffer()
       , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(1024)
       );
 
-  const float consts[] = {
+  const float vertex_consts[] = {
     4.0f / 3.0f, 0.0f, 0.0f, 0.0f,
   };
-  int consts_length = (sizeof (consts)) / (sizeof (consts[0]));
-  T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, (consts_length - 1));
-  for (int i = 0; i < consts_length; i++)
-    ib[ix++].f32 = consts[i];
+  int vertex_consts_length = (sizeof (vertex_consts)) / (sizeof (vertex_consts[0]));
+  T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, (vertex_consts_length - 1));
+  for (int i = 0; i < vertex_consts_length; i++)
+    ib[ix++].f32 = vertex_consts[i];
+
+  // vertex code
 
   T0V(VAP_PVS_CODE_CNTL_0
       , VAP_PVS_CODE_CNTL_0__PVS_FIRST_INST(0)
@@ -430,8 +434,25 @@ int indirect_buffer()
   // GA_US
   //////////////////////////////////////////////////////////////////////////////
 
+  // fragment constants
+
+  const float fragment_consts[] = {
+    -0.1f, 0, 0, 0,
+  };
+  int fragment_consts_length = (sizeof (fragment_consts)) / (sizeof (fragment_consts[0]));
+
+  T0V(GA_US_VECTOR_INDEX
+      , GA_US_VECTOR_INDEX__INDEX(0)
+      | GA_US_VECTOR_INDEX__TYPE(1)
+      );
+  T0_ONE_REG(GA_US_VECTOR_DATA, (fragment_consts_length - 1));
+  for (int i = 0; i < fragment_consts_length; i++)
+    ib[ix++].f32 = fragment_consts[i];
+
+  // fragment code
+
   const uint32_t fragment_shader[] = {
-    #include "shadertoy.fs.inc"
+    #include "shadertoy_circle.fs.inc"
   };
   const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
   assert(fragment_shader_length % 6 == 0);
@@ -455,7 +476,10 @@ int indirect_buffer()
       | US_CODE_ADDR__END_ADDR(fragment_shader_instructions - 1)
       );
 
-  T0V(GA_US_VECTOR_INDEX, 0x00000000);
+  T0V(GA_US_VECTOR_INDEX
+      , GA_US_VECTOR_INDEX__INDEX(0)
+      | GA_US_VECTOR_INDEX__TYPE(0)
+      );
   T0_ONE_REG(GA_US_VECTOR_DATA, fragment_shader_length - 1);
   for (int i = 0; i < fragment_shader_length; i++) {
     ib[ix++].u32 = fragment_shader[i];
