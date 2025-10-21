@@ -12,6 +12,9 @@ LDFLAGS += $(shell pkg-config --libs libdrm) -lm
 %.vs.inc: %.vs.asm
 	PYTHONPATH=../regs/ python -m assembler.vs $< > $@
 
+%.fs.inc: %.fs.asm
+	PYTHONPATH=../regs/ python -m assembler.fs $< > $@
+
 clean:
 	find . -type f ! -name "*.*" -delete
 

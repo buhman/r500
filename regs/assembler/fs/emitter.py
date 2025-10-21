@@ -72,8 +72,10 @@ US_FC_ADDR = parse_register("US_FC_ADDR")
 
 def emit_alpha_op(code, alpha_op):
     # dest
-    US_CMN_INST.ALPHA_WMASK(code, alpha_op.dest.wmask.value)
-    US_CMN_INST.ALPHA_OMASK(code, alpha_op.dest.omask.value)
+    if alpha_op.dest.wmask is not None:
+        US_CMN_INST.ALPHA_WMASK(code, alpha_op.dest.wmask.value)
+    if alpha_op.dest.omask is not None:
+        US_CMN_INST.ALPHA_OMASK(code, alpha_op.dest.omask.value)
 
     # opcode
     US_ALU_ALPHA_INST.ALPHA_OP(code, alpha_op.opcode.value)
@@ -105,8 +107,10 @@ def emit_alpha_op(code, alpha_op):
 
 def emit_rgb_op(code, rgb_op):
     # dest
-    US_CMN_INST.RGB_WMASK(code, rgb_op.dest.wmask.value)
-    US_CMN_INST.RGB_OMASK(code, rgb_op.dest.omask.value)
+    if rgb_op.dest.wmask is not None:
+        US_CMN_INST.RGB_WMASK(code, rgb_op.dest.wmask.value)
+    if rgb_op.dest.omask is not None:
+        US_CMN_INST.RGB_OMASK(code, rgb_op.dest.omask.value)
 
     # opcode
     US_ALU_RGBA_INST.RGB_OP(code, rgb_op.opcode.value)
@@ -150,7 +154,7 @@ def emit_addr(code, addr):
         if src is not None:
             is_const = int(src.type is SrcAddrType.const)
             is_float = int(src.type is SrcAddrType.float)
-            ADDR(code, (is_float << 7) | addr.alpha.src0.value)
+            ADDR(code, (is_float << 7) | src.value)
             ADDR_CONST(code, is_const)
         else:
             ADDR(code, (1 << 7) | 0)
@@ -165,5 +169,7 @@ def emit_instruction(code, ins):
     US_CMN_INST.TEX_SEM_WAIT(code, int(ins.tex_sem_wait))
 
     emit_addr(code, ins.addr)
-    emit_alpha_op(code, ins.alpha_op)
-    emit_rgb_op(code, ins.rgb_op)
+    if ins.alpha_op is not None:
+        emit_alpha_op(code, ins.alpha_op)
+    if ins.rgb_op is not None:
+        emit_rgb_op(code, ins.rgb_op)

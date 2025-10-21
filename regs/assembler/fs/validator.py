@@ -398,7 +398,7 @@ def validate_instruction_operation_dest(dest_addr_swizzles, mask_lookup, type_cl
             assert False, dest
     if len(addrs) > 1:
         raise ValidatorError(f"too many destination addresses", operation.dest_addr_swizzles[-1].addr_identifier)
-    addrd, = addrs
+    addrd, = addrs if addrs else [0]
     return type_cls(
         addrd=addrd,
         wmask=wmask,
