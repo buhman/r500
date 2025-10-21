@@ -228,10 +228,6 @@ def assert_zeros(code):
     assert nop == 0
     alu_wait = US_CMN_INST.ALU_WAIT(code)
     assert alu_wait == 0
-    rgb_clamp = US_CMN_INST.RGB_CLAMP(code)
-    assert rgb_clamp == 0
-    alpha_clamp = US_CMN_INST.ALPHA_CLAMP(code)
-    assert alpha_clamp == 0
     alu_result_sel = US_CMN_INST.ALU_RESULT_SEL(code)
     assert alu_result_sel == 0
     alpha_pred_inv = US_CMN_INST.ALPHA_PRED_INV(code)
@@ -334,12 +330,17 @@ def disassemble_alu(code, is_output):
         a_addr_strs = [s for i, s in enumerate(a_addr_strs) if i in a_sources]
         rgb_addr_strs = [s for i, s in enumerate(rgb_addr_strs) if i in rgb_sources]
 
+    rgb_clamp = US_CMN_INST.RGB_CLAMP(code)
+    alpha_clamp = US_CMN_INST.ALPHA_CLAMP(code)
+    rgb_clamp_str = ".CLAMP" if rgb_clamp != 0 else ""
+    a_clamp_str = ".CLAMP" if alpha_clamp != 0 else ""
+
     print(", ".join([*a_addr_strs, *rgb_addr_strs]), ":")
     #print(", ".join(a_addr_strs), ":")
-    print(f"  {a_out_str} = {a_temp_str} = {a_op.removeprefix('OP_').ljust(3)} {' '.join(a_swizzle_sel)}", ",")
+    print(f"  {a_out_str} = {a_temp_str} = {a_op.removeprefix('OP_').ljust(3)}{a_clamp_str} {' '.join(a_swizzle_sel)}", ",")
 
     #print(", ".join(rgb_addr_strs), ":")
-    print(f"  {rgb_out_str} = {rgb_temp_str} = {rgb_op.removeprefix('OP_').ljust(3)} {' '.join(rgb_swizzle_sel)}", ";")
+    print(f"  {rgb_out_str} = {rgb_temp_str} = {rgb_op.removeprefix('OP_').ljust(3)}{rgb_clamp_str} {' '.join(rgb_swizzle_sel)}", ";")
 
 def disassemble(code):
     assert len(code) == 6, len(code)
