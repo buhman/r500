@@ -149,6 +149,7 @@ class InstructionType(IntEnum):
 class Instruction:
     type: InstructionType
     tex_sem_wait: bool
+    nop: bool
     addr: Addr
     alpha_op: AlphaOperation
     rgb_op: RGBOperation
@@ -485,10 +486,12 @@ def validate_instruction(ins):
 
     instruction_type = InstructionType.OUT if ins.out else InstructionType.ALU
     tex_sem_wait = ins.tex_sem_wait
+    nop = ins.nop
 
     instruction = Instruction(
         instruction_type,
         tex_sem_wait,
+        nop,
         addr_rgb_alpha,
         None,
         None

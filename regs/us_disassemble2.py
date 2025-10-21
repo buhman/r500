@@ -224,8 +224,6 @@ def assert_zeros(code):
     assert write_inactive == 0
     last = US_CMN_INST.LAST(code)
     assert last == 0
-    nop = US_CMN_INST.NOP(code)
-    assert nop == 0
     alu_wait = US_CMN_INST.ALU_WAIT(code)
     assert alu_wait == 0
     alu_result_sel = US_CMN_INST.ALU_RESULT_SEL(code)
@@ -297,6 +295,7 @@ def disassemble_alu(code, is_output):
 
     type = US_CMN_INST.TYPE(code)
     tex_sem_wait = US_CMN_INST.TEX_SEM_WAIT(code)
+    nop = US_CMN_INST.NOP(code)
 
     _, a_op, _ = US_ALU_ALPHA_INST._ALPHA_OP(code)
     _, rgb_op, _ = US_ALU_RGBA_INST._RGB_OP(code)
@@ -312,6 +311,8 @@ def disassemble_alu(code, is_output):
         tags.append("OUT")
     if tex_sem_wait:
         tags.append("TEX_SEM_WAIT")
+    if nop:
+        tags.append("NOP")
     if tags:
         print(" ".join(tags))
 

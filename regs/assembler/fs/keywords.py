@@ -39,6 +39,7 @@ class KW(Enum):
     NEG = auto()
 
     # modifiers
+    NOP = auto()
     TEX_SEM_WAIT = auto()
 
 _string_to_keyword = {
@@ -73,6 +74,7 @@ _string_to_keyword = {
     b"SUB": KW.SUB,
     b"ADD": KW.ADD,
     b"NEG": KW.NEG,
+    b"NOP": KW.NOP,
     b"TEX_SEM_WAIT": KW.TEX_SEM_WAIT,
 }
 _keyword_to_string = {v:k for k,v in _string_to_keyword.items()}

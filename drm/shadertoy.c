@@ -452,7 +452,7 @@ int indirect_buffer()
   // fragment code
 
   const uint32_t fragment_shader[] = {
-    #include "shadertoy_sin.fs.inc"
+    #include "shadertoy_circle.fs.inc"
   };
   const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
   assert(fragment_shader_length % 6 == 0);

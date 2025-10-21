@@ -167,6 +167,7 @@ def emit_addr(code, addr):
 def emit_instruction(code, ins):
     US_CMN_INST.TYPE(code, ins.type.value)
     US_CMN_INST.TEX_SEM_WAIT(code, int(ins.tex_sem_wait))
+    US_CMN_INST.NOP(code, int(ins.nop))
 
     emit_addr(code, ins.addr)
     if ins.alpha_op is not None:

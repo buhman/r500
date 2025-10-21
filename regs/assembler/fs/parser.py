@@ -42,6 +42,7 @@ class Operation:
 class Instruction:
     out: bool
     tex_sem_wait: bool
+    nop: bool
     let_expressions: list[LetExpression]
     operations: list[Operation]
 
@@ -165,6 +166,10 @@ class Parser(BaseParser):
         if self.match_keyword(KW.TEX_SEM_WAIT):
             self.advance()
             tex_sem_wait = True
+        nop = False
+        if self.match_keyword(KW.NOP):
+            self.advance()
+            nop = True
 
         let_expressions = []
         while not self.match(TT.colon):
@@ -185,6 +190,7 @@ class Parser(BaseParser):
         return Instruction(
             out,
             tex_sem_wait,
+            nop,
             let_expressions,
             operations,
         )
