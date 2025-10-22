@@ -465,7 +465,7 @@ int indirect_buffer(float time)
   // fragment code
 
   const uint32_t fragment_shader[] = {
-    #include "shadertoy_sin.fs.inc"
+    #include "shadertoy_palette.fs.inc"
   };
   const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
   assert(fragment_shader_length % 6 == 0);
@@ -474,7 +474,7 @@ int indirect_buffer(float time)
   printf("fs instructions %d\n", fragment_shader_instructions);
 
   T0V(US_PIXSIZE
-      , US_PIXSIZE__PIX_SIZE(1) // pixel shader stack frame size
+      , US_PIXSIZE__PIX_SIZE(2) // pixel shader stack frame size
       );
 
   T0V(US_CODE_RANGE
