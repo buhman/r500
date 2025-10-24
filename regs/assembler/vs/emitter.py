@@ -72,7 +72,7 @@ def prev_source(ins, ix):
     elif ix == 1:
         return ins.sources[0]
     elif ix == 2:
-        if ins.sources[1] is not None:
+        if len(ins.sources) >= 2 and ins.sources[1] is not None:
             return ins.sources[1]
         else:
             return ins.sources[0]
