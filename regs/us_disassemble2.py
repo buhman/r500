@@ -351,7 +351,8 @@ def disassemble(code):
     elif type == US_CMN_INST.TYPE.US_INST_TYPE_ALU:
         disassemble_alu(code, is_output=False)
     else:
-        assert False, US_CMN_INST._TYPE(code[ix + 0])
+        print("[TYPE]", type)
+        #assert False, US_CMN_INST._TYPE(code)
 
 def parse_hex(s):
     assert s.startswith('0x')

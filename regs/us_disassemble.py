@@ -88,7 +88,10 @@ def disassemble(code, ix):
     print(f"{ix:04x}")
 
     def inner2(i, register_name):
-        max_length = max(map(len, registers[register_name])) + 1
+        if register_name == 0:
+            max_length = 1
+        else:
+            max_length = max(map(len, registers[register_name])) + 1
 
         value = code[ix + i]
         yield f"{register_name}"
