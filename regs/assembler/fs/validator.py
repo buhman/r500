@@ -6,9 +6,7 @@ from collections import OrderedDict
 from assembler.fs.parser import Mod
 from assembler.fs.keywords import _keyword_to_string, KW
 from assembler.error import print_error
-
-class ValidatorError(Exception):
-    pass
+from assembler.validator import ValidatorError
 
 class SrcAddrType(Enum):
     temp = auto()

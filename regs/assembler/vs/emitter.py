@@ -1,92 +1,59 @@
-from assembler.vs.keywords import ME, VE, MVE, KW
-from assembler.vs.parser import Instruction, DestinationOp, Source
+from typing import Union
+
+from assembler.vs.opcodes import ME, VE, MVE
+from assembler.vs.validator import Destination, Source, Instruction
+
 import pvs_dst
 import pvs_src
-import pvs_dst_bits
-import pvs_src_bits
 
-def we_x(s):
-    return int(0 in s)
+def emit_destination_opcode(destination: Destination,
+                            opcode: Union[ME, VE, MVE],
+                            saturation: bool):
+    assert type(opcode) in {ME, VE, MVE}
+    math_inst = int(type(opcode) is ME)
+    macro_inst = int(type(opcode) is MVE)
 
-def we_y(s):
-    return int(1 in s)
-
-def we_z(s):
-    return int(2 in s)
-
-def we_w(s):
-    return int(3 in s)
-
-def dst_reg_type(kw):
-    if kw == KW.temporary:
-        return pvs_dst_bits.PVS_DST_REG_gen["TEMPORARY"]
-    elif kw == KW.a0:
-        return pvs_dst_bits.PVS_DST_REG_gen["A0"]
-    elif kw == KW.out:
-        return pvs_dst_bits.PVS_DST_REG_gen["OUT"]
-    elif kw == KW.out_repl_x:
-        return pvs_dst_bits.PVS_DST_REG_gen["OUT_REPL_X"]
-    elif kw == KW.alt_temporary:
-        return pvs_dst_bits.PVS_DST_REG_gen["ALT_TEMPORARY"]
-    elif kw == KW.input:
-        return pvs_dst_bits.PVS_DST_REG_gen["INPUT"]
-    else:
-        assert not "Invalid PVS_DST_REG", kw
-
-def emit_destination_op(dst_op: DestinationOp):
-    assert type(dst_op.opcode) in {ME, VE, MVE}
-    math_inst = int(type(dst_op.opcode) is ME)
-    if dst_op.macro:
-        assert dst_op.opcode.value in {0, 1}
-    ve_sat = int((not math_inst) and dst_op.sat)
-    me_sat = int(math_inst and dst_op.sat)
+    ve_sat = int((not math_inst) and saturation)
+    me_sat = int(math_inst and saturation)
 
     value = (
-          pvs_dst.OPCODE_gen(dst_op.opcode.value)
+          pvs_dst.OPCODE_gen(opcode.value)
         | pvs_dst.MATH_INST_gen(math_inst)
-        | pvs_dst.MACRO_INST_gen(int(dst_op.macro))
-        | pvs_dst.REG_TYPE_gen(dst_reg_type(dst_op.type))
-        | pvs_dst.OFFSET_gen(dst_op.offset)
-        | pvs_dst.WE_X_gen(we_x(dst_op.write_enable))
-        | pvs_dst.WE_Y_gen(we_y(dst_op.write_enable))
-        | pvs_dst.WE_Z_gen(we_z(dst_op.write_enable))
-        | pvs_dst.WE_W_gen(we_w(dst_op.write_enable))
+        | pvs_dst.MACRO_INST_gen(int(macro_inst))
+        | pvs_dst.REG_TYPE_gen(destination.type.value)
+        | pvs_dst.OFFSET_gen(destination.offset)
+        | pvs_dst.WE_X_gen(int(destination.write_enable[0]))
+        | pvs_dst.WE_Y_gen(int(destination.write_enable[1]))
+        | pvs_dst.WE_Z_gen(int(destination.write_enable[2]))
+        | pvs_dst.WE_W_gen(int(destination.write_enable[3]))
         | pvs_dst.VE_SAT_gen(ve_sat)
         | pvs_dst.ME_SAT_gen(me_sat)
     )
     yield value
 
-def src_reg_type(kw):
-    if kw == KW.temporary:
-        return pvs_src_bits.PVS_SRC_REG_TYPE_gen["PVS_SRC_REG_TEMPORARY"]
-    elif kw == KW.input:
-        return pvs_src_bits.PVS_SRC_REG_TYPE_gen["PVS_SRC_REG_INPUT"]
-    elif kw == KW.constant:
-        return pvs_src_bits.PVS_SRC_REG_TYPE_gen["PVS_SRC_REG_CONSTANT"]
-    elif kw == KW.alt_temporary:
-        return pvs_src_bits.PVS_SRC_REG_TYPE_gen["PVS_SRC_REG_ALT_TEMPORARY"]
-    else:
-        assert not "Invalid PVS_SRC_REG", kw
-
 def emit_source(src: Source, prev: Source):
     if src is not None:
+        assert src.offset <= 255
         value = (
-              pvs_src.REG_TYPE_gen(src_reg_type(src.type))
+              pvs_src.REG_TYPE_gen(src.type.value)
             | pvs_src.OFFSET_gen(src.offset)
-            | pvs_src.SWIZZLE_X_gen(src.swizzle.select[0])
-            | pvs_src.SWIZZLE_Y_gen(src.swizzle.select[1])
-            | pvs_src.SWIZZLE_Z_gen(src.swizzle.select[2])
-            | pvs_src.SWIZZLE_W_gen(src.swizzle.select[3])
-            | pvs_src.MODIFIER_X_gen(int(src.swizzle.modifier[0]))
-            | pvs_src.MODIFIER_Y_gen(int(src.swizzle.modifier[1]))
-            | pvs_src.MODIFIER_Z_gen(int(src.swizzle.modifier[2]))
-            | pvs_src.MODIFIER_W_gen(int(src.swizzle.modifier[3]))
+            | pvs_src.ABS_XYZW_gen(int(src.absolute))
+            | pvs_src.SWIZZLE_X_gen(src.swizzle_selects[0].value)
+            | pvs_src.SWIZZLE_Y_gen(src.swizzle_selects[1].value)
+            | pvs_src.SWIZZLE_Z_gen(src.swizzle_selects[2].value)
+            | pvs_src.SWIZZLE_W_gen(src.swizzle_selects[3].value)
+            | pvs_src.MODIFIER_X_gen(int(src.modifiers[0]))
+            | pvs_src.MODIFIER_Y_gen(int(src.modifiers[1]))
+            | pvs_src.MODIFIER_Z_gen(int(src.modifiers[2]))
+            | pvs_src.MODIFIER_W_gen(int(src.modifiers[3]))
         )
     else:
         assert prev is not None
+        assert prev.offset <= 255
         value = (
-              pvs_src.REG_TYPE_gen(src_reg_type(prev.type))
+              pvs_src.REG_TYPE_gen(prev.type.value)
             | pvs_src.OFFSET_gen(prev.offset)
+            | pvs_src.ABS_XYZW_gen(0)
             | pvs_src.SWIZZLE_X_gen(7)
             | pvs_src.SWIZZLE_Y_gen(7)
             | pvs_src.SWIZZLE_Z_gen(7)
@@ -99,22 +66,32 @@ def emit_source(src: Source, prev: Source):
     yield value
 
 def prev_source(ins, ix):
+    assert ins.sources[0] is not None
     if ix == 0:
-        assert ins.source0 is not None
-        return ins.source0
+        return ins.sources[0]
     elif ix == 1:
-        return ins.source0
+        return ins.sources[0]
     elif ix == 2:
-        if ins.source1 is not None:
-            return ins.source1
+        if ins.sources[1] is not None:
+            return ins.sources[1]
         else:
-            return ins.source0
+            return ins.sources[0]
     else:
         assert False, ix
 
 def emit_instruction(ins: Instruction):
-    yield from emit_destination_op(ins.destination_op)
+    yield from emit_destination_opcode(ins.destination,
+                                       ins.opcode,
+                                       ins.saturation)
 
-    yield from emit_source(ins.source0, prev_source(ins, 0))
-    yield from emit_source(ins.source1, prev_source(ins, 1))
-    yield from emit_source(ins.source2, prev_source(ins, 2))
+    if len(ins.sources) >= 1:
+        yield from emit_source(ins.sources[0], prev_source(ins, 0))
+
+        source1 = ins.sources[1] if len(ins.sources) >= 2 else None
+        source2 = ins.sources[2] if len(ins.sources) >= 3 else None
+        yield from emit_source(source1, prev_source(ins, 1))
+        yield from emit_source(source2, prev_source(ins, 2))
+    else:
+        yield 0
+        yield 0
+        yield 0

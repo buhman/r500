@@ -24,9 +24,9 @@ def frontend_inner(buf):
     lexer = Lexer(buf, find_keyword)
     tokens = list(lexer.lex_tokens())
     parser = Parser(tokens)
-    for ins, start_end in parser.instructions():
+    for ins in parser.instructions():
         ins = validate_instruction(ins)
-        yield list(emit_instruction(ins)), start_end
+        yield list(emit_instruction(ins))
 
 def frontend(filename, buf):
     try:
@@ -43,10 +43,5 @@ if __name__ == "__main__":
     #output_filename = sys.argv[2]
     with open(input_filename, 'rb') as f:
         buf = f.read()
-    output = list(frontend(input_filename, buf))
-    for cw, (start_ix, end_ix) in output:
-        if True:
-            print(f"0x{cw[0]:08x}, 0x{cw[1]:08x}, 0x{cw[2]:08x}, 0x{cw[3]:08x},")
-        else:
-            source = buf[start_ix:end_ix]
-            print(f"0x{cw[0]:08x}, 0x{cw[1]:08x}, 0x{cw[2]:08x}, 0x{cw[3]:08x},  // {source.decode('utf-8')}")
+    for cw in frontend(input_filename, buf):
+        print(f"0x{cw[0]:08x}, 0x{cw[1]:08x}, 0x{cw[2]:08x}, 0x{cw[3]:08x},")

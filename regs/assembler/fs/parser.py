@@ -124,7 +124,7 @@ class Parser(BaseParser):
         swizzle_identifier = self.consume(TT.identifier, "expected swizzle identifier")
 
         if abs:
-            self.consume(TT.bar, "expected bar")
+            self.consume(TT.bar, "expected vertical bar")
 
         mod_table = {
             # (neg, abs)

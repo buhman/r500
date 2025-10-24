@@ -1,9 +1,11 @@
 import sys
 
 from assembler.lexer import Lexer, LexerError
-from assembler.fs.parser import Parser, ParserError
+from assembler.parser import ParserError
+from assembler.validator import ValidatorError
+from assembler.fs.parser import Parser
 from assembler.fs.keywords import find_keyword
-from assembler.fs.validator import validate_instruction, ValidatorError
+from assembler.fs.validator import validate_instruction
 from assembler.fs.emitter import emit_instruction
 from assembler.error import print_error
 
