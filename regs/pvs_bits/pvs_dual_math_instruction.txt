@@ -1,15 +1,15 @@
-Field Name            Bits     Description
-PVS_SRC_REG_TYPE      1:0      Defines the Memory Select (Register Type) for the Source Operand. See Below.
-PVS_DST_OPCODE_MSB    2        Math Opcode MSB for Dual Math Inst.
-PVS_SRC_ABS_XYZW      3        If set, Take absolute value of both components of Dual Math input vector.
-PVS_SRC_ADDR_MODE_0   4        Combine ADDR_MODE_1 (msb) with ADDR_MODE_0 (lsb) to form 2-bit ADDR_MODE
-PVS_SRC_OFFSET        12:5     Vector Offset into selected memory (Register Type)
-PVS_SRC_SWIZZLE_X     15:13    X-Component Swizzle Select. See Below
-PVS_SRC_SWIZZLE_Y     18:16    Y-Component Swizzle Select. See Below
-DUAL_MATH_DST_OFFSET  20:19    Selects Dest Address ATRM 0-3 for Math Inst.
-PVS_DST_OPCODE        24:21    Math Opcode for Dual Math Inst.
-PVS_SRC_MODIFIER_X    25       If set, Negate X Component of input vector.
-PVS_SRC_MODIFIER_Y    26       If set, Negate Y Component of input vector.
-PVS_DST_WE_SEL        28:27    Encoded Write Enable for Dual Math Op Inst (0 = X, 1 = Y, 2 = Z, 3 = W)
-PVS_SRC_ADDR_SEL      30:29    When PVS_SRC_ADDR_MODE is set, this selects which component of the 4-component address register to use.
-PVS_SRC_ADDR_MODE_1   31       Combine ADDR_MODE_1 (msb) with ADDR_MODE_0 (lsb) to form 2-bit ADDR_MODE
+Field Name            Bits    Description
+PVS_SRC_REG_TYPE      1:0     Defines the Memory Select (Register Type) for the Source Operand. See Below.
+PVS_DST_OPCODE_MSB    2       Math Opcode MSB for Dual Math Inst.
+PVS_SRC_ABS_XYZW      3       If set, Take absolute value of both components of Dual Math input vector.
+PVS_SRC_ADDR_MODE_0   4       Combine ADDR_MODE_1 (msb) with ADDR_MODE_0 (lsb) to form 2-bit ADDR_MODE
+PVS_SRC_OFFSET        12:5    Vector Offset into selected memory (Register Type)
+PVS_SRC_SWIZZLE_X     15:13   X-Component Swizzle Select. See Below
+PVS_SRC_SWIZZLE_Y     18:16   Y-Component Swizzle Select. See Below
+DUAL_MATH_DST_OFFSET  20:19   Selects Dest Address ATRM 0-3 for Math Inst.
+PVS_DST_OPCODE        24:21   Math Opcode for Dual Math Inst.
+PVS_SRC_MODIFIER_X    25      If set, Negate X Component of input vector.
+PVS_SRC_MODIFIER_Y    26      If set, Negate Y Component of input vector.
+PVS_DST_WE_SEL        28:27   Encoded Write Enable for Dual Math Op Inst (0 = X, 1 = Y, 2 = Z, 3 = W)
+PVS_SRC_ADDR_SEL      30:29   When PVS_SRC_ADDR_MODE is set, this selects which component of the 4-component address register to use.
+PVS_SRC_ADDR_MODE_1   31      Combine ADDR_MODE_1 (msb) with ADDR_MODE_0 (lsb) to form 2-bit ADDR_MODE

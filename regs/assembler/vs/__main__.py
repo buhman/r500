@@ -3,8 +3,8 @@ import sys
 from assembler.lexer import Lexer, LexerError
 from assembler.vs.keywords import find_keyword
 from assembler.vs.parser import Parser, ParserError
-from assembler.vs.emitter import emit_instruction
-from assembler.vs.validator import validate_instruction
+from assembler.vs.emitter import emit_instruction, emit_dual_math_instruction
+from assembler.vs.validator import validate_instruction, Instruction, DualMathInstruction
 from assembler.error import print_error
 
 sample = b"""
@@ -26,7 +26,12 @@ def frontend_inner(buf):
     parser = Parser(tokens)
     for ins in parser.instructions():
         ins = validate_instruction(ins)
-        yield list(emit_instruction(ins))
+        if type(ins) is Instruction:
+            yield list(emit_instruction(ins))
+        elif type(ins) is DualMathInstruction:
+            yield list(emit_dual_math_instruction(ins))
+        else:
+            assert False, type(ins)
 
 def frontend(filename, buf):
     try:

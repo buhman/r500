@@ -2,6 +2,7 @@ import pvs_src
 import pvs_src_bits
 import pvs_dst
 import pvs_dst_bits
+import pvs_dual_math
 import itertools
 from functools import partial
 import sys
@@ -92,7 +93,6 @@ def parse_dst_op(dst_op):
     assert addr_mode == 0
     assert pred_enable == 0
     assert pred_sense == 0
-    assert dual_math_op == 0
     assert addr_sel == 0
 
     parts = []
@@ -122,31 +122,28 @@ def parse_dst_op(dst_op):
 
     return parts
 
-def src_swizzle_from_src_op(src_op):
-    swizzle_x = pvs_src.SWIZZLE_X(src_op)
-    swizzle_y = pvs_src.SWIZZLE_Y(src_op)
-    swizzle_z = pvs_src.SWIZZLE_Z(src_op)
-    swizzle_w = pvs_src.SWIZZLE_W(src_op)
-    modifier_x = pvs_src.MODIFIER_X(src_op)
-    modifier_y = pvs_src.MODIFIER_Y(src_op)
-    modifier_z = pvs_src.MODIFIER_Z(src_op)
-    modifier_w = pvs_src.MODIFIER_W(src_op)
-
+def src_swizzle_from_src_op(swizzles, modifiers):
     modifiers = [
         '' if modifier == 0 else '-'
-        for modifier
-        in [modifier_x, modifier_y, modifier_z, modifier_w]
+        for modifier in modifiers
     ]
     src_swizzle_select = [
         'x', 'y', 'z', 'w', '0', '1', 'h', '_'
     ]
     swizzles = [
         src_swizzle_select[swizzle]
-        for swizzle
-        in [swizzle_x, swizzle_y, swizzle_z, swizzle_w]
+        for swizzle in swizzles
     ]
 
     return ''.join(map(''.join, zip(modifiers, swizzles)))
+
+def reg_type_str_from_reg_type(reg_type):
+    reg_type_str = pvs_src_bits.PVS_SRC_REG_TYPE[reg_type]
+    reg_type_str = reg_type_str.removeprefix("PVS_SRC_REG_")
+    reg_type_str = reg_type_str.replace("TEMPORARY", "TEMP")
+    reg_type_str = reg_type_str.replace("CONSTANT", "CONST")
+    reg_type_str = reg_type_str.lower()
+    return reg_type_str
 
 def parse_src_op(src_op):
     reg_type = pvs_src.REG_TYPE(src_op)
@@ -159,17 +156,62 @@ def parse_src_op(src_op):
     assert addr_mode == 0
     assert addr_sel == 0
 
-    reg_type_str = pvs_src_bits.PVS_SRC_REG_TYPE[reg_type]
-    reg_type_str = reg_type_str.removeprefix("PVS_SRC_REG_")
-    reg_type_str = reg_type_str.replace("TEMPORARY", "TEMP")
-    reg_type_str = reg_type_str.replace("CONSTANT", "CONST")
-    reg_type_str = reg_type_str.lower()
+    reg_type_str = reg_type_str_from_reg_type(reg_type)
 
-    src_swizzle = src_swizzle_from_src_op(src_op)
+    swizzle_x = pvs_src.SWIZZLE_X(src_op)
+    swizzle_y = pvs_src.SWIZZLE_Y(src_op)
+    swizzle_z = pvs_src.SWIZZLE_Z(src_op)
+    swizzle_w = pvs_src.SWIZZLE_W(src_op)
+    modifier_x = pvs_src.MODIFIER_X(src_op)
+    modifier_y = pvs_src.MODIFIER_Y(src_op)
+    modifier_z = pvs_src.MODIFIER_Z(src_op)
+    modifier_w = pvs_src.MODIFIER_W(src_op)
+    swizzles = [swizzle_x, swizzle_y, swizzle_z, swizzle_w]
+    modifiers = [modifier_x, modifier_y, modifier_z, modifier_w]
+    src_swizzle = src_swizzle_from_src_op(swizzles, modifiers)
+
+    s = f"{reg_type_str}[{offset}].{src_swizzle}"
     if abs_xyzw:
-        src_swizzle = f"abs({src_swizzle})"
+        return f"|{s}|"
+    else:
+        return s
 
-    return f"{reg_type_str}[{offset}].{src_swizzle}"
+def parse_dual_math_instruction(instruction):
+    src_reg_type = pvs_dual_math.SRC_REG_TYPE(instruction)
+    dst_opcode = ( (pvs_dual_math.DST_OPCODE_MSB(instruction) << 4)
+                 | (pvs_dual_math.DST_OPCODE(instruction) << 0) )
+    src_abs = pvs_dual_math.SRC_ABS_XYZW(instruction)
+    src_addr_mode = ( (pvs_dual_math.SRC_ADDR_MODE_1(instruction) << 1)
+                    | (pvs_dual_math.SRC_ADDR_MODE_0(instruction) << 0))
+    src_offset = pvs_dual_math.SRC_OFFSET(instruction)
+    src_swizzle_x = pvs_dual_math.SRC_SWIZZLE_X(instruction)
+    src_swizzle_y = pvs_dual_math.SRC_SWIZZLE_Y(instruction)
+    dual_math_dst_offset = pvs_dual_math.DUAL_MATH_DST_OFFSET(instruction)
+    src_modifier_x = pvs_dual_math.SRC_MODIFIER_X(instruction)
+    src_modifier_y = pvs_dual_math.SRC_MODIFIER_Y(instruction)
+    dst_we_sel = pvs_dual_math.DST_WE_SEL(instruction)
+    src_addr_sel = pvs_dual_math.SRC_ADDR_SEL(instruction)
+
+    assert src_addr_sel == 0
+    assert src_addr_mode == 0
+
+    we_str = ["x", "y", "z", "w"][dst_we_sel]
+    dst_str = f"alt_temp[{dual_math_dst_offset}].{we_str}"
+
+    opcode_str = op_substitutions(pvs_dst_bits.MATH_OPCODE[dst_opcode])
+
+    swizzles = [src_swizzle_x, src_swizzle_y]
+    modifiers = [src_modifier_x, src_modifier_y]
+    src_swizzle = src_swizzle_from_src_op(swizzles, modifiers)
+
+    reg_type_str = reg_type_str_from_reg_type(src_reg_type)
+
+    src_str = f"{reg_type_str}[{src_offset}].{src_swizzle}"
+
+    if src_abs:
+        src_str = f"|{src}|"
+
+    return dst_str, opcode_str, src_str
 
 def parse_instruction(instruction):
     dst_op = instruction[0]
@@ -177,16 +219,28 @@ def parse_instruction(instruction):
     src_op1 = instruction[2]
     src_op2 = instruction[3]
 
-    dst, op, *rest = itertools.chain(
-        parse_dst_op(dst_op),
-        [
-            parse_src_op(src_op0),
-            parse_src_op(src_op1),
-            parse_src_op(src_op2),
-        ]
-    )
-
-    print(dst.ljust(12), "=", op.ljust(12), " ".join(map(lambda s: s.ljust(17), rest)))
+    dual_math_op = pvs_dst.DUAL_MATH_OP(dst_op)
+    if dual_math_op == 0:
+        dst, op, *rest = itertools.chain(
+            parse_dst_op(dst_op),
+            [
+                parse_src_op(src_op0),
+                parse_src_op(src_op1),
+                parse_src_op(src_op2),
+            ]
+        )
+        print(dst.ljust(15), "=", op.ljust(12), " ".join(map(lambda s: s.ljust(17), rest)).rstrip(), ';')
+    else:
+        dst, op, *rest = itertools.chain(
+            parse_dst_op(dst_op),
+            [
+                parse_src_op(src_op0),
+                parse_src_op(src_op1),
+            ]
+        )
+        print(dst.ljust(15), "=", op.ljust(12), " ".join(map(lambda s: s.ljust(17), rest)).rstrip(), ',')
+        dm_dst, dm_op, dm_src = parse_dual_math_instruction(src_op2)
+        print(dm_dst.ljust(15), "=", dm_op.ljust(12), dm_src, ';')
 
 def parse_hex(s):
     assert s.startswith('0x')

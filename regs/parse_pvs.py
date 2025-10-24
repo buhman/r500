@@ -41,7 +41,7 @@ def parse_file_fields2(filename):
     for line in parse_file_fields(filename):
         field_name, bits, description = line
         bits = parse_bits(bits)
-        if not field_name.startswith(prefix + '_'):
+        if not field_name.startswith(prefix + '_') and field_name != 'DUAL_MATH_DST_OFFSET':
             assert field_name.startswith("SPARE_")
             continue
         field_name = field_name.removeprefix(prefix + '_')

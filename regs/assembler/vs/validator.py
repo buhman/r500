@@ -49,16 +49,49 @@ class Destination:
     write_enable: tuple[bool, bool, bool, bool]
 
 @dataclass
-class OpcodeDestination:
-    macro_inst: bool
-    reg_type: int
-
-@dataclass
 class Instruction:
     destination: Destination
     saturation: bool
     sources: list[Source]
     opcode: Union[opcodes.VE, opcodes.ME, opcodes.MVE]
+
+@dataclass
+class DualMathVEOperation:
+    destination: Destination
+    saturation: bool
+    sources: list[Source]
+    opcode: opcodes.VE
+
+class DualMathMEWriteEnable(IntEnum):
+    x = 0
+    y = 1
+    z = 2
+    w = 3
+
+@dataclass
+class DualMathMEDestination:
+    offset: int
+    write_enable: DualMathMEWriteEnable
+
+@dataclass
+class DualMathMESource:
+    type: SourceType
+    absolute: bool
+    offset: int
+    swizzle_selects: tuple[SwizzleSelect, SwizzleSelect]
+    modifiers: tuple[bool, bool]
+
+@dataclass
+class DualMathMEOperation:
+    destination: Destination
+    saturation: bool
+    sources: list[DualMathMESource]
+    opcode: opcodes.ME
+
+@dataclass
+class DualMathInstruction:
+    ve_operation: DualMathVEOperation
+    me_operation: DualMathMEOperation
 
 def validate_opcode(opcode_keyword: Token):
     if type(opcode_keyword.keyword) is opcodes.ME:
@@ -135,7 +168,7 @@ def parse_swizzle_lexeme(token):
             modifier = False
     return tuple(zip(*swizzles))
 
-def validate_source(source):
+def validate_source(source, swizzle_select_length):
     source_type_keywords = OrderedDict([
         (KW.temporary     , (SourceType.temporary    , 128)), # 32
         (KW.input         , (SourceType.input        , 128)), # 32
@@ -153,6 +186,10 @@ def validate_source(source):
     try:
         swizzle_selects, modifiers = parse_swizzle_lexeme(source.swizzle_identifier)
     except ValueError:
+        raise ValidatorError("invalid source swizzle", source.swizzle_identifier)
+
+    assert len(swizzle_selects) == len(modifiers)
+    if len(swizzle_selects) != swizzle_select_length:
         raise ValidatorError("invalid source swizzle", source.swizzle_identifier)
 
     return Source(
@@ -215,13 +252,13 @@ def validate_instruction_inner(operation, opcode):
             raise ValidatorError("invalid opcode saturation suffix", operation.opcode_suffix_keyword)
         saturation = True
     if len(operation.sources) > 3:
-        raise ValidatorError("too many sources in operation", operation.sources[0].type_keyword)
+        raise ValidatorError("too many sources in operation", operation.sources[-1].type_keyword)
     if len(operation.sources) != opcode.operand_count:
         raise ValidatorError(f"incorrect number of source operands; expected {opcode.operand_count}", operation.sources[0].type_keyword)
 
     sources = []
     for source in operation.sources:
-        sources.append(validate_source(source))
+        sources.append(validate_source(source, swizzle_select_length=4))
     opcode = validate_source_address_counts(operation.sources, sources, opcode)
 
     return Instruction(
@@ -231,10 +268,111 @@ def validate_instruction_inner(operation, opcode):
         opcode
     )
 
+def validate_dual_math_ve_operation(operation, opcode):
+    destination = validate_destination(operation.destination)
+    saturation = False
+    if operation.opcode_suffix_keyword is not None:
+        if operation.opcode_suffix_keyword.keyword is not KW.saturation:
+            raise ValidatorError("invalid opcode saturation suffix", operation.opcode_suffix_keyword)
+        saturation = True
+    if len(operation.sources) > 2:
+        raise ValidatorError("too many sources in dual math VE operation", operation.sources[-1].type_keyword)
+    if opcode.operand_count > 2:
+        raise ValidatorError("3-operand opcode not valid in dual math VE operation", operation.sources[-1].type_keyword)
+    if len(operation.sources) != opcode.operand_count:
+        raise ValidatorError(f"incorrect number of source operands; expected {opcode.operand_count}", operation.sources[0].type_keyword)
+
+    sources = []
+    for source in operation.sources:
+        sources.append(validate_source(source, swizzle_select_length=4))
+
+    return DualMathVEOperation(
+        destination,
+        saturation,
+        sources,
+        opcode
+    )
+
+def validate_dual_math_me_destination(destination):
+    if destination.type_keyword.keyword is not KW.alt_temporary:
+        raise ValidatorError("invalid dual math ME destination type keyword", destination.type_keyword)
+    offset = validate_identifier_number(destination.offset_identifier)
+    if offset >= 4:
+        raise ValidatorError("invalid dual math ME offset value", source.offset_identifier)
+
+    we = bytes(destination.write_enable_identifier.lexeme).lower()
+    if len(we) != 1:
+        raise ValidatorError("invalid dual math ME write enable", destination.write_enable_identifier)
+    we_chars = {
+        c: t for c, t in zip(b"xyzw", [
+            DualMathMEWriteEnable.x,
+            DualMathMEWriteEnable.y,
+            DualMathMEWriteEnable.z,
+            DualMathMEWriteEnable.w,
+        ])
+    }
+    we_char = we[0]
+    if we_char not in we_chars:
+        ParserError("invalid dual math ME write enable", destination.write_enable_identifier)
+
+    write_enable = we_chars[we[0]]
+
+    return DualMathMEDestination(
+        offset,
+        write_enable,
+    )
+
+def validate_dual_math_me_operation(operation, opcode):
+    destination = validate_dual_math_me_destination(operation.destination)
+    saturation = False
+    if operation.opcode_suffix_keyword is not None:
+        if operation.opcode_suffix_keyword.keyword is not KW.saturation:
+            raise ValidatorError("invalid opcode saturation suffix", operation.opcode_suffix_keyword)
+        saturation = True
+    if len(operation.sources) > 1:
+        raise ValidatorError("too many sources in dual math ME operation", operation.sources[-1].type_keyword)
+    if len(operation.sources) != opcode.operand_count:
+        raise ValidatorError(f"incorrect number of source operands; expected {opcode.operand_count}", operation.sources[0].type_keyword)
+
+    sources = []
+    for source in operation.sources:
+        sources.append(validate_source(source, swizzle_select_length=2))
+
+    return DualMathMEOperation(
+        destination,
+        saturation,
+        sources,
+        opcode,
+    )
+
+def validate_dual_math_instruction(operations, _opcodes):
+    if type(_opcodes[0]) is opcodes.VE:
+        ve_operation_ast = operations[0]
+        ve_opcode = _opcodes[0]
+        me_operation_ast = operations[1]
+        me_opcode = _opcodes[1]
+    else:
+        ve_operation_ast = operations[1]
+        ve_opcode = _opcodes[1]
+        me_operation_ast = operations[0]
+        me_opcode = _opcodes[0]
+
+    ve_operation = validate_dual_math_ve_operation(ve_operation_ast, ve_opcode)
+    me_operation = validate_dual_math_me_operation(me_operation_ast, me_opcode)
+
+    all_sources_ast = ve_operation_ast.sources + me_operation_ast.sources
+    all_sources = ve_operation.sources + me_operation.sources
+    validate_opcode = validate_source_address_counts(all_sources_ast, all_sources, ve_operation.opcode)
+    assert validate_opcode == ve_operation.opcode
+
+    return DualMathInstruction(
+        ve_operation,
+        me_operation,
+    )
+
 def validate_instruction(ins):
     if len(ins.operations) > 2:
         raise ValidatorError("too many operations in instruction", ins.operations[0].destination.type_keyword)
-
     opcodes = [validate_opcode(operation.opcode_keyword) for operation in ins.operations]
     opcode_types = set(type(opcode) for opcode in opcodes)
     if len(opcode_types) != len(opcodes):
@@ -242,8 +380,7 @@ def validate_instruction(ins):
         raise ValidatorError(f"invalid dual math operation: too many opcodes of type {opcode_type}", ins.operations[0].opcode_keyword)
 
     if len(opcodes) == 2:
-        assert False, "not implemented"
-        #return validate_dual_math_instruction(ins, opcodes)
+        return validate_dual_math_instruction(ins.operations, opcodes)
     else:
         assert len(opcodes) == 1
         return validate_instruction_inner(ins.operations[0], opcodes[0])
@@ -255,9 +392,12 @@ if __name__ == "__main__":
     from assembler.vs.keywords import find_keyword
     from assembler.error import print_error
     buf = b"""
-  out[0].xz    = VE_MAD.SAT    |temp[1].-y-_0-_| const[2].x_0_ const[2].x_0_ ;
+    out[0].xz    = VE_MAD.SAT    |temp[1].-y-_0-_| const[2].x_0_ const[2].x_0_ ;
 """
-#atemp[0].xz    = ME_SIN    input[0].-y-_-0-_ ;
+    buf = b"""
+         out[0].xz    = VE_MUL.SAT  |temp[1].-y-_0-_| const[2].x_0_ ,
+    alt_temp[0].x     = ME_SIN       input[0].-y-_ ;
+"""
 
     lexer = Lexer(buf, find_keyword, emit_newlines=False, minus_is_token=False)
     tokens = list(lexer.lex_tokens())
