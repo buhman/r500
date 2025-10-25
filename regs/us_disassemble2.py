@@ -88,8 +88,8 @@ def disassemble_addr_inner(register_const, address, const, rel):
         assert False, const
 
 
-swizzle_strs = ['r', 'g', 'b', 'a', '0', 'h', '1', '_']
-sel_strs = ['0', '1', '2', 'p']
+alu_swizzle_strs = ['r', 'g', 'b', 'a', '0', 'h', '1', '_']
+alu_sel_strs = ['0', '1', '2', 'p']
 
 def disassemble_addr(register, code, suffix):
     addr0 = register.ADDR0(code)
@@ -108,7 +108,7 @@ def disassemble_addr(register, code, suffix):
     s2 = disassemble_addr_inner(register.ADDR2_CONST, addr2, addr2_const, addr2_rel)
     sp = srcp_op.lower()
     return [
-        f"src{sel_strs[i]}.{suffix} = {s}"
+        f"src{alu_sel_strs[i]}.{suffix} = {s}"
         for i, s in enumerate([s0, s1, s2, sp])
     ]
 
@@ -143,15 +143,15 @@ def disassemble_rgb_swizzle_sel(code):
     blue_swiz_c = US_ALU_RGBA_INST.BLUE_SWIZ_C(code)
     rgb_mod_c = US_ALU_RGBA_INST.RGB_MOD_C(code)
 
-    rgb_swiz_a = ''.join(swizzle_strs[n] for n in [red_swiz_a, green_swiz_a, blue_swiz_a])
-    rgb_swiz_b = ''.join(swizzle_strs[n] for n in [red_swiz_b, green_swiz_b, blue_swiz_b])
-    rgb_swiz_c = ''.join(swizzle_strs[n] for n in [red_swiz_c, green_swiz_c, blue_swiz_c])
+    rgb_swiz_a = ''.join(alu_swizzle_strs[n] for n in [red_swiz_a, green_swiz_a, blue_swiz_a])
+    rgb_swiz_b = ''.join(alu_swizzle_strs[n] for n in [red_swiz_b, green_swiz_b, blue_swiz_b])
+    rgb_swiz_c = ''.join(alu_swizzle_strs[n] for n in [red_swiz_c, green_swiz_c, blue_swiz_c])
 
     rgb_swiz = [rgb_swiz_a, rgb_swiz_b, rgb_swiz_c]
     rgb_sels = [rgb_sel_a, rgb_sel_b, rgb_sel_c]
     rgb_mods = [rgb_mod_a, rgb_mod_b, rgb_mod_c]
 
-    return [mod_str(f"src{sel_strs[sel]}.{swiz}", mod)
+    return [mod_str(f"src{alu_sel_strs[sel]}.{swiz}", mod)
             for swiz, sel, mod in zip(rgb_swiz, rgb_sels, rgb_mods)], rgb_sels
 
 def disassemble_a_swizzle_sel(code):
@@ -167,11 +167,11 @@ def disassemble_a_swizzle_sel(code):
     alpha_swiz_c = US_ALU_RGBA_INST.ALPHA_SWIZ_C(code)
     alpha_mod_c = US_ALU_RGBA_INST.ALPHA_MOD_C(code)
 
-    a_swiz = [swizzle_strs[n] for n in [alpha_swiz_a, alpha_swiz_b, alpha_swiz_c]]
+    a_swiz = [alu_swizzle_strs[n] for n in [alpha_swiz_a, alpha_swiz_b, alpha_swiz_c]]
     a_sels = [alpha_sel_a, alpha_sel_b, alpha_sel_c]
     a_mods = [alpha_mod_a, alpha_mod_b, alpha_mod_c]
 
-    return [mod_str(f"src{sel_strs[sel]}.{swiz}", mod)
+    return [mod_str(f"src{alu_sel_strs[sel]}.{swiz}", mod)
             for swiz, sel, mod in zip(a_swiz, a_sels, a_mods)], a_sels
 
 def omod_str(s, mod):
@@ -201,21 +201,21 @@ def disassemble_alu_dest(code):
     rgb_addrd_rel = US_ALU_RGBA_INST.RGB_ADDRD_REL(code)
     assert rgb_addrd_rel == 0
 
-    _, rgb_wmask, _ = US_CMN_INST._RGB_WMASK(code)
-    _, a_wmask, _ = US_CMN_INST._ALPHA_WMASK(code)
+    rgb_wmask, rgb_wmask_str, _ = US_CMN_INST._RGB_WMASK(code)
+    a_wmask, a_wmask_str, _ = US_CMN_INST._ALPHA_WMASK(code)
 
-    _, rgb_omask, _ = US_CMN_INST._RGB_OMASK(code)
-    _, a_omask, _ = US_CMN_INST._ALPHA_OMASK(code)
+    rgb_omask, rgb_omask_str, _ = US_CMN_INST._RGB_OMASK(code)
+    a_omask, a_omask_str, _ = US_CMN_INST._ALPHA_OMASK(code)
 
-    a_out_str = f"out[{a_addrd}].{a_omask.lower().ljust(4)}"
-    a_temp_str = f"temp[{a_addrd}].{a_wmask.lower().ljust(4)}"
+    a_out_str = f"out[{a_addrd}].{a_omask_str.lower().ljust(4)} = " if a_omask != 0 else ""
+    a_temp_str = f"temp[{a_addrd}].{a_wmask_str.lower().ljust(4)} = " if a_wmask != 0 else ""
 
-    rgb_out_str = f"out[{rgb_addrd}].{rgb_omask.lower().ljust(4)}"
-    rgb_temp_str = f"temp[{rgb_addrd}].{rgb_wmask.lower().ljust(4)}"
+    rgb_out_str = f"out[{rgb_addrd}].{rgb_omask_str.lower().ljust(4)} = " if rgb_omask != 0 else ""
+    rgb_temp_str = f"temp[{rgb_addrd}].{rgb_wmask_str.lower().ljust(4)} = " if rgb_wmask != 0 else ""
 
     return (a_out_str, a_temp_str), (rgb_out_str, rgb_temp_str)
 
-def assert_zeros(code):
+def assert_zeros_common(code):
     rgb_pred_sel = US_CMN_INST.RGB_PRED_SEL(code)
     assert rgb_pred_sel == 0
     rgb_pred_inv = US_CMN_INST.RGB_PRED_INV(code)
@@ -237,6 +237,7 @@ def assert_zeros(code):
     stat_we = US_CMN_INST.STAT_WE(code)
     assert stat_we == 0
 
+def assert_zeros_alu(code):
     rgb_omod = US_ALU_RGB_INST.OMOD(code)
     rgb_target = US_ALU_RGB_INST.TARGET(code)
     alu_wmask = US_ALU_RGB_INST.ALU_WMASK(code)
@@ -250,6 +251,47 @@ def assert_zeros(code):
     assert a_omod in {0, 7}
     assert a_target == 0
     assert w_omask == 0
+
+def assert_zeros_tex(code):
+    dx_addr = US_TEX_ADDR_DXDY.DX_ADDR(code)
+    dx_addr_rel = US_TEX_ADDR_DXDY.DX_ADDR_REL(code)
+    dx_s_swiz = US_TEX_ADDR_DXDY.DX_S_SWIZ(code)
+    dx_t_swiz = US_TEX_ADDR_DXDY.DX_T_SWIZ(code)
+    dx_r_swiz = US_TEX_ADDR_DXDY.DX_R_SWIZ(code)
+    dx_q_swiz = US_TEX_ADDR_DXDY.DX_Q_SWIZ(code)
+
+    assert dx_addr == 0, dx_addr
+    assert dx_addr_rel == 0, dx_addr_rel
+    assert dx_s_swiz == 0, dx_s_swiz
+    assert dx_t_swiz == 0, dx_t_swiz
+    assert dx_r_swiz == 0, dx_r_swiz
+    assert dx_q_swiz == 0, dx_q_swiz
+
+    dy_addr = US_TEX_ADDR_DXDY.DY_ADDR(code)
+    dy_addr_rel = US_TEX_ADDR_DXDY.DY_ADDR_REL(code)
+    dy_s_swiz = US_TEX_ADDR_DXDY.DY_S_SWIZ(code)
+    dy_t_swiz = US_TEX_ADDR_DXDY.DY_T_SWIZ(code)
+    dy_r_swiz = US_TEX_ADDR_DXDY.DY_R_SWIZ(code)
+    dy_q_swiz = US_TEX_ADDR_DXDY.DY_Q_SWIZ(code)
+
+    assert dy_addr == 0, dy_addr
+    assert dy_addr_rel == 0, dy_addr_rel
+    assert dy_s_swiz == 0, dy_s_swiz
+    assert dy_t_swiz == 0, dy_t_swiz
+    assert dy_r_swiz == 0, dy_r_swiz
+    assert dy_q_swiz == 0, dy_q_swiz
+
+    src_addr_rel = US_TEX_ADDR.SRC_ADDR_REL(code)
+    assert src_addr_rel == 0, src_addr_rel
+
+    dst_addr_rel = US_TEX_ADDR.SRC_ADDR_REL(code)
+    assert dst_addr_rel == 0, dst_addr_rel
+
+    ignore_uncovered = US_TEX_INST.IGNORE_UNCOVERED(code)
+    assert ignore_uncovered == 0, ignore_uncovered
+
+    unscaled = US_TEX_INST.UNSCALED(code)
+    assert unscaled == 0, unscaled
 
 _rgb_op_operands = {
     "OP_MAD": 3,
@@ -284,7 +326,8 @@ _a_op_operands = {
 }
 
 def disassemble_alu(code, is_output):
-    assert_zeros(code)
+    assert_zeros_common(code)
+    assert_zeros_alu(code)
 
     a_addr_strs = disassemble_addr(US_ALU_ALPHA_ADDR, code, "a")
     rgb_addr_strs = disassemble_addr(US_ALU_RGB_ADDR, code, "rgb")
@@ -333,15 +376,78 @@ def disassemble_alu(code, is_output):
 
     rgb_clamp = US_CMN_INST.RGB_CLAMP(code)
     alpha_clamp = US_CMN_INST.ALPHA_CLAMP(code)
-    rgb_clamp_str = ".CLAMP" if rgb_clamp != 0 else ""
-    a_clamp_str = ".CLAMP" if alpha_clamp != 0 else ""
+    rgb_clamp_str = ".SAT" if rgb_clamp != 0 else ""
+    a_clamp_str = ".SAT" if alpha_clamp != 0 else ""
 
     print(", ".join([*a_addr_strs, *rgb_addr_strs]), ":")
     #print(", ".join(a_addr_strs), ":")
-    print(f"  {a_out_str} = {a_temp_str} = {a_op.removeprefix('OP_').ljust(3)}{a_clamp_str} {' '.join(a_swizzle_sel)}", ",")
+    print(f"  {a_out_str}{a_temp_str}{a_op.removeprefix('OP_').ljust(3)}{a_clamp_str} {' '.join(a_swizzle_sel)}", ",")
 
     #print(", ".join(rgb_addr_strs), ":")
-    print(f"  {rgb_out_str} = {rgb_temp_str} = {rgb_op.removeprefix('OP_').ljust(3)}{rgb_clamp_str} {' '.join(rgb_swizzle_sel)}", ";")
+    print(f"  {rgb_out_str}{rgb_temp_str}{rgb_op.removeprefix('OP_').ljust(3)}{rgb_clamp_str} {' '.join(rgb_swizzle_sel)}", ";")
+
+def disassemble_tex_swizzle_str(code):
+    tex_swiz_strs = ["r", "g", "b", "a"]
+
+    src_s_swiz = US_TEX_ADDR.SRC_S_SWIZ(code)
+    src_t_swiz = US_TEX_ADDR.SRC_T_SWIZ(code)
+    src_r_swiz = US_TEX_ADDR.SRC_R_SWIZ(code)
+    src_q_swiz = US_TEX_ADDR.SRC_Q_SWIZ(code)
+
+    src_swiz = ''.join(tex_swiz_strs[n] for n in [src_s_swiz, src_t_swiz, src_r_swiz, src_q_swiz])
+
+    dst_r_swiz = US_TEX_ADDR.DST_R_SWIZ(code)
+    dst_g_swiz = US_TEX_ADDR.DST_G_SWIZ(code)
+    dst_b_swiz = US_TEX_ADDR.DST_B_SWIZ(code)
+    dst_a_swiz = US_TEX_ADDR.DST_A_SWIZ(code)
+
+    dst_swiz = ''.join(tex_swiz_strs[n] for n in [dst_r_swiz, dst_g_swiz, dst_b_swiz, dst_a_swiz])
+
+    return src_swiz, dst_swiz
+
+def disassemble_tex_dest(code):
+    dst_addr = US_TEX_ADDR.DST_ADDR(code)
+
+    rgb_wmask, rgb_wmask_str, _ = US_CMN_INST._RGB_WMASK(code)
+    a_wmask, a_wmask_str, _ = US_CMN_INST._ALPHA_WMASK(code)
+    wmask_bool = rgb_wmask != 0 or a_wmask != 0
+
+    rgba_wmask = (a_wmask_str if a_wmask else "") + (rgb_wmask_str if rgb_wmask else "")
+
+    temp_str = f"temp[{dst_addr}].{rgba_wmask.lower().ljust(4)} = " if wmask_bool else ""
+
+    rgb_omask, rgb_omask_str, _ = US_CMN_INST._RGB_OMASK(code)
+    a_omask, a_omask_str, _ = US_CMN_INST._ALPHA_OMASK(code)
+    omask_bool = rgb_omask != 0 or a_omask != 0
+
+    rgba_omask = (a_omask_str if a_omask else "") + (rgb_omask_str if rgb_omask else "")
+
+    out_str = f"out[{dst_addr}].{rgba_omask.lower().ljust(4)} = " if omask_bool else ""
+
+    return out_str, temp_str
+
+def disassemble_tex(code):
+    assert_zeros_common(code)
+    assert_zeros_tex(code)
+
+    _, inst, _ = US_TEX_INST._INST(code)
+    tex_id = US_TEX_INST.TEX_ID(code)
+
+    src_addr = US_TEX_ADDR.SRC_ADDR(code)
+
+    src_swiz, dst_swiz = disassemble_tex_swizzle_str(code)
+    out_str, temp_str = disassemble_tex_dest(code)
+
+    temp_out_str = ''.join([out_str, temp_str])
+
+    tags = ["TEX"]
+    if US_CMN_INST.TEX_SEM_WAIT(code):
+        tags.append("TEX_SEM_WAIT")
+    if US_TEX_INST.TEX_SEM_ACQUIRE(code):
+        tags.append("TEX_SEM_ACQUIRE")
+
+    print(" ".join(tags))
+    print(f"  {temp_out_str}{inst} tex[{tex_id}].{dst_swiz} temp[{tex_id}].{src_swiz} ;")
 
 def disassemble(code):
     assert len(code) == 6, len(code)
@@ -350,6 +456,8 @@ def disassemble(code):
         disassemble_alu(code, is_output=True)
     elif type == US_CMN_INST.TYPE.US_INST_TYPE_ALU:
         disassemble_alu(code, is_output=False)
+    elif type == US_CMN_INST.TYPE.US_INST_TYPE_TEX:
+        disassemble_tex(code)
     else:
         print("[TYPE]", type)
         #assert False, US_CMN_INST._TYPE(code)
