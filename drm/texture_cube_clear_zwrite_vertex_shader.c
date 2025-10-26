@@ -121,43 +121,13 @@ const face faces[] = {
 static const int faces_length = (sizeof (faces)) / (sizeof (faces[0]));
 
 static const uint32_t fragment_shader[] = {
-#include "../shader_examples/mesa/texture_cube.fs.txt"
-  // clear shader
-  US_CMN_INST__TYPE__US_INST_TYPE_OUT
-  | US_CMN_INST__TEX_SEM_WAIT(1)
-  | US_CMN_INST__RGB_OMASK__RGB
-  | US_CMN_INST__ALPHA_OMASK__A
-
-  , US_ALU_RGB_ADDR__ADDR0(128)
-  | US_ALU_RGB_ADDR__ADDR1(128)
-  | US_ALU_RGB_ADDR__ADDR2(128)
-
-  , US_ALU_ALPHA_ADDR__ADDR0(128)
-  | US_ALU_ALPHA_ADDR__ADDR1(128)
-  | US_ALU_ALPHA_ADDR__ADDR2(128)
-
-  , US_ALU_RGB_INST__RED_SWIZ_A__ZERO
-  | US_ALU_RGB_INST__GREEN_SWIZ_A__ZERO
-  | US_ALU_RGB_INST__BLUE_SWIZ_A__ZERO
-  | US_ALU_RGB_INST__RED_SWIZ_B__ZERO
-  | US_ALU_RGB_INST__GREEN_SWIZ_B__ZERO
-  | US_ALU_RGB_INST__BLUE_SWIZ_B__ZERO
-  | US_ALU_RGB_INST__OMOD(7)
-  | US_ALU_RGB_INST__TARGET__A
-
-  , US_ALU_ALPHA_INST__ALPHA_OP__OP_MAX
-  | US_ALU_ALPHA_INST__ALPHA_SWIZ_A__ONE
-  | US_ALU_ALPHA_INST__ALPHA_SWIZ_B__ONE
-  | US_ALU_ALPHA_INST__OMOD(7)
-  | US_ALU_ALPHA_INST__TARGET__A
-
-  , US_ALU_RGBA_INST__RGB_OP__OP_MAX
+#include "texture_cube.fs.inc"
+#include "clear.fs.inc"
 };
 static const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
 static const int fragment_shader_instructions = (fragment_shader_length / 6) - 1;
 
 static const uint32_t vertex_shader[] = {
-  //#include "../shader_examples/mesa/texture_cube.vs.txt"
   #include "cube_rotate.vs.inc"
   #include "clear_nop.vs.inc"
 };
