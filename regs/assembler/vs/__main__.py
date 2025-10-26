@@ -1,6 +1,7 @@
 import sys
 
 from assembler.lexer import Lexer, LexerError
+from assembler.validator import ValidatorError
 from assembler.vs.keywords import find_keyword
 from assembler.vs.parser import Parser, ParserError
 from assembler.vs.emitter import emit_instruction, emit_dual_math_instruction
@@ -41,6 +42,9 @@ def frontend(filename, buf):
         raise
     except LexerError as e:
         print_error(input_filename, buf, e)
+        raise
+    except ValidatorError as e:
+        print_error(filename, buf, e)
         raise
 
 if __name__ == "__main__":
