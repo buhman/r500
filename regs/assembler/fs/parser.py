@@ -7,14 +7,14 @@ from assembler.lexer import TT, Token
 from assembler.fs.keywords import KW, find_keyword
 from assembler.error import print_error
 
-class Mod(IntEnum):
+class ALUMod(IntEnum):
     nop = 0
     neg = 1
     abs = 2
     nab = 3
 
 @dataclass
-class LetExpression:
+class ALULetExpression:
     src_keyword: Token
     src_swizzle_identifier: Token
     addr_keyword: Token
@@ -27,27 +27,39 @@ class DestAddrSwizzle:
     swizzle_identifier: Token
 
 @dataclass
-class SwizzleSel:
+class ALUSwizzleSel:
     sel_keyword: Token
     swizzle_identifier: Token
-    mod: Mod
+    mod: ALUMod
 
 @dataclass
-class Operation:
+class ALUOperation:
     dest_addr_swizzles: list[DestAddrSwizzle]
     opcode_keyword: Token
-    swizzle_sels: list[SwizzleSel]
+    swizzle_sels: list[ALUSwizzleSel]
 
 @dataclass
-class Instruction:
-    out: bool
-    tex_sem_wait: bool
-    nop: bool
-    let_expressions: list[LetExpression]
-    operations: list[Operation]
+class ALUInstruction:
+    tags: set[Token]
+    let_expressions: list[ALULetExpression]
+    operations: list[ALUOperation]
+
+@dataclass
+class TEXOperation:
+    dest_addr_swizzles: list[DestAddrSwizzle]
+    opcode_keyword: Token
+    tex_id_identifier: Token
+    tex_dst_swizzle_identifier: Token
+    tex_src_address_identifier: Token
+    tex_src_swizzle_identifier: Token
+
+@dataclass
+class TEXInstruction:
+    tags: set[Token]
+    operation: TEXOperation
 
 class Parser(BaseParser):
-    def let_expression(self):
+    def alu_let_expression(self):
         src_keyword = self.consume(TT.keyword, "expected src keyword")
         self.consume(TT.dot, "expected dot")
         src_swizzle_identifier = self.consume(TT.identifier, "expected src swizzle identifier")
@@ -69,7 +81,7 @@ class Parser(BaseParser):
             else:
                 self.consume(TT.right_square, "expected right square")
 
-        return LetExpression(
+        return ALULetExpression(
             src_keyword,
             src_swizzle_identifier,
             addr_keyword,
@@ -90,7 +102,7 @@ class Parser(BaseParser):
             swizzle_identifier,
         )
 
-    def is_opcode(self):
+    def alu_is_opcode(self):
         opcode_keywords = {
             KW.CMP, KW.CND, KW.COS, KW.D2A,
             KW.DP , KW.DP3, KW.DP4, KW.EX2,
@@ -103,21 +115,21 @@ class Parser(BaseParser):
             return token.keyword in opcode_keywords
         return False
 
-    def is_neg(self):
+    def alu_is_neg(self):
         result = self.match(TT.minus)
         if result:
             self.advance()
         return result
 
-    def is_abs(self):
+    def alu_is_abs(self):
         result = self.match(TT.bar)
         if result:
             self.advance()
         return result
 
-    def swizzle_sel(self):
-        neg = self.is_neg()
-        abs = self.is_abs()
+    def alu_swizzle_sel(self):
+        neg = self.alu_is_neg()
+        abs = self.alu_is_abs()
 
         sel_keyword = self.consume(TT.keyword, "expected sel keyword")
         self.consume(TT.dot, "expected dot")
@@ -128,52 +140,51 @@ class Parser(BaseParser):
 
         mod_table = {
             # (neg, abs)
-            (False, False): Mod.nop,
-            (False, True): Mod.abs,
-            (True, False): Mod.neg,
-            (True, True): Mod.nab,
+            (False, False): ALUMod.nop,
+            (False, True): ALUMod.abs,
+            (True, False): ALUMod.neg,
+            (True, True): ALUMod.nab,
         }
         mod = mod_table[(neg, abs)]
-        return SwizzleSel(
+        return ALUSwizzleSel(
             sel_keyword,
             swizzle_identifier,
             mod,
         )
 
-    def operation(self):
+    def alu_operation(self):
         dest_addr_swizzles = []
-        while not self.is_opcode():
+        while not self.alu_is_opcode():
             dest_addr_swizzles.append(self.dest_addr_swizzle())
 
         opcode_keyword = self.consume(TT.keyword, "expected opcode keyword")
 
         swizzle_sels = []
         while not (self.match(TT.comma) or self.match(TT.semicolon)):
-            swizzle_sels.append(self.swizzle_sel())
+            swizzle_sels.append(self.alu_swizzle_sel())
 
-        return Operation(
+        return ALUOperation(
             dest_addr_swizzles,
             opcode_keyword,
             swizzle_sels
         )
 
-    def instruction(self):
-        out = False
-        if self.match_keyword(KW.OUT):
-            self.advance()
-            out = True
-        tex_sem_wait = False
-        if self.match_keyword(KW.TEX_SEM_WAIT):
-            self.advance()
-            tex_sem_wait = True
-        nop = False
-        if self.match_keyword(KW.NOP):
-            self.advance()
-            nop = True
+    def alu_instruction(self, out: bool):
+        tags = list()
+        tag_keywords = set([KW.OUT, KW.TEX_SEM_WAIT, KW.NOP, KW.LAST, KW.ALU_WAIT])
+        while True:
+            if self.match(TT.keyword):
+                token = self.peek()
+                if token.keyword in tag_keywords:
+                    self.advance()
+                    tag_keywords.remove(token.keyword)
+                    tags.append(token)
+                    continue
+            break
 
         let_expressions = []
         while not self.match(TT.colon):
-            let_expressions.append(self.let_expression())
+            let_expressions.append(self.alu_let_expression())
             if not self.match(TT.colon):
                 self.consume(TT.comma, "expected comma")
 
@@ -181,19 +192,86 @@ class Parser(BaseParser):
 
         operations = []
         while not self.match(TT.semicolon):
-            operations.append(self.operation())
+            operations.append(self.alu_operation())
             if not self.match(TT.semicolon):
                 self.consume(TT.comma, "expected comma")
 
         self.consume(TT.semicolon, "expected semicolon")
 
-        return Instruction(
-            out,
-            tex_sem_wait,
-            nop,
+        return ALUInstruction(
+            tags,
             let_expressions,
             operations,
         )
+
+    def tex_is_opcode(self):
+        opcode_keywords = {
+            KW.NOP, KW.LD, KW.TEXKILL, KW.PROJ,
+            KW.LODBIAS, KW.LOD, KW.DXDY,
+        }
+        if self.match(TT.keyword):
+            token = self.peek()
+            return token.keyword in opcode_keywords
+        return False
+
+    def tex_operation(self):
+        dest_addr_swizzles = []
+        while not self.tex_is_opcode():
+            dest_addr_swizzles.append(self.dest_addr_swizzle())
+        opcode_keyword = self.consume(TT.keyword, "expected tex opcode keyword")
+
+        self.consume_keyword(KW.TEX, "expected tex keyword")
+        self.consume(TT.left_square, "expected left square")
+        tex_id_identifier = self.consume(TT.identifier, "expected tex ID identifier")
+        self.consume(TT.right_square, "expected left square")
+        self.consume(TT.dot, "expected dot")
+        tex_dst_swizzle_identifier = self.consume(TT.identifier, "expected src swizzle")
+
+        self.consume_keyword(KW.TEMP, "expected temp keyword")
+        self.consume(TT.left_square, "expected left square")
+        tex_src_address_identifier = self.consume(TT.identifier, "expected tex address identifier")
+        self.consume(TT.right_square, "expected left square")
+        self.consume(TT.dot, "expected dot")
+        tex_src_swizzle_identifier = self.consume(TT.identifier, "expected dst swizzle")
+
+        return TEXOperation(
+            dest_addr_swizzles,
+            opcode_keyword,
+            tex_id_identifier,
+            tex_dst_swizzle_identifier,
+            tex_src_address_identifier,
+            tex_src_swizzle_identifier,
+        )
+
+    def tex_instruction(self):
+        tags = list()
+        tag_keywords = set([KW.OUT, KW.TEX_SEM_WAIT, KW.TEX_SEM_ACQUIRE, KW.NOP, KW.ALU_WAIT, KW.LAST])
+        while True:
+            if self.match(TT.keyword):
+                token = self.peek()
+                if token.keyword in tag_keywords:
+                    self.advance()
+                    tag_keywords.remove(token.keyword)
+                    tags.append(token)
+                    continue
+            break
+
+        operation = self.tex_operation()
+
+        self.consume(TT.semicolon, "expected semicolon")
+
+        return TEXInstruction(
+            tags,
+            operation,
+        )
+
+    def instruction(self):
+        out = False
+        if self.match_keyword(KW.TEX):
+            self.advance()
+            return self.tex_instruction()
+        else:
+            return self.alu_instruction(out=False)
 
     def instructions(self):
         while not self.match(TT.eof):

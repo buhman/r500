@@ -44,3 +44,11 @@ class BaseParser:
         if token.type != token_type1 and token.type != token_type2:
             raise ParserError(message, token)
         return token
+
+    def consume_keyword(self, keyword, message):
+        if self.match_keyword(keyword):
+            token = self.advance()
+            return token
+        else:
+            token = self.advance()
+            raise ParserError(message, token)

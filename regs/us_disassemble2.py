@@ -284,7 +284,7 @@ def assert_zeros_tex(code):
     src_addr_rel = US_TEX_ADDR.SRC_ADDR_REL(code)
     assert src_addr_rel == 0, src_addr_rel
 
-    dst_addr_rel = US_TEX_ADDR.SRC_ADDR_REL(code)
+    dst_addr_rel = US_TEX_ADDR.DST_ADDR_REL(code)
     assert dst_addr_rel == 0, dst_addr_rel
 
     ignore_uncovered = US_TEX_INST.IGNORE_UNCOVERED(code)
@@ -445,9 +445,11 @@ def disassemble_tex(code):
         tags.append("TEX_SEM_WAIT")
     if US_TEX_INST.TEX_SEM_ACQUIRE(code):
         tags.append("TEX_SEM_ACQUIRE")
+    if US_CMN_INST.ALU_WAIT(code):
+        tags.append("ALU_WAIT")
 
     print(" ".join(tags))
-    print(f"  {temp_out_str}{inst} tex[{tex_id}].{dst_swiz} temp[{tex_id}].{src_swiz} ;")
+    print(f"  {temp_out_str}{inst} tex[{tex_id}].{dst_swiz} temp[{src_addr}].{src_swiz} ;")
 
 def disassemble(code):
     assert len(code) == 6, len(code)

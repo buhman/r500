@@ -41,6 +41,18 @@ class KW(Enum):
     # modifiers
     NOP = auto()
     TEX_SEM_WAIT = auto()
+    TEX = auto()
+    TEX_SEM_ACQUIRE = auto()
+    ALU_WAIT = auto()
+    LAST = auto()
+
+    # tex opcodes
+    LD = auto()
+    TEXKILL = auto()
+    PROJ = auto()
+    LODBIAS = auto()
+    LOD = auto()
+    DXDY = auto()
 
 _string_to_keyword = {
     b"CMP": KW.CMP,
@@ -76,6 +88,16 @@ _string_to_keyword = {
     b"NEG": KW.NEG,
     b"NOP": KW.NOP,
     b"TEX_SEM_WAIT": KW.TEX_SEM_WAIT,
+    b"TEX": KW.TEX,
+    b"TEX_SEM_ACQUIRE": KW.TEX_SEM_ACQUIRE,
+    b"ALU_WAIT": KW.ALU_WAIT,
+    b"LAST": KW.LAST,
+    b"LD": KW.LD,
+    b"TEXKILL": KW.TEXKILL,
+    b"PROJ": KW.PROJ,
+    b"LODBIAS": KW.LODBIAS,
+    b"LOD": KW.LOD,
+    b"DXDY": KW.DXDY,
 }
 _keyword_to_string = {v:k for k,v in _string_to_keyword.items()}
 

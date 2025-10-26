@@ -130,8 +130,8 @@ def disassemble(code, ix):
         for i, register_name in enumerate(register_name_list):
             print('\n'.join(inner2(i, register_name)))
 
-    #inner = inner_rows
-    inner = inner_columns
+    inner = inner_rows
+    #inner = inner_columns
 
     inst_type = get_field_pv_name(us_cmn_inst, US_CMN_INST["TYPE"])
     if inst_type in {"US_INST_TYPE_OUT", "US_INST_TYPE_ALU"}:
