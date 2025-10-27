@@ -253,35 +253,6 @@ int _3d_clear(int ix)
       , 0x0);
 
   //////////////////////////////////////////////////////////////////////////////
-  // AOS
-  //////////////////////////////////////////////////////////////////////////////
-
-  T3(_3D_LOAD_VBPNTR, (4 - 1));
-  ib[ix++].u32 // VAP_VTX_NUM_ARRAYS
-    = VAP_VTX_NUM_ARRAYS__VTX_NUM_ARRAYS(2)
-    | VAP_VTX_NUM_ARRAYS__VC_FORCE_PREFETCH(1)
-    ;
-  ib[ix++].u32 // VAP_VTX_AOS_ATTR01
-    = VAP_VTX_AOS_ATTR__VTX_AOS_COUNT0(3)
-    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(5)
-    | VAP_VTX_AOS_ATTR__VTX_AOS_COUNT1(2)
-    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE1(5)
-    ;
-  ib[ix++].u32 // VAP_VTX_AOS_ADDR0
-    = (4 * 0);
-  ib[ix++].u32 // VAP_VTX_AOS_ADDR1
-    = (4 * 3);
-
-  // VAP_VTX_AOS_ADDR is an absolute address in VRAM. However, DRM_RADEON_CS
-  // modifies this to be an offset relative to the GEM buffer handles given via
-  // NOP:
-
-  T3(_NOP, 0);
-  ib[ix++].u32 = 3 * 4; // index into relocs array for VAP_VTX_AOS_ADDR0
-  T3(_NOP, 0);
-  ib[ix++].u32 = 3 * 4; // index into relocs array for VAP_VTX_AOS_ADDR1
-
-  //////////////////////////////////////////////////////////////////////////////
   // GA_US
   //////////////////////////////////////////////////////////////////////////////
 
@@ -516,6 +487,35 @@ int _3d_cube(int ix, float theta)
       , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
   T0V(VAP_OUT_VTX_FMT_1
       , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4));
+
+  //////////////////////////////////////////////////////////////////////////////
+  // AOS
+  //////////////////////////////////////////////////////////////////////////////
+
+  T3(_3D_LOAD_VBPNTR, (4 - 1));
+  ib[ix++].u32 // VAP_VTX_NUM_ARRAYS
+    = VAP_VTX_NUM_ARRAYS__VTX_NUM_ARRAYS(2)
+    | VAP_VTX_NUM_ARRAYS__VC_FORCE_PREFETCH(1)
+    ;
+  ib[ix++].u32 // VAP_VTX_AOS_ATTR01
+    = VAP_VTX_AOS_ATTR__VTX_AOS_COUNT0(3)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(5)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_COUNT1(2)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE1(5)
+    ;
+  ib[ix++].u32 // VAP_VTX_AOS_ADDR0
+    = (4 * 0);
+  ib[ix++].u32 // VAP_VTX_AOS_ADDR1
+    = (4 * 3);
+
+  // VAP_VTX_AOS_ADDR is an absolute address in VRAM. However, DRM_RADEON_CS
+  // modifies this to be an offset relative to the GEM buffer handles given via
+  // NOP:
+
+  T3(_NOP, 0);
+  ib[ix++].u32 = 3 * 4; // index into relocs array for VAP_VTX_AOS_ADDR0
+  T3(_NOP, 0);
+  ib[ix++].u32 = 3 * 4; // index into relocs array for VAP_VTX_AOS_ADDR1
 
   //////////////////////////////////////////////////////////////////////////////
   // GA_US
