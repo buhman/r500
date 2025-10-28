@@ -565,7 +565,7 @@ int indirect_buffer(int ix,
   const float fragment_consts[] = {
     -1.0f / 128.f, 1.0f / 128.f, -2.0f / 128.f, 2.0f / 128.f,
     -3.0f / 128.f, 3.0f / 128.f,          0.0f,         0.0f,
-       0.24609375,  0.205078125,     0.1171875, 0.0439453125,
+       0.24609375 + 0.021484375,  0.205078125,     0.1171875, 0.0439453125,
   };
   int fragment_consts_length = (sizeof (fragment_consts)) / (sizeof (fragment_consts[0]));
   T0V(GA_US_VECTOR_INDEX
@@ -786,7 +786,7 @@ int main()
                                 shader_ix,
                                 true);
   }
-  for (int i = 0; i < 0; i++) {
+  for (int i = 0; i < 10; i++) {
     {
       int texturebuffer_reloc_ix = 2;
       int colorbuffer_reloc_ix = 3;
