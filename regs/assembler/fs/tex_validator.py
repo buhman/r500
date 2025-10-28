@@ -64,13 +64,13 @@ def validate_mask_swizzle(token) -> tuple[AlphaMask, RGBMask]:
         (b"rb"   , (AlphaMask.NONE, RGBMask.RB)),
         (b"gb"   , (AlphaMask.NONE, RGBMask.GB)),
         (b"rgb"  , (AlphaMask.NONE, RGBMask.RGB)),
-        (b"ar"   , (AlphaMask.A, RGBMask.R)),
-        (b"ag"   , (AlphaMask.A, RGBMask.G)),
-        (b"arg"  , (AlphaMask.A, RGBMask.RG)),
-        (b"ab"   , (AlphaMask.A, RGBMask.B)),
-        (b"arb"  , (AlphaMask.A, RGBMask.RB)),
-        (b"agb"  , (AlphaMask.A, RGBMask.GB)),
-        (b"argb" , (AlphaMask.A, RGBMask.RGB)),
+        (b"ra"   , (AlphaMask.A, RGBMask.R)),
+        (b"ga"   , (AlphaMask.A, RGBMask.G)),
+        (b"rga"  , (AlphaMask.A, RGBMask.RG)),
+        (b"ba"   , (AlphaMask.A, RGBMask.B)),
+        (b"rba"  , (AlphaMask.A, RGBMask.RB)),
+        (b"gba"  , (AlphaMask.A, RGBMask.GB)),
+        (b"rgba" , (AlphaMask.A, RGBMask.RGB)),
     ])
     if token.lexeme not in argb_masks:
         raise ValidatorError("invalid destination mask", token)

@@ -420,7 +420,7 @@ def disassemble_tex_dest(code):
     a_wmask, a_wmask_str, _ = US_CMN_INST._ALPHA_WMASK(code)
     wmask_bool = rgb_wmask != 0 or a_wmask != 0
 
-    rgba_wmask = (a_wmask_str if a_wmask else "") + (rgb_wmask_str if rgb_wmask else "")
+    rgba_wmask = (rgb_wmask_str if rgb_wmask else "") + (a_wmask_str if a_wmask else "")
 
     temp_str = f"temp[{dst_addr}].{rgba_wmask.lower().ljust(4)} = " if wmask_bool else ""
 

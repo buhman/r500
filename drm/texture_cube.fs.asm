@@ -1,5 +1,5 @@
 TEX TEX_SEM_WAIT TEX_SEM_ACQUIRE
-  temp[0].argb = LD tex[0].rgba temp[0].rgaa ;
+  temp[0].rgba = LD tex[0].rgba temp[0].rgaa ;
 
 OUT TEX_SEM_WAIT
 src0.a = temp[0], src0.rgb = temp[0] :
