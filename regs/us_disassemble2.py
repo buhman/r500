@@ -207,10 +207,22 @@ def disassemble_alu_dest(code):
     rgb_omask, rgb_omask_str, _ = US_CMN_INST._RGB_OMASK(code)
     a_omask, a_omask_str, _ = US_CMN_INST._ALPHA_OMASK(code)
 
-    a_out_str = f"out[{a_addrd}].{a_omask_str.lower().ljust(4)} = " if a_omask != 0 else ""
+    rgb_target = US_ALU_RGB_INST.TARGET(code)
+    a_target = US_ALU_ALPHA_INST.TARGET(code)
+
+    if a_omask == 0:
+        assert a_target == 0
+    if rgb_omask == 0:
+        assert rgb_target == 0
+    if a_wmask == 0:
+        assert a_addrd == 0
+    if rgb_wmask == 0:
+        assert rgb_addrd == 0
+
+    a_out_str = f"out[{a_target}].{a_omask_str.lower().ljust(4)} = " if a_omask != 0 else ""
     a_temp_str = f"temp[{a_addrd}].{a_wmask_str.lower().ljust(4)} = " if a_wmask != 0 else ""
 
-    rgb_out_str = f"out[{rgb_addrd}].{rgb_omask_str.lower().ljust(4)} = " if rgb_omask != 0 else ""
+    rgb_out_str = f"out[{rgb_target}].{rgb_omask_str.lower().ljust(4)} = " if rgb_omask != 0 else ""
     rgb_temp_str = f"temp[{rgb_addrd}].{rgb_wmask_str.lower().ljust(4)} = " if rgb_wmask != 0 else ""
 
     return (a_out_str, a_temp_str), (rgb_out_str, rgb_temp_str)
@@ -239,17 +251,13 @@ def assert_zeros_common(code):
 
 def assert_zeros_alu(code):
     rgb_omod = US_ALU_RGB_INST.OMOD(code)
-    rgb_target = US_ALU_RGB_INST.TARGET(code)
     alu_wmask = US_ALU_RGB_INST.ALU_WMASK(code)
     assert rgb_omod in {0, 7}
-    assert rgb_target == 0
     assert alu_wmask == 0
 
     a_omod = US_ALU_ALPHA_INST.OMOD(code)
-    a_target = US_ALU_ALPHA_INST.TARGET(code)
     w_omask = US_ALU_ALPHA_INST.W_OMASK(code)
     assert a_omod in {0, 7}
-    assert a_target == 0
     assert w_omask == 0
 
 def assert_zeros_tex(code):
@@ -418,13 +426,14 @@ def disassemble_tex_dest(code):
 
     rgb_omask, rgb_omask_str, _ = US_CMN_INST._RGB_OMASK(code)
     a_omask, a_omask_str, _ = US_CMN_INST._ALPHA_OMASK(code)
-    omask_bool = rgb_omask != 0 or a_omask != 0
 
-    rgba_omask = (a_omask_str if a_omask else "") + (rgb_omask_str if rgb_omask else "")
+    assert rgb_omask == 0
+    assert a_omask == 0
+    #omask_bool = rgb_omask != 0 or a_omask != 0
+    #rgba_omask = (a_omask_str if a_omask else "") + (rgb_omask_str if rgb_omask else "")
+    #out_str = f"out[{dst_addr}].{rgba_omask.lower().ljust(4)} = " if omask_bool else ""
 
-    out_str = f"out[{dst_addr}].{rgba_omask.lower().ljust(4)} = " if omask_bool else ""
-
-    return out_str, temp_str
+    return temp_str
 
 def disassemble_tex(code):
     assert_zeros_common(code)
@@ -436,9 +445,7 @@ def disassemble_tex(code):
     src_addr = US_TEX_ADDR.SRC_ADDR(code)
 
     src_swiz, dst_swiz = disassemble_tex_swizzle_str(code)
-    out_str, temp_str = disassemble_tex_dest(code)
-
-    temp_out_str = ''.join([out_str, temp_str])
+    temp_str = disassemble_tex_dest(code)
 
     tags = ["TEX"]
     if US_CMN_INST.TEX_SEM_WAIT(code):
@@ -449,7 +456,7 @@ def disassemble_tex(code):
         tags.append("ALU_WAIT")
 
     print(" ".join(tags))
-    print(f"  {temp_out_str}{inst} tex[{tex_id}].{dst_swiz} temp[{src_addr}].{src_swiz} ;")
+    print(f"  {temp_str}{inst} tex[{tex_id}].{dst_swiz} temp[{src_addr}].{src_swiz} ;")
 
 def disassemble(code):
     assert len(code) == 6, len(code)

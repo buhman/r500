@@ -5,12 +5,17 @@ from assembler.fs.common_emitter import US_ALU_RGB_INST, US_ALU_ALPHA_INST, US_A
 
 def emit_alpha_op(code, alpha_op):
     # dest
+    if alpha_op.dest.addrd is not None:
+        assert type(alpha_op.dest.addrd) is int
+        US_ALU_ALPHA_INST.ALPHA_ADDRD(code, alpha_op.dest.addrd)
+    if alpha_op.dest.target is not None:
+        assert type(alpha_op.dest.target) is int
+        US_ALU_ALPHA_INST.TARGET(code, alpha_op.dest.target)
+
     if alpha_op.dest.wmask is not None:
         US_CMN_INST.ALPHA_WMASK(code, alpha_op.dest.wmask.value)
     if alpha_op.dest.omask is not None:
         US_CMN_INST.ALPHA_OMASK(code, alpha_op.dest.omask.value)
-    assert type(alpha_op.dest.addrd) is int
-    US_ALU_ALPHA_INST.ALPHA_ADDRD(code, alpha_op.dest.addrd)
 
     # opcode
     US_ALU_ALPHA_INST.ALPHA_OP(code, alpha_op.opcode.value)
@@ -42,12 +47,17 @@ def emit_alpha_op(code, alpha_op):
 
 def emit_rgb_op(code, rgb_op):
     # dest
+    if rgb_op.dest.addrd is not None:
+        assert type(rgb_op.dest.addrd) is int
+        US_ALU_RGBA_INST.RGB_ADDRD(code, rgb_op.dest.addrd)
+    if rgb_op.dest.target is not None:
+        assert type(rgb_op.dest.target) is int
+        US_ALU_RGB_INST.TARGET(code, rgb_op.dest.target)
+
     if rgb_op.dest.wmask is not None:
         US_CMN_INST.RGB_WMASK(code, rgb_op.dest.wmask.value)
     if rgb_op.dest.omask is not None:
         US_CMN_INST.RGB_OMASK(code, rgb_op.dest.omask.value)
-    assert type(rgb_op.dest.addrd) is int
-    US_ALU_RGBA_INST.RGB_ADDRD(code, rgb_op.dest.addrd)
 
     # opcode
     US_ALU_RGBA_INST.RGB_OP(code, rgb_op.opcode.value)

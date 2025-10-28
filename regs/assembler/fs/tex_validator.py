@@ -7,15 +7,13 @@ from assembler.validator import ValidatorError
 from assembler.fs import parser
 from assembler.fs.keywords import KW
 from assembler.fs.common_validator import RGBMask, AlphaMask
-from assembler.fs.common_validator import validate_identifier_number, validate_dest_keyword
+from assembler.fs.common_validator import validate_identifier_number
 from assembler.fs.common_validator import keywords_to_string
 
 @dataclass
 class Masks:
     alpha_wmask: AlphaMask
     rgb_wmask: RGBMask
-    alpha_omask: AlphaMask
-    rgb_omask: RGBMask
 
 class TEXOp(IntEnum):
     NOP = 0
@@ -85,16 +83,13 @@ def validate_masks(ins_ast: parser.TEXInstruction):
     masks = Masks(
         alpha_wmask = AlphaMask.NONE,
         rgb_wmask = RGBMask.NONE,
-        alpha_omask = AlphaMask.NONE,
-        rgb_omask = RGBMask.NONE,
     )
 
     for dest_addr_swizzle in ins_ast.operation.dest_addr_swizzles:
         dest_keyword = dest_addr_swizzle.dest_keyword
-        dest = validate_dest_keyword(dest_keyword)
-        if dest in dests:
-            raise ValidatorError(f"duplicate destination keyword {dest}", dest_keyword)
-        dests.add(dest)
+        if dest_keyword.keyword is not KW.TEMP:
+            raise ValidatorError(f"invalid dest keyword, expected `temp`", dest_keyword)
+        dests.add(dest_keyword.keyword)
 
         addr_identifier = dest_addr_swizzle.addr_identifier
         addr = validate_identifier_number(addr_identifier)
@@ -103,14 +98,8 @@ def validate_masks(ins_ast: parser.TEXInstruction):
         swizzle_identifier = dest_addr_swizzle.swizzle_identifier
         alpha_mask, rgb_mask = validate_mask_swizzle(swizzle_identifier)
 
-        if dest is KW.OUT:
-            masks.alpha_omask = alpha_mask
-            masks.rgb_omask = rgb_mask
-        elif dest is KW.TEMP:
-            masks.alpha_wmask = alpha_mask
-            masks.rgb_wmask = rgb_mask
-        else:
-            assert False, type(dest)
+        masks.alpha_wmask = alpha_mask
+        masks.rgb_wmask = rgb_mask
 
     if len(addresses) > 1:
         raise ValidatorError("contradictory destination address", ins_ast.operation.dest_addr_swizzles[-1].addr_identifier)

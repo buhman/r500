@@ -36,7 +36,7 @@ def validate_dest_keyword(dest_keyword):
     dest_keyword_strs = keywords_to_string(dest_keywords)
     dest = dest_keyword.keyword
     if dest not in dest_keywords:
-        raise ValidatorError(f"invalid dest keyword, expected one of {dest_keyword_strs}", dest_addr_swizzle.dest_keyword)
+        raise ValidatorError(f"invalid dest keyword, expected one of {dest_keyword_strs}", dest_keyword)
     return dest
 
 def keywords_to_string(keywords):

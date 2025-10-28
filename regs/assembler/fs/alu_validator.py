@@ -83,12 +83,14 @@ class AlphaOp(IntEnum):
 @dataclass
 class RGBDest:
     addrd: int
+    target: int
     wmask: RGBMask
     omask: RGBMask
 
 @dataclass
 class AlphaDest:
     addrd: int
+    target: int
     wmask: AlphaMask
     omask: AlphaMask
 
@@ -345,25 +347,26 @@ def infer_operation_units(operations):
         yield units[i], operation
 
 def validate_instruction_operation_dest(dest_addr_swizzles, mask_lookup, type_cls):
-    addrs = set()
+    addrd = None
+    target = None
     wmask = None
     omask = None
     for dest_addr_swizzle in dest_addr_swizzles:
         dest = validate_dest_keyword(dest_addr_swizzle.dest_keyword)
         addr = validate_identifier_number(dest_addr_swizzle.addr_identifier)
         mask = mask_lookup[dest_addr_swizzle.swizzle_identifier.lexeme.lower()]
-        addrs.add(addr)
         if dest == KW.OUT:
             omask = mask
+            target = addr
         elif dest == KW.TEMP:
             wmask = mask
+            addrd = addr
         else:
             assert False, dest
-    if len(addrs) > 1:
-        raise ValidatorError(f"too many destination addresses", operation.dest_addr_swizzles[-1].addr_identifier)
-    addrd, = addrs if addrs else [0]
+
     return type_cls(
         addrd=addrd,
+        target=target,
         wmask=wmask,
         omask=omask
     )

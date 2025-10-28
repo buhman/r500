@@ -14,8 +14,6 @@ def emit_instruction(code, ins):
     US_CMN_INST.ALU_WAIT(code, int(KW.ALU_WAIT in ins.tags))
     US_CMN_INST.RGB_WMASK(code, ins.masks.rgb_wmask.value)
     US_CMN_INST.ALPHA_WMASK(code, ins.masks.alpha_wmask.value)
-    US_CMN_INST.RGB_OMASK(code, ins.masks.rgb_omask.value)
-    US_CMN_INST.ALPHA_OMASK(code, ins.masks.alpha_omask.value)
 
     US_TEX_INST.TEX_ID(code, ins.tex_id)
     US_TEX_INST.INST(code, ins.opcode.value)
