@@ -283,7 +283,7 @@ int indirect_buffer()
       , US_CONFIG__ZERO_TIMES_ANYTHING_EQUALS_ZERO(1)
       );
   T0V(US_PIXSIZE
-      , US_PIXSIZE__PIX_SIZE(1)
+      , US_PIXSIZE__PIX_SIZE(9)
       );
   T0V(US_FC_CTRL, 0);
 
@@ -464,16 +464,18 @@ int indirect_buffer()
   T0V(TX_ENABLE
       , TX_ENABLE__TEX_0_ENABLE__ENABLE);
   T0V(TX_FILTER0_0
-      , TX_FILTER0__MAG_FILTER__LINEAR
-      | TX_FILTER0__MIN_FILTER__LINEAR
+      //, TX_FILTER0__CLAMP_S(2) // clamp to (0.0, 1.0)
+      //| TX_FILTER0__CLAMP_T(2) // clamp to (0.0, 1.0)
+      , TX_FILTER0__MAG_FILTER__POINT
+      | TX_FILTER0__MIN_FILTER__POINT
       );
   T0V(TX_FILTER1_0
       , TX_FILTER1__LOD_BIAS(1)
       );
   T0V(TX_BORDER_COLOR_0, 0);
   T0V(TX_FORMAT0_0
-      , TX_FORMAT0__TXWIDTH(1024 - 1)
-      | TX_FORMAT0__TXHEIGHT(1024 - 1)
+      , TX_FORMAT0__TXWIDTH(128 - 1)
+      | TX_FORMAT0__TXHEIGHT(128 - 1)
       );
 
   T0V(TX_FORMAT1_0
@@ -500,7 +502,7 @@ int indirect_buffer()
   //////////////////////////////////////////////////////////////////////////////
 
   const uint32_t fragment_shader[] = {
-    #include "texture.fs.inc"
+    #include "texture_blur.fs.inc"
   };
   const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
   printf("fs length %d\n", fragment_shader_length);
@@ -526,17 +528,32 @@ int indirect_buffer()
     ib[ix++].u32 = fragment_shader[i];
   }
 
+
+  const float fragment_consts[] = {
+    -1.0f / 128.f, 1.0f / 128.f, -2.0f / 128.f, 2.0f / 128.f,
+    -3.0f / 128.f, 3.0f / 128.f,          0.0f,         0.0f,
+       0.24609375,  0.205078125,     0.1171875, 0.0439453125,
+  };
+  int fragment_consts_length = (sizeof (fragment_consts)) / (sizeof (fragment_consts[0]));
+  T0V(GA_US_VECTOR_INDEX
+      , GA_US_VECTOR_INDEX__INDEX(0)
+      | GA_US_VECTOR_INDEX__TYPE(1)
+      );
+  T0_ONE_REG(GA_US_VECTOR_DATA, (fragment_consts_length - 1));
+  for (int i = 0; i < fragment_consts_length; i++)
+    ib[ix++].f32 = fragment_consts[i];
+
   //////////////////////////////////////////////////////////////////////////////
   // 3D_DRAW
   //////////////////////////////////////////////////////////////////////////////
 
   const float vertices[] = {
-     0.5,  0.5, 0.0, 1.0, 0.0,
-     0.5, -0.5, 0.0, 1.0, 1.0,
-    -0.5, -0.5, 0.0, 0.0, 1.0,
-    -0.5,  0.5, 0.0, 0.0, 0.0,
-     0.5,  0.5, 0.0, 1.0, 0.0,
-    -0.5, -0.5, 0.0, 0.0, 1.0,
+     1.0,  1.0, 0.0, 1.0, 0.0,
+     1.0, -1.0, 0.0, 1.0, 1.0,
+    -1.0, -1.0, 0.0, 0.0, 1.0,
+    -1.0,  1.0, 0.0, 0.0, 0.0,
+     1.0,  1.0, 0.0, 1.0, 0.0,
+    -1.0, -1.0, 0.0, 0.0, 1.0,
   };
   const int vertices_length = (sizeof (vertices)) / (sizeof (vertices[0]));
   printf("vtx length %d\n", vertices_length);
@@ -613,7 +630,7 @@ int main()
 
   // texture
   {
-    const int texture_size = 1024 * 1024 * 4;
+    const int texture_size = 128 * 128 * 4;
 
     struct drm_radeon_gem_create args = {
       .size = texture_size,
@@ -646,7 +663,7 @@ int main()
     assert(texturebuffer_ptr != MAP_FAILED);
 
     // copy texture
-    void * texture_buf = read_file("../texture/butterfly_1024x1024_argb8888.data");
+    void * texture_buf = read_file("../texture/butterfly_128x128_argb8888.data");
     assert(texture_buf != NULL);
 
     for (int i = 0; i < texture_size / 4; i++) {
