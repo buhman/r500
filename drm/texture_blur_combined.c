@@ -59,10 +59,14 @@ union u32_f32 {
 
 static union u32_f32 ib[16384];
 
-int indirect_buffer()
+int indirect_buffer(int ix,
+                    int width,
+                    int height,
+                    int colorbuffer_reloc_ix,
+                    int texturebuffer_reloc_ix,
+                    int shader_ix,
+                    bool intermediate)
 {
-  int ix = 0;
-
   T0V(RB3D_DSTCACHE_CTLSTAT
       , RB3D_DSTCACHE_CTLSTAT__DC_FLUSH(0x2) // Flush dirty 3D data
       | RB3D_DSTCACHE_CTLSTAT__DC_FREE(0x2)  // Free 3D tags
@@ -243,14 +247,25 @@ int indirect_buffer()
   T0Vf(GA_POINT_T0, 1.0f);
   T0Vf(GA_POINT_S1, 1.0f);
   T0Vf(GA_POINT_T1, 0.0f);
-  T0V(US_OUT_FMT_0
-      , US_OUT_FMT__OUT_FMT(0)  // C4_8
-      | US_OUT_FMT__C0_SEL(3)   // Blue
-      | US_OUT_FMT__C1_SEL(2)   // Green
-      | US_OUT_FMT__C2_SEL(1)   // Red
-      | US_OUT_FMT__C3_SEL(0)   // Alpha
-      | US_OUT_FMT__OUT_SIGN(0)
-      );
+  if (intermediate) {
+    T0V(US_OUT_FMT_0
+        , US_OUT_FMT__OUT_FMT(0)  // C4_8
+        | US_OUT_FMT__C0_SEL(1)   // Blue
+        | US_OUT_FMT__C1_SEL(2)   // Green
+        | US_OUT_FMT__C2_SEL(3)   // Red
+        | US_OUT_FMT__C3_SEL(0)   // Alpha
+        | US_OUT_FMT__OUT_SIGN(0)
+        );
+  } else {
+    T0V(US_OUT_FMT_0
+        , US_OUT_FMT__OUT_FMT(0)  // C4_8
+        | US_OUT_FMT__C0_SEL(3)   // Blue
+        | US_OUT_FMT__C1_SEL(2)   // Green
+        | US_OUT_FMT__C2_SEL(1)   // Red
+        | US_OUT_FMT__C3_SEL(0)   // Alpha
+        | US_OUT_FMT__OUT_SIGN(0)
+        );
+  }
   T0V(US_OUT_FMT_1
       , US_OUT_FMT__OUT_FMT(15) // render target is not used
       );
@@ -311,16 +326,16 @@ int indirect_buffer()
       , 0x00000000 // value replaced by kernel from relocs
       );
   T3(_NOP, 0);
-  ib[ix++].u32 = 0 * 4; // index into relocs array
+  ib[ix++].u32 = colorbuffer_reloc_ix * 4; // index into relocs array
 
   T0V(RB3D_COLORPITCH0
-      , RB3D_COLORPITCH__COLORPITCH(1600 >> 1)
+      , RB3D_COLORPITCH__COLORPITCH(width >> 1)
       | RB3D_COLORPITCH__COLORFORMAT(6) // ARGB8888
       );
   // The COLORPITCH NOP is ignored/not applied due to
   // RADEON_CS_KEEP_TILING_FLAGS, but is still required.
   T3(_NOP, 0);
-  ib[ix++].u32 = 0 * 4; // index into relocs array
+  ib[ix++].u32 = colorbuffer_reloc_ix * 4; // index into relocs array
 
   //////////////////////////////////////////////////////////////////////////////
   // SC
@@ -331,18 +346,18 @@ int indirect_buffer()
       | SC_SCISSOR0__YS0(0)
       );
   T0V(SC_SCISSOR1
-      , SC_SCISSOR1__XS1(1600 - 1)
-      | SC_SCISSOR1__YS1(1200 - 1)
+      , SC_SCISSOR1__XS1(width - 1)
+      | SC_SCISSOR1__YS1(height - 1)
       );
 
   //////////////////////////////////////////////////////////////////////////////
   // VAP
   //////////////////////////////////////////////////////////////////////////////
 
-  T0Vf(VAP_VPORT_XSCALE,   600.0f);
-  T0Vf(VAP_VPORT_XOFFSET,  800.0f);
-  T0Vf(VAP_VPORT_YSCALE,  -600.0f);
-  T0Vf(VAP_VPORT_YOFFSET,  600.0f);
+  T0Vf(VAP_VPORT_XSCALE,   ((float)height) *  0.5f);
+  T0Vf(VAP_VPORT_XOFFSET,  ((float)width)  *  0.5f);
+  T0Vf(VAP_VPORT_YSCALE,   ((float)height) * -0.5f);
+  T0Vf(VAP_VPORT_YOFFSET,  ((float)height) *  0.5f);
   T0Vf(VAP_VPORT_ZSCALE,     0.5f);
   T0Vf(VAP_VPORT_ZOFFSET,    0.5f);
 
@@ -404,7 +419,7 @@ int indirect_buffer()
   //////////////////////////////////////////////////////////////////////////////
 
   const uint32_t vertex_shader[] = {
-    #include "../shader_examples/mesa/texture.vs.txt"
+    #include "texture.vs.inc"
   };
   const int vertex_shader_length = (sizeof (vertex_shader)) / (sizeof (vertex_shader[0]));
   printf("vs length %d\n", vertex_shader_length);
@@ -495,39 +510,57 @@ int indirect_buffer()
       );
 
   T3(_NOP, 0);
-  ib[ix++].u32 = 1 * 4; // index into relocs array
+  ib[ix++].u32 = texturebuffer_reloc_ix * 4; // index into relocs array
 
   //////////////////////////////////////////////////////////////////////////////
   // GA_US
   //////////////////////////////////////////////////////////////////////////////
 
-  const uint32_t fragment_shader[] = {
+  const uint32_t fragment_shader0[] = {
     #include "texture_blur_horizontal.fs.inc"
   };
-  const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
-  printf("fs length %d\n", fragment_shader_length);
-  assert(fragment_shader_length % 6 == 0);
-  const int fragment_shader_instructions = fragment_shader_length / 6;
-  printf("fs instructions %d\n", fragment_shader_instructions);
+  const uint32_t fragment_shader1[] = {
+    #include "texture_blur_vertical.fs.inc"
+  };
+  const int fragment_shader0_length = (sizeof (fragment_shader0)) / (sizeof (fragment_shader0[0]));
+  const int fragment_shader1_length = (sizeof (fragment_shader1)) / (sizeof (fragment_shader1[0]));
+  assert(fragment_shader0_length % 6 == 0);
+  assert(fragment_shader1_length % 6 == 0);
+  const int fragment_shader0_instructions = fragment_shader0_length / 6;
+  const int fragment_shader1_instructions = fragment_shader0_length / 6;
 
-  T0V(US_CODE_RANGE
-      , US_CODE_RANGE__CODE_ADDR(0)
-      | US_CODE_RANGE__CODE_SIZE(fragment_shader_instructions - 1)
-      );
-  T0V(US_CODE_OFFSET
-      , US_CODE_OFFSET__OFFSET_ADDR(0)
-      );
-  T0V(US_CODE_ADDR
-      , US_CODE_ADDR__START_ADDR(0)
-      | US_CODE_ADDR__END_ADDR(fragment_shader_instructions - 1)
-      );
+  struct shader {
+    const uint32_t * buf;
+    int instructions;
+    int start;
+  };
+  const struct shader shaders[] = {
+    {
+      .buf = fragment_shader0,
+      .instructions = fragment_shader0_instructions,
+      .start = 0,
+    },
+    {
+      .buf = fragment_shader1,
+      .instructions = fragment_shader1_instructions,
+      .start = fragment_shader0_instructions,
+    }
+  };
+  int shaders_length = (sizeof (shaders)) / (sizeof (shaders[0]));
 
-  T0V(GA_US_VECTOR_INDEX, 0x00000000);
-  T0_ONE_REG(GA_US_VECTOR_DATA, fragment_shader_length - 1);
-  for (int i = 0; i < fragment_shader_length; i++) {
-    ib[ix++].u32 = fragment_shader[i];
+  int fragment_shader_total_length = 0;
+  for (int i = 0; i < shaders_length; i++) {
+    printf("fs[%d] offset=%d instructions=%d\n", i, fragment_shader_total_length, shaders[i].instructions);
+    fragment_shader_total_length += shaders[i].instructions * 6;
   }
-
+  printf("fs total=%d\n", fragment_shader_total_length);
+  T0V(GA_US_VECTOR_INDEX, 0x00000000);
+  T0_ONE_REG(GA_US_VECTOR_DATA, fragment_shader_total_length - 1);
+  for (int j = 0; j < shaders_length; j++) {
+    for (int i = 0; i < shaders[j].instructions * 6; i++) {
+      ib[ix++].u32 = shaders[j].buf[i];
+    }
+  }
 
   const float fragment_consts[] = {
     -1.0f / 128.f, 1.0f / 128.f, -2.0f / 128.f, 2.0f / 128.f,
@@ -542,6 +575,24 @@ int indirect_buffer()
   T0_ONE_REG(GA_US_VECTOR_DATA, (fragment_consts_length - 1));
   for (int i = 0; i < fragment_consts_length; i++)
     ib[ix++].f32 = fragment_consts[i];
+
+
+  // program selection
+
+  assert(shader_ix >= 0 && shader_ix < shaders_length);
+  printf("fs shader_ix %d\n", shader_ix);
+
+  T0V(US_CODE_RANGE
+      , US_CODE_RANGE__CODE_ADDR(shaders[shader_ix].start)            // absolute
+      | US_CODE_RANGE__CODE_SIZE(shaders[shader_ix].instructions - 1) // relative to CODE_ADDR
+      );
+  T0V(US_CODE_OFFSET
+      , US_CODE_OFFSET__OFFSET_ADDR(shaders[shader_ix].start)         // absolute
+      );
+  T0V(US_CODE_ADDR
+      , US_CODE_ADDR__START_ADDR(0)                                   // relative to OFFSET_ADDR
+      | US_CODE_ADDR__END_ADDR(shaders[shader_ix].instructions - 1)   // relative to OFFSET_ADDR
+      );
 
   //////////////////////////////////////////////////////////////////////////////
   // 3D_DRAW
@@ -582,103 +633,86 @@ int indirect_buffer()
   return ix;
 }
 
+int create_colorbuffer(int fd, int colorbuffer_size, void ** out_ptr)
+{
+  int ret;
+
+  struct drm_radeon_gem_create args = {
+    .size = colorbuffer_size,
+    .alignment = 4096,
+    .handle = 0,
+    .initial_domain = 4, // RADEON_GEM_DOMAIN_VRAM
+    .flags = 4
+  };
+
+  ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_CREATE, &args, (sizeof (struct drm_radeon_gem_create)));
+  if (ret != 0) {
+    perror("drmCommandWriteRead(DRM_RADEON_GEM_CREATE)");
+  }
+  assert(args.handle != 0);
+
+  struct drm_radeon_gem_mmap mmap_args = {
+    .handle = args.handle,
+    .offset = 0,
+    .size = colorbuffer_size,
+  };
+  ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_MMAP, &mmap_args, (sizeof (struct drm_radeon_gem_mmap)));
+  if (ret != 0) {
+    perror("drmCommandWriteRead(DRM_RADEON_GEM_MMAP)");
+  }
+
+  void * ptr = mmap(0,
+                    colorbuffer_size,
+                    PROT_READ | PROT_WRITE,
+                    MAP_SHARED,
+                    fd,
+                    mmap_args.addr_ptr);
+  assert(ptr != MAP_FAILED);
+
+  // clear colorbuffer
+  for (int i = 0; i < colorbuffer_size / 4; i++) {
+    ((uint32_t*)ptr)[i] = 0x00000000;
+  }
+  asm volatile ("" ::: "memory");
+
+  if (out_ptr != NULL) {
+    *out_ptr = ptr;
+  } else {
+    munmap(ptr, colorbuffer_size);
+  }
+
+  return args.handle;
+}
+
 int main()
 {
   int ret;
   int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
 
+  const int texture_size = 128 * 128 * 4;
   const int colorbuffer_size = 1600 * 1200 * 4;
+  int intermediate_handle[2];
   int colorbuffer_handle;
   int texturebuffer_handle;
+  void * texturebuffer_ptr;
   void * colorbuffer_ptr;
   int flush_handle;
 
   // colorbuffer
-  {
-    struct drm_radeon_gem_create args = {
-      .size = colorbuffer_size,
-      .alignment = 4096,
-      .handle = 0,
-      .initial_domain = 4, // RADEON_GEM_DOMAIN_VRAM
-      .flags = 4
-    };
-
-    ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_CREATE, &args, (sizeof (struct drm_radeon_gem_create)));
-    if (ret != 0) {
-      perror("drmCommandWriteRead(DRM_RADEON_GEM_CREATE)");
-    }
-    assert(args.handle != 0);
-
-    colorbuffer_handle = args.handle;
-  }
+  colorbuffer_handle = create_colorbuffer(fd, colorbuffer_size, &colorbuffer_ptr);
+  texturebuffer_handle = create_colorbuffer(fd, texture_size, &texturebuffer_ptr);
+  intermediate_handle[0] = create_colorbuffer(fd, texture_size, NULL);
+  intermediate_handle[1] = create_colorbuffer(fd, texture_size, NULL);
 
   {
-    struct drm_radeon_gem_mmap mmap_args = {
-      .handle = colorbuffer_handle,
-      .offset = 0,
-      .size = colorbuffer_size,
-    };
-    ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_MMAP, &mmap_args, (sizeof (struct drm_radeon_gem_mmap)));
-    if (ret != 0) {
-      perror("drmCommandWriteRead(DRM_RADEON_GEM_MMAP)");
-    }
-
-    colorbuffer_ptr = mmap(0, mmap_args.size, PROT_READ|PROT_WRITE, MAP_SHARED,
-                           fd, mmap_args.addr_ptr);
-    assert(colorbuffer_ptr != MAP_FAILED);
-  }
-
-  // texture
-  {
-    const int texture_size = 128 * 128 * 4;
-
-    struct drm_radeon_gem_create args = {
-      .size = texture_size,
-      .alignment = 4096,
-      .handle = 0,
-      .initial_domain = 4, // RADEON_GEM_DOMAIN_VRAM
-      .flags = 4
-    };
-
-    ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_CREATE, &args, (sizeof (struct drm_radeon_gem_create)));
-    if (ret != 0) {
-      perror("drmCommandWriteRead(DRM_RADEON_GEM_CREATE)");
-    }
-    assert(args.handle != 0);
-
-    texturebuffer_handle = args.handle;
-
-    struct drm_radeon_gem_mmap mmap_args = {
-      .handle = texturebuffer_handle,
-      .offset = 0,
-      .size = texture_size,
-    };
-    ret = drmCommandWriteRead(fd, DRM_RADEON_GEM_MMAP, &mmap_args, (sizeof (struct drm_radeon_gem_mmap)));
-    if (ret != 0) {
-      perror("drmCommandWriteRead(DRM_RADEON_GEM_MMAP)");
-    }
-
-    void * texturebuffer_ptr = mmap(0, mmap_args.size, PROT_READ|PROT_WRITE, MAP_SHARED,
-                                    fd, mmap_args.addr_ptr);
-    assert(texturebuffer_ptr != MAP_FAILED);
-
-    // copy texture
     void * texture_buf = read_file("../texture/butterfly_128x128_argb8888.data");
     assert(texture_buf != NULL);
-
     for (int i = 0; i < texture_size / 4; i++) {
       ((uint32_t*)texturebuffer_ptr)[i] = ((uint32_t*)texture_buf)[i];
     }
     asm volatile ("" ::: "memory");
-    free(texture_buf);
     munmap(texturebuffer_ptr, texture_size);
-  }
-
-  { // clear colorbuffer
-    for (int i = 0; i < colorbuffer_size / 4; i++) {
-      ((uint32_t*)colorbuffer_ptr)[i] = 0xff000000;
-    }
-    asm volatile ("" ::: "memory");
+    free(texture_buf);
   }
 
   // flush
@@ -716,6 +750,18 @@ int main()
       .flags = 8,
     },
     {
+      .handle = intermediate_handle[0],
+      .read_domains = 4, // RADEON_GEM_DOMAIN_VRAM
+      .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM
+      .flags = 8,
+    },
+    {
+      .handle = intermediate_handle[1],
+      .read_domains = 4, // RADEON_GEM_DOMAIN_VRAM
+      .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM
+      .flags = 8,
+    },
+    {
       .handle = flush_handle,
       .read_domains = 2, // RADEON_GEM_DOMAIN_GTT
       .write_domain = 2, // RADEON_GEM_DOMAIN_GTT
@@ -728,8 +774,53 @@ int main()
     0, // RADEON_CS_RING_GFX
   };
 
-  int ib_dwords = indirect_buffer();
-  //int ib_dwords = (sizeof (ib2)) / (sizeof (ib2[0]));
+  int ib_dwords = 0;
+  {
+    int texturebuffer_reloc_ix = 1;
+    int colorbuffer_reloc_ix = 2;
+    int shader_ix = 0;
+    ib_dwords = indirect_buffer(ib_dwords,
+                                128, 128,
+                                colorbuffer_reloc_ix,
+                                texturebuffer_reloc_ix,
+                                shader_ix,
+                                true);
+  }
+  for (int i = 0; i < 0; i++) {
+    {
+      int texturebuffer_reloc_ix = 2;
+      int colorbuffer_reloc_ix = 3;
+      int shader_ix = 1;
+      ib_dwords = indirect_buffer(ib_dwords,
+                                  128, 128,
+                                  colorbuffer_reloc_ix,
+                                  texturebuffer_reloc_ix,
+                                  shader_ix,
+                                  true);
+    }
+    {
+      int texturebuffer_reloc_ix = 3;
+      int colorbuffer_reloc_ix = 2;
+      int shader_ix = 0;
+      ib_dwords = indirect_buffer(ib_dwords,
+                                  128, 128,
+                                  colorbuffer_reloc_ix,
+                                  texturebuffer_reloc_ix,
+                                  shader_ix,
+                                  true);
+    }
+  }
+  {
+    int texturebuffer_reloc_ix = 2;
+    int colorbuffer_reloc_ix = 0;
+    int shader_ix = 1;
+    ib_dwords = indirect_buffer(ib_dwords,
+                                1600, 1200,
+                                colorbuffer_reloc_ix,
+                                texturebuffer_reloc_ix,
+                                shader_ix,
+                                false);
+  }
 
   struct drm_radeon_cs_chunk chunks[3] = {
     {
