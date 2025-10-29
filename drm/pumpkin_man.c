@@ -430,9 +430,9 @@ int _3d_object(int ix,
   // VAP_PVS
   //////////////////////////////////////////////////////////////////////////////
 
-  float theta1 = theta;
+  float theta1 = 3.2 * 3.14f / 2;
   //float theta2 = 3.14f * theta;
-  float theta2 = theta;
+  float theta2 = 2 * 3.14f / 2 + theta;
   const float consts[] = {
     I_PI_2, 0.5f, PI_2, -PI,
     theta1, theta2, 0.1f, 0.5f,
@@ -1098,11 +1098,12 @@ int main()
   int vertexbuffer_handle;
   int flush_handle;
 
+  void * colorbuffer_ptr[2];
   void * vertexbuffer_ptr;
 
   // colorbuffer
-  colorbuffer_handle[0] = create_colorbuffer(fd, colorbuffer_size, NULL);
-  colorbuffer_handle[1] = create_colorbuffer(fd, colorbuffer_size, NULL);
+  colorbuffer_handle[0] = create_colorbuffer(fd, colorbuffer_size, &colorbuffer_ptr[0]);
+  colorbuffer_handle[1] = create_colorbuffer(fd, colorbuffer_size, &colorbuffer_ptr[1]);
   zbuffer_handle = create_colorbuffer(fd, colorbuffer_size, NULL);
   vertexbuffer_handle = create_colorbuffer(fd, vertexbuffer_size, &vertexbuffer_ptr);
 
@@ -1266,28 +1267,24 @@ int main()
     // next state
     theta += 0.01f;
     colorbuffer_ix = (colorbuffer_ix + 1) & 1;
+
   }
 
-  /*
-  int out_fd = open("colorbuffer.data", O_RDWR|O_CREAT);
-  assert(out_fd >= 0);
-  ssize_t write_length = write(out_fd, colorbuffer_ptr, colorbuffer_size);
-  assert(write_length == colorbuffer_size);
-  close(out_fd);
-
-  int mm_fd = open("/sys/kernel/debug/radeon_vram_mm", O_RDONLY);
-  assert(mm_fd >= 0);
-  char buf[4096];
-  while (true) {
-    ssize_t read_length = read(mm_fd, buf, 4096);
-    assert(read_length >= 0);
-    write(STDOUT_FILENO, buf, read_length);
-    if (read_length < 4096) {
-      break;
-    }
+  {
+    int out_fd = open("colorbuffer0.data", O_RDWR|O_CREAT, 0644);
+    assert(out_fd >= 0);
+    ssize_t write_length = write(out_fd, colorbuffer_ptr[0], colorbuffer_size);
+    assert(write_length == colorbuffer_size);
+    close(out_fd);
   }
-  close(mm_fd);
-  */
+
+  {
+    int out_fd = open("colorbuffer1.data", O_RDWR|O_CREAT, 0644);
+    assert(out_fd >= 0);
+    ssize_t write_length = write(out_fd, colorbuffer_ptr[1], colorbuffer_size);
+    assert(write_length == colorbuffer_size);
+    close(out_fd);
+  }
 
   close(fd);
 }
