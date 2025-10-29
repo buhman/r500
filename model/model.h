@@ -1,15 +1,5 @@
 #pragma once
 
-struct vec3 {
-  float x;
-  float y;
-  float z;
-};
-struct vec2 {
-  float x;
-  float y;
-};
-
 typedef struct vec3 vertex_position;
 typedef struct vec2 vertex_texture;
 typedef struct vec3 vertex_normal;

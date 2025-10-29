@@ -57,12 +57,14 @@ union u32_f32 {
   float f32;
 };
 
-static union u32_f32 ib[16384];
+static union u32_f32 ib[16384 * 20];
 
 int indirect_buffer(int ix,
                     int width,
                     int height,
                     int colorbuffer_reloc_ix,
+                    int texture_width,
+                    int texture_height,
                     int texturebuffer_reloc_ix,
                     int shader_ix,
                     bool intermediate)
@@ -479,9 +481,9 @@ int indirect_buffer(int ix,
   T0V(TX_ENABLE
       , TX_ENABLE__TEX_0_ENABLE__ENABLE);
   T0V(TX_FILTER0_0
-      //, TX_FILTER0__CLAMP_S(2) // clamp to (0.0, 1.0)
-      //| TX_FILTER0__CLAMP_T(2) // clamp to (0.0, 1.0)
-      , TX_FILTER0__MAG_FILTER__POINT
+      , TX_FILTER0__CLAMP_S(2) // clamp to (0.0, 1.0)
+      | TX_FILTER0__CLAMP_T(2) // clamp to (0.0, 1.0)
+      | TX_FILTER0__MAG_FILTER__POINT
       | TX_FILTER0__MIN_FILTER__POINT
       );
   T0V(TX_FILTER1_0
@@ -489,8 +491,8 @@ int indirect_buffer(int ix,
       );
   T0V(TX_BORDER_COLOR_0, 0);
   T0V(TX_FORMAT0_0
-      , TX_FORMAT0__TXWIDTH(128 - 1)
-      | TX_FORMAT0__TXHEIGHT(128 - 1)
+      , TX_FORMAT0__TXWIDTH(texture_width - 1)
+      | TX_FORMAT0__TXHEIGHT(texture_height - 1)
       );
 
   T0V(TX_FORMAT1_0
@@ -563,8 +565,8 @@ int indirect_buffer(int ix,
   }
 
   const float fragment_consts[] = {
-    -1.0f / 128.f, 1.0f / 128.f, -2.0f / 128.f, 2.0f / 128.f,
-    -3.0f / 128.f, 3.0f / 128.f,          0.0f,         0.0f,
+    -1.0f / 1024.f, 1.0f / 1024.f, -2.0f / 1024.f, 2.0f / 1024.f,
+    -3.0f / 1024.f, 3.0f / 1024.f,          0.0f,         0.0f,
        0.24609375 + 0.021484375,  0.205078125,     0.1171875, 0.0439453125,
   };
   int fragment_consts_length = (sizeof (fragment_consts)) / (sizeof (fragment_consts[0]));
@@ -689,7 +691,7 @@ int main()
   int ret;
   int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
 
-  const int texture_size = 128 * 128 * 4;
+  const int texture_size = 1024 * 1024 * 4;
   const int colorbuffer_size = 1600 * 1200 * 4;
   int intermediate_handle[2];
   int colorbuffer_handle;
@@ -705,7 +707,7 @@ int main()
   intermediate_handle[1] = create_colorbuffer(fd, texture_size, NULL);
 
   {
-    void * texture_buf = read_file("../texture/butterfly_128x128_argb8888.data");
+    void * texture_buf = read_file("../texture/butterfly_1024x1024_argb8888.data");
     assert(texture_buf != NULL);
     for (int i = 0; i < texture_size / 4; i++) {
       ((uint32_t*)texturebuffer_ptr)[i] = ((uint32_t*)texture_buf)[i];
@@ -774,26 +776,30 @@ int main()
     0, // RADEON_CS_RING_GFX
   };
 
+  int image_dim = 1024;
+
   int ib_dwords = 0;
   {
     int texturebuffer_reloc_ix = 1;
     int colorbuffer_reloc_ix = 2;
     int shader_ix = 0;
     ib_dwords = indirect_buffer(ib_dwords,
-                                128, 128,
+                                image_dim, image_dim,
                                 colorbuffer_reloc_ix,
+                                image_dim, image_dim,
                                 texturebuffer_reloc_ix,
                                 shader_ix,
                                 true);
   }
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 40; i++) {
     {
       int texturebuffer_reloc_ix = 2;
       int colorbuffer_reloc_ix = 3;
       int shader_ix = 1;
       ib_dwords = indirect_buffer(ib_dwords,
-                                  128, 128,
+                                  image_dim, image_dim,
                                   colorbuffer_reloc_ix,
+                                  image_dim, image_dim,
                                   texturebuffer_reloc_ix,
                                   shader_ix,
                                   true);
@@ -803,8 +809,9 @@ int main()
       int colorbuffer_reloc_ix = 2;
       int shader_ix = 0;
       ib_dwords = indirect_buffer(ib_dwords,
-                                  128, 128,
+                                  image_dim, image_dim,
                                   colorbuffer_reloc_ix,
+                                  image_dim, image_dim,
                                   texturebuffer_reloc_ix,
                                   shader_ix,
                                   true);
@@ -817,6 +824,7 @@ int main()
     ib_dwords = indirect_buffer(ib_dwords,
                                 1600, 1200,
                                 colorbuffer_reloc_ix,
+                                image_dim, image_dim,
                                 texturebuffer_reloc_ix,
                                 shader_ix,
                                 false);
