@@ -35,6 +35,11 @@ struct reloc_indices {
   int flush;
 };
 
+struct vb_object_offsets {
+  int start;
+  int material_index;
+};
+
 static inline uint32_t rreg(void * rmmio, uint32_t offset)
 {
   uint32_t value = *((volatile uint32_t *)(((uintptr_t)rmmio) + offset));
@@ -212,6 +217,13 @@ int _3d_clear(int ix, const struct reloc_indices * reloc_indices)
 
   T0V(VAP_INDEX_OFFSET, 0x00000000);
 
+  T0V(VAP_VF_MAX_VTX_INDX
+      , VAP_VF_MAX_VTX_INDX__MAX_INDX(0)
+      );
+  T0V(VAP_VF_MIN_VTX_INDX
+      , VAP_VF_MIN_VTX_INDX__MIN_INDX(0)
+      );
+
   T0V(VAP_OUT_VTX_FMT_0
       , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
   T0V(VAP_OUT_VTX_FMT_1
@@ -257,9 +269,108 @@ int _3d_clear(int ix, const struct reloc_indices * reloc_indices)
   return ix;
 }
 
-int _3d_object(int ix, const struct reloc_indices * reloc_indices,
+int texture(int ix,
+            const struct reloc_indices * reloc_indices,
+            int texture_index)
+{
+  //////////////////////////////////////////////////////////////////////////////
+  // TX
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(TX_INVALTAGS, 0x00000000);
+
+  T0V(TX_ENABLE
+      , TX_ENABLE__TEX_0_ENABLE__ENABLE);
+  T0V(TX_FILTER0_0
+      , TX_FILTER0__MAG_FILTER__LINEAR
+      | TX_FILTER0__MIN_FILTER__LINEAR
+      );
+  T0V(TX_FILTER1_0
+      , TX_FILTER1__LOD_BIAS(1)
+      );
+  T0V(TX_BORDER_COLOR_0, 0);
+  T0V(TX_FORMAT0_0
+      , TX_FORMAT0__TXWIDTH(1024 - 1)
+      | TX_FORMAT0__TXHEIGHT(1024 - 1)
+      );
+
+  T0V(TX_FORMAT1_0
+      , TX_FORMAT1__TXFORMAT__TX_FMT_8_8_8_8
+      | TX_FORMAT1__SEL_ALPHA(5)
+      | TX_FORMAT1__SEL_RED(0)
+      | TX_FORMAT1__SEL_GREEN(1)
+      | TX_FORMAT1__SEL_BLUE(2)
+      | TX_FORMAT1__TEX_COORD_TYPE__2D
+      );
+  T0V(TX_FORMAT2_0, 0);
+
+  T0V(TX_OFFSET_0
+      //, TX_OFFSET__MACRO_TILE(1)
+      //| TX_OFFSET__MICRO_TILE(1)
+      , 0
+      );
+
+  T3(_NOP, 0);
+  ib[ix++].u32 = (reloc_indices->texturebuffer + texture_index) * 4; // index into relocs array
+
+  return ix;
+}
+
+int aos(int ix,
+        const struct reloc_indices * reloc_indices,
+        int start,
+        int vertex_count)
+{
+  T0V(VAP_VTX_SIZE
+      , VAP_VTX_SIZE__DWORDS_PER_VTX(5)
+      );
+
+  T0V(VAP_INDEX_OFFSET, 0x00000000);
+
+  T0V(VAP_VF_MAX_VTX_INDX
+      , VAP_VF_MAX_VTX_INDX__MAX_INDX(vertex_count - 1)
+      );
+  T0V(VAP_VF_MIN_VTX_INDX
+      , VAP_VF_MIN_VTX_INDX__MIN_INDX(0)
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // AOS
+  //////////////////////////////////////////////////////////////////////////////
+
+  T3(_3D_LOAD_VBPNTR, (4 - 1));
+  ib[ix++].u32 // VAP_VTX_NUM_ARRAYS
+    = VAP_VTX_NUM_ARRAYS__VTX_NUM_ARRAYS(2)
+    | VAP_VTX_NUM_ARRAYS__VC_FORCE_PREFETCH(1)
+    ;
+  ib[ix++].u32 // VAP_VTX_AOS_ATTR01
+    = VAP_VTX_AOS_ATTR__VTX_AOS_COUNT0(3)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(5)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_COUNT1(2)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE1(5)
+    ;
+  ib[ix++].u32 // VAP_VTX_AOS_ADDR0
+    = (4 * (start + 0));
+  ib[ix++].u32 // VAP_VTX_AOS_ADDR1
+    = (4 * (start + 3));
+
+  // VAP_VTX_AOS_ADDR is an absolute address in VRAM. However, DRM_RADEON_CS
+  // modifies this to be an offset relative to the GEM buffer handles given via
+  // NOP:
+
+  T3(_NOP, 0);
+  ib[ix++].u32 = reloc_indices->vertexbuffer * 4; // index into relocs array for VAP_VTX_AOS_ADDR0
+  T3(_NOP, 0);
+  ib[ix++].u32 = reloc_indices->vertexbuffer * 4; // index into relocs array for VAP_VTX_AOS_ADDR1
+
+  return ix;
+}
+
+int _3d_object(int ix,
+               const struct reloc_indices * reloc_indices,
                float theta,
-               int vertex_count)
+               struct vb_object_offsets * object_offsets,
+               int object_count)
 {
   //////////////////////////////////////////////////////////////////////////////
   // ZB
@@ -314,46 +425,6 @@ int _3d_object(int ix, const struct reloc_indices * reloc_indices,
       | RS_INST__TEX_CN(1)
       | RS_INST__TEX_ADDR(0)
       );
-
-  //////////////////////////////////////////////////////////////////////////////
-  // TX
-  //////////////////////////////////////////////////////////////////////////////
-
-  T0V(TX_INVALTAGS, 0x00000000);
-
-  T0V(TX_ENABLE
-      , TX_ENABLE__TEX_0_ENABLE__ENABLE);
-  T0V(TX_FILTER0_0
-      , TX_FILTER0__MAG_FILTER__LINEAR
-      | TX_FILTER0__MIN_FILTER__LINEAR
-      );
-  T0V(TX_FILTER1_0
-      , TX_FILTER1__LOD_BIAS(1)
-      );
-  T0V(TX_BORDER_COLOR_0, 0);
-  T0V(TX_FORMAT0_0
-      , TX_FORMAT0__TXWIDTH(1024 - 1)
-      | TX_FORMAT0__TXHEIGHT(1024 - 1)
-      );
-
-  T0V(TX_FORMAT1_0
-      , TX_FORMAT1__TXFORMAT__TX_FMT_8_8_8_8
-      | TX_FORMAT1__SEL_ALPHA(5)
-      | TX_FORMAT1__SEL_RED(0)
-      | TX_FORMAT1__SEL_GREEN(1)
-      | TX_FORMAT1__SEL_BLUE(2)
-      | TX_FORMAT1__TEX_COORD_TYPE__2D
-      );
-  T0V(TX_FORMAT2_0, 0);
-
-  T0V(TX_OFFSET_0
-      //, TX_OFFSET__MACRO_TILE(1)
-      //| TX_OFFSET__MICRO_TILE(1)
-      , 0
-      );
-
-  T3(_NOP, 0);
-  ib[ix++].u32 = reloc_indices->texturebuffer * 4; // index into relocs array
 
   //////////////////////////////////////////////////////////////////////////////
   // VAP_PVS
@@ -438,19 +509,6 @@ int _3d_object(int ix, const struct reloc_indices * reloc_indices,
       | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_1(0b1111) // XYZW
       );
 
-  T0V(VAP_VTX_SIZE
-      , VAP_VTX_SIZE__DWORDS_PER_VTX(5)
-      );
-
-  T0V(VAP_INDEX_OFFSET, 0x00000000);
-
-  T0V(VAP_VF_MAX_VTX_INDX
-      , VAP_VF_MAX_VTX_INDX__MAX_INDX(vertex_count - 1)
-      );
-  T0V(VAP_VF_MIN_VTX_INDX
-      , VAP_VF_MIN_VTX_INDX__MIN_INDX(0)
-      );
-
   T0V(VAP_OUT_VTX_FMT_0
       , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
   T0V(VAP_OUT_VTX_FMT_1
@@ -472,54 +530,43 @@ int _3d_object(int ix, const struct reloc_indices * reloc_indices,
       | US_CODE_ADDR__END_ADDR(fragment_shader_instructions - 1)
       );
 
-  //////////////////////////////////////////////////////////////////////////////
-  // AOS
-  //////////////////////////////////////////////////////////////////////////////
+  for (int object_ix = 0; object_ix < object_count; object_ix++) {
+    int start = object_offsets[object_ix].start;
+    int material_index = object_offsets[object_ix].material_index;
+    int end = object_offsets[object_ix+1].start;
+    assert(end > 0 && end > start);
+    int size = end - start;
+    int vertex_count = size / 5;
 
-  T3(_3D_LOAD_VBPNTR, (4 - 1));
-  ib[ix++].u32 // VAP_VTX_NUM_ARRAYS
-    = VAP_VTX_NUM_ARRAYS__VTX_NUM_ARRAYS(2)
-    | VAP_VTX_NUM_ARRAYS__VC_FORCE_PREFETCH(1)
-    ;
-  ib[ix++].u32 // VAP_VTX_AOS_ATTR01
-    = VAP_VTX_AOS_ATTR__VTX_AOS_COUNT0(3)
-    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(5)
-    | VAP_VTX_AOS_ATTR__VTX_AOS_COUNT1(2)
-    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE1(5)
-    ;
-  ib[ix++].u32 // VAP_VTX_AOS_ADDR0
-    = (4 * 0);
-  ib[ix++].u32 // VAP_VTX_AOS_ADDR1
-    = (4 * 3);
+    printf("object_ix %d start %d end %d vertex_count %d\n",
+           object_ix, start, end, vertex_count);
 
-  // VAP_VTX_AOS_ADDR is an absolute address in VRAM. However, DRM_RADEON_CS
-  // modifies this to be an offset relative to the GEM buffer handles given via
-  // NOP:
+    ix = texture(ix, reloc_indices, material_index);
+    ix = aos(ix, reloc_indices, start, vertex_count);
 
-  T3(_NOP, 0);
-  ib[ix++].u32 = reloc_indices->vertexbuffer * 4; // index into relocs array for VAP_VTX_AOS_ADDR0
-  T3(_NOP, 0);
-  ib[ix++].u32 = reloc_indices->vertexbuffer * 4; // index into relocs array for VAP_VTX_AOS_ADDR1
+    //////////////////////////////////////////////////////////////////////////////
+    // 3D_DRAW
+    //////////////////////////////////////////////////////////////////////////////
 
-  //////////////////////////////////////////////////////////////////////////////
-  // 3D_DRAW
-  //////////////////////////////////////////////////////////////////////////////
-
-  T3(_3D_DRAW_VBUF_2, (1 - 1));
-  ib[ix++].u32
-    = VAP_VF_CNTL__PRIM_TYPE(4) // triangle list
-    | VAP_VF_CNTL__PRIM_WALK(2) // vertex list (data fetched from memory)
-    | VAP_VF_CNTL__INDEX_SIZE(0)
-    | VAP_VF_CNTL__VTX_REUSE_DIS(0)
-    | VAP_VF_CNTL__DUAL_INDEX_MODE(0)
-    | VAP_VF_CNTL__USE_ALT_NUM_VERTS(0)
-    | VAP_VF_CNTL__NUM_VERTICES(vertex_count)
-    ;
+    T3(_3D_DRAW_VBUF_2, (1 - 1));
+    ib[ix++].u32
+      = VAP_VF_CNTL__PRIM_TYPE(4) // triangle list
+      | VAP_VF_CNTL__PRIM_WALK(2) // vertex list (data fetched from memory)
+      | VAP_VF_CNTL__INDEX_SIZE(0)
+      | VAP_VF_CNTL__VTX_REUSE_DIS(0)
+      | VAP_VF_CNTL__DUAL_INDEX_MODE(0)
+      | VAP_VF_CNTL__USE_ALT_NUM_VERTS(0)
+      | VAP_VF_CNTL__NUM_VERTICES(vertex_count)
+      ;
+  }
 
   return ix;
 }
 
-int indirect_buffer(float theta, int vertex_count, const struct reloc_indices * reloc_indices)
+int indirect_buffer(const struct reloc_indices * reloc_indices,
+                    int object_count,
+                    struct vb_object_offsets * object_offsets,
+                    float theta)
 {
   int ix = 0;
 
@@ -836,7 +883,9 @@ int indirect_buffer(float theta, int vertex_count, const struct reloc_indices * 
   //////////////////////////////////////////////////////////////////////////////
 
   ix = _3d_clear(ix, reloc_indices);
-  ix = _3d_object(ix, reloc_indices, theta, vertex_count);
+  ix = _3d_object(ix, reloc_indices, theta,
+                  object_offsets,
+                  object_count);
 
   //////////////////////////////////////////////////////////////////////////////
   // padding
@@ -900,19 +949,31 @@ int create_colorbuffer(int fd, int colorbuffer_size, void ** out_ptr)
   return args.handle;
 }
 
-int fill_vertexbuffer(void * ptr, int size)
+int fill_vertexbuffer(void * ptr, int size,
+                      struct vb_object_offsets ** offsets_out)
 {
   float * fptr = (float *)ptr;
-
   int ix = 0;
 
   const int object_count = (sizeof (objects)) / (sizeof (objects[0]));
+
+  // FIXME: iterate through meshes, not objects
+  struct vb_object_offsets * offsets = calloc((sizeof (struct vb_object_offsets)), object_count + 1);
+
   for (int object_ix = 0; object_ix < object_count; object_ix++) {
     const struct mesh * mesh = objects[object_ix].mesh;
+
+    offsets[object_ix].start = ix;
+
+    printf("fill vertexbuffer: object_ix %d polygons %d\n",
+           object_ix, mesh->polygons_length);
 
     assert(mesh->uv_layers_length == 1);
     const vec2 * uvmap = mesh->uv_layers[0];
     const vec3 * position = mesh->position;
+
+    int last_mat_ix = -1;
+
     for (int polygon_ix = 0; polygon_ix < mesh->polygons_length; polygon_ix++) {
 
       int uv_ix = polygon_ix * 3;
@@ -923,6 +984,14 @@ int fill_vertexbuffer(void * ptr, int size)
       const vec2 * at = &uvmap[uv_ix + 0];
       const vec2 * bt = &uvmap[uv_ix + 1];
       const vec2 * ct = &uvmap[uv_ix + 2];
+
+      if (last_mat_ix != polygon->material_index) {
+        printf("new material: object_ix %d material_index %d\n",
+               object_ix, polygon->material_index);
+        offsets[object_ix].material_index = polygon->material_index;
+        last_mat_ix = polygon->material_index;
+      }
+      //assert(polygon->material_index == object_ix);
 
       assert((ix + (5 * 3)) < (size / 4));
 
@@ -946,9 +1015,15 @@ int fill_vertexbuffer(void * ptr, int size)
     }
   }
 
+  offsets[object_count].start = ix;
+
+  printf("fill vertexbuffer: dwords %d size %d\n", ix, (int)(ix * (sizeof (float))));
+
+  *offsets_out = offsets;
+
   asm volatile("" ::: "memory");
 
-  return ix;
+  return object_count;
 }
 
 static int * load_textures(int fd, int * length_out)
@@ -1036,10 +1111,10 @@ int main()
   fprintf(stderr, "zbuffer handle %d\n", zbuffer_handle);
   fprintf(stderr, "vertexbuffer handle %d\n", vertexbuffer_handle);
 
-  int vertexbuffer_length = fill_vertexbuffer(vertexbuffer_ptr, vertexbuffer_size);
+  struct vb_object_offsets * object_offsets = NULL;
+  int object_count = fill_vertexbuffer(vertexbuffer_ptr, vertexbuffer_size, &object_offsets);
   munmap(vertexbuffer_ptr, vertexbuffer_size);
-  fprintf(stderr, "vertexbuffer length %d\n", vertexbuffer_length);
-  int vertex_count = vertexbuffer_length / 5;
+  fprintf(stderr, "object count %d\n", object_count);
 
   int texture_handles_length = 0;
   int * texture_handles = load_textures(fd, &texture_handles_length);
@@ -1119,7 +1194,10 @@ int main()
       .flags = 8,
     };
 
-    int ib_dwords = indirect_buffer(theta, vertex_count, &reloc_indices);
+    int ib_dwords = indirect_buffer(&reloc_indices,
+                                    object_count,
+                                    object_offsets,
+                                    theta);
 
     struct drm_radeon_cs_chunk chunks[3] = {
       {

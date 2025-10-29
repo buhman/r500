@@ -16,6 +16,29 @@ def sprint(*text):
 
 print = sprint
 
+def get_material_image(material):
+    assert material.use_nodes, material.name
+    for node in material.node_tree.nodes:
+        if node.type == "TEX_IMAGE":
+            return node.image
+
+_offset = 0
+texture_ids = {}
+prefix = "textures_"
+
+def get_image_id(image):
+    global _offset
+    global texture_ids
+    if image.name in texture_ids:
+        value = texture_ids[image.name]
+        return value
+    value = _offset
+    texture_ids[image.name] = value
+    width, height = image.size
+    #_offset += width * height * 2
+    _offset += 1
+    return value
+
 def render_vec3(v):
     return f"{{{v.x:.6f}, {v.y:.6f}, {v.z:.6f}}}"
 
@@ -43,11 +66,11 @@ def render_polygon_normals(f, name, polygon_normals):
 def sort_by_material(polygons):
     return sorted(polygons, key=lambda p: p.material_index)
 
-def render_polygons(f, name, polygons):
+def render_polygons(f, name, mesh):
     f.write(f"static const struct polygon {name}_polygons[] = {{\n")
 
     uv_ix = 0
-    for i, polygon in enumerate(polygons):
+    for i, polygon in enumerate(mesh.polygons):
         if triangulate_meshes:
             assert len(polygon.vertices) == 3
 
@@ -55,12 +78,16 @@ def render_polygons(f, name, polygons):
             f.write(f"  {{-1, -1, -1, -1, -1, -1}}, // {{{s}}}\n")
             continue
         
+        material = mesh.materials[polygon.material_index]
+        image = get_material_image(material)
+        image_id = get_image_id(image)
+        
         if triangulate_meshes:
-            indices = [*polygon.vertices, polygon.material_index]
+            indices = [*polygon.vertices, image_id]
         elif len(polygon.vertices) == 4:
-            indices = [*polygon.vertices, polygon.material_index, uv_ix]
+            indices = [*polygon.vertices, image_id, uv_ix]
         else:
-            indices = [*polygon.vertices, -1, polygon.material_index, uv_ix]
+            indices = [*polygon.vertices, -1, image_id, uv_ix]
                     
         uv_ix += len(polygon.vertices)
         s = ", ".join(map(str, indices))
@@ -168,29 +195,6 @@ def mesh_meshes(collections):
             yield mesh.name, tri_mesh
             bpy.data.meshes.remove(tri_mesh)
 
-def get_texture(material):
-    assert material.use_nodes, material.name
-    for node in material.node_tree.nodes:
-        if node.type == "TEX_IMAGE":
-            return node.image
-
-_offset = 0
-texture_ids = {}
-prefix = "textures_"
-
-def get_texture_id(image):
-    global _offset
-    global texture_ids
-    if image.name in texture_ids:
-        value = texture_ids[image.name]
-        return value
-    value = _offset
-    texture_ids[image.name] = value
-    width, height = image.size
-    #_offset += width * height * 2
-    _offset += 1
-    return value
-
 def texture_data_name(name):
     name = path.splitext(name)[0]
     name = translate_name(name)
@@ -200,12 +204,12 @@ def render_mesh_materials(f, name, materials):
     f.write(f"static const struct mesh_material {name}_materials[] = {{\n")
     print("materials", materials)
     for material in materials:
-        image = get_texture(material)
-        print("image", image)
+        image = get_material_image(material)
+        print("image", material, image)
         if image is not None:
             f.write(f"  {{ // {material.name} {image.name}\n")
             width, height = image.size
-            texture_id = get_texture_id(image)
+            texture_id = get_image_id(image)
             f.write(f"    .width = {width},\n")
             f.write(f"    .height = {height},\n")
             f.write(f"    .texture_id = {texture_id},\n")
@@ -243,7 +247,7 @@ def export_meshes(f):
             render_uv_map(f, mesh_name, translate_name(layer_name), layer.uv)
         render_vertex_normals(f, mesh_name, mesh.vertices)
         render_polygon_normals(f, mesh_name, mesh.polygon_normals)
-        render_polygons(f, mesh_name, mesh.polygons)
+        render_polygons(f, mesh_name, mesh)
         render_polygon_edge_pairs(f, mesh_name, mesh.polygons)
         render_mesh_materials(f, mesh_name, mesh.materials)
 
@@ -274,7 +278,7 @@ def export_objects(f):
         obj_name = "object_" + translate_name(object.name)
 
         f.write(f"  {{ // {obj_name}\n")
-
+        
         obj_mesh_name = "mesh_" + translate_name(object.data.name)
 
         f.write("  ")
