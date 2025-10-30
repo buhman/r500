@@ -1,13 +1,15 @@
 OPT = -O0
 
 CFLAGS += -g
-CFLAGS += -Wall -Werror -Wfatal-errors -Wno-error=unused-variable
-CFLAGS += $(shell pkg-config --cflags libdrm)
+CFLAGS += -Wall -Werror -Wfatal-errors -Wno-error=unused-variable -Wno-narrowing
 
-LDFLAGS += $(shell pkg-config --libs libdrm) -lm
+LDFLAGS += $(shell pkg-config --cflags --libs libdrm) -lm
 
 %: %.c
 	$(CC) $(ARCH) $(CFLAGS) $(LDFLAGS) $(OPT) $< -o $@
+
+%: %.cpp
+	$(CXX) $(ARCH) $(CFLAGS) $(LDFLAGS) $(OPT) $< -o $@
 
 %.vs.inc: %.vs.asm
 	PYTHONPATH=../regs/ python -m assembler.vs $< > $@
