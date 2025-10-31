@@ -174,23 +174,24 @@ def disassemble_a_swizzle_sel(code):
     return [mod_str(f"src{alu_sel_strs[sel]}.{swiz}", mod)
             for swiz, sel, mod in zip(a_swiz, a_sels, a_mods)], a_sels
 
-def omod_str(s, mod):
-    if s == 0: # * 1
-        return s
-    elif s == 1: # * 1
-        return f"({s}) * 1"
-    elif s == 2: # * 2
-        return f"({s}) * 2"
-    elif s == 3: # * 4
-        return f"({s}) * 4"
-    elif s == 4: # * 8
-        return f"({s}) * 8"
-    elif s == 5: # / 2
-        return f"({s}) / 2"
-    elif s == 6: # / 4
-        return f"({s}) / 4"
-    elif s == 7: # DISABLE OMOD
-        return s
+def omod_str(mod):
+    if mod == 0: # * 1
+        #return f"1.0 * "
+        return ""
+    elif mod == 1: # * 2
+        return f"2.0 * "
+    elif mod == 2: # * 4
+        return f"4.0 * "
+    elif mod == 3: # * 8
+        return f"8.0 * "
+    elif mod == 4: # / 2
+        return f"0.5 * "
+    elif mod == 5: # / 4
+        return f"0.25 * "
+    elif mod == 6:
+        return f"0.125 * "
+    elif mod == 7: # DISABLE OMOD
+        return "(DISABLE OMOD) "
 
 def disassemble_alu_dest(code):
     a_addrd = US_ALU_ALPHA_INST.ALPHA_ADDRD(code)
@@ -250,14 +251,9 @@ def assert_zeros_common(code):
     assert stat_we == 0
 
 def assert_zeros_alu(code):
-    rgb_omod = US_ALU_RGB_INST.OMOD(code)
     alu_wmask = US_ALU_RGB_INST.ALU_WMASK(code)
-    assert rgb_omod in {0, 7}
     assert alu_wmask == 0
-
-    a_omod = US_ALU_ALPHA_INST.OMOD(code)
     w_omask = US_ALU_ALPHA_INST.W_OMASK(code)
-    assert a_omod in {0, 7}
     assert w_omask == 0
 
 def assert_zeros_tex(code):
@@ -325,6 +321,7 @@ _a_op_operands = {
     "OP_CMP": 3,
     "OP_FRC": 1,
     "OP_EX2": 1,
+    "OP_LN2": 1,
     "OP_RCP": 1,
     "OP_RSQ": 1,
     "OP_SIN": 1,
@@ -387,12 +384,17 @@ def disassemble_alu(code, is_output):
     rgb_clamp_str = ".SAT" if rgb_clamp != 0 else ""
     a_clamp_str = ".SAT" if alpha_clamp != 0 else ""
 
+    rgb_omod = US_ALU_RGB_INST.OMOD(code)
+    a_omod = US_ALU_ALPHA_INST.OMOD(code)
+    rgb_omod_str = omod_str(rgb_omod)
+    a_omod_str = omod_str(a_omod)
+
     print(", ".join([*a_addr_strs, *rgb_addr_strs]), ":")
     #print(", ".join(a_addr_strs), ":")
-    print(f"  {a_out_str}{a_temp_str}{a_op.removeprefix('OP_').ljust(3)}{a_clamp_str} {' '.join(a_swizzle_sel)}", ",")
+    print(f"  {a_out_str}{a_temp_str}{a_omod_str}{a_op.removeprefix('OP_').ljust(3)}{a_clamp_str} {' '.join(a_swizzle_sel)}", ",")
 
     #print(", ".join(rgb_addr_strs), ":")
-    print(f"  {rgb_out_str}{rgb_temp_str}{rgb_op.removeprefix('OP_').ljust(3)}{rgb_clamp_str} {' '.join(rgb_swizzle_sel)}", ";")
+    print(f"  {rgb_out_str}{rgb_temp_str}{rgb_omod_str}{rgb_op.removeprefix('OP_').ljust(3)}{rgb_clamp_str} {' '.join(rgb_swizzle_sel)}", ";")
 
 def disassemble_tex_swizzle_str(code):
     tex_swiz_strs = ["r", "g", "b", "a"]
