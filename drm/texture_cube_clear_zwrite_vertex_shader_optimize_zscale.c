@@ -128,7 +128,7 @@ static const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (
 static const int fragment_shader_instructions = (fragment_shader_length / 6) - 1;
 
 static const uint32_t vertex_shader[] = {
-  #include "cube_rotate_optimize_scale.vs.inc"
+  #include "cube_rotate_optimize_zscale.vs.inc"
   #include "clear_nop.vs.inc"
 };
 static const int vertex_shader_length = (sizeof (vertex_shader)) / (sizeof (vertex_shader[0]));
@@ -236,7 +236,7 @@ int _3d_clear(int ix)
   T0V(VAP_PROG_STREAM_CNTL_EXT_0
       , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0__SELECT_X
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_0__SELECT_Y
-      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_FP_ZERO
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_FP_ONE
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0__SELECT_FP_ONE
       | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(0b1111)
       );
@@ -305,7 +305,7 @@ int _3d_cube(int ix, float theta)
       | ZB_CNTL__ZWRITEENABLE__ENABLE // 1
       );
   T0V(ZB_ZSTENCILCNTL
-      , ZB_ZSTENCILCNTL__ZFUNC(5) // less than
+      , ZB_ZSTENCILCNTL__ZFUNC(1) // less than
       );
 
   T0V(ZB_FORMAT
@@ -1127,8 +1127,6 @@ int main()
 
     // next indirect buffer
     ib_dwords = indirect_buffer(theta);
-
-    break;
   }
 
   {
