@@ -77,14 +77,14 @@ static void * read_file(const char * filename)
 }
 
 static const uint32_t fragment_shader[] = {
-#include "texture_cube.fs.inc"
+#include "matrix_cubesphere.fs.inc"
 #include "clear.fs.inc"
 };
 static const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
 static const int fragment_shader_instructions = (fragment_shader_length / 6) - 1;
 
 static const uint32_t vertex_shader[] = {
-  #include "matrix.vs.inc"
+  #include "matrix_cubesphere.vs.inc"
   #include "clear_nop.vs.inc"
 };
 static const int vertex_shader_length = (sizeof (vertex_shader)) / (sizeof (vertex_shader[0]));
@@ -143,14 +143,20 @@ int _3d_clear(int ix)
       | RS_IP__COL_FMT(6) // Zero components (0,0,0,1)
       | RS_IP__OFFSET_EN(0)
       );
+  T0V(RS_IP_1, 0);
+  T0V(RS_IP_2, 0);
   T0V(RS_COUNT
       , RS_COUNT__IT_COUNT(0)
       | RS_COUNT__IC_COUNT(1)
       | RS_COUNT__W_ADDR(0)
       | RS_COUNT__HIRES_EN(1)
       );
-  T0V(RS_INST_COUNT, 0x00000000);
-  T0V(RS_INST_0, 0x00000000);
+  T0V(RS_INST_COUNT
+      , RS_INST_COUNT__INST_COUNT(0));
+  T0V(RS_INST_0, 0);
+  T0V(RS_INST_1, 0);
+  T0V(RS_INST_2, 0);
+  T0V(RS_INST_3, 0);
 
   //////////////////////////////////////////////////////////////////////////////
   // TX
@@ -273,12 +279,12 @@ mat4x4 perspective(float low1, float high1,
   return m2 * m1;
 }
 
-int _3d_cube_inner(int ix, mat4x4 trans)
+int _3d_cube_inner(int ix, mat4x4 trans, mat4x4 world_trans, mat3x3 normal_trans, vec4 light_pos)
 {
   T0V(VAP_PVS_STATE_FLUSH_REG, 0x00000000);
 
   T0V(VAP_VTX_SIZE
-      , VAP_VTX_SIZE__DWORDS_PER_VTX(5)
+      , VAP_VTX_SIZE__DWORDS_PER_VTX(8)
       );
 
   T0V(VAP_VF_MAX_VTX_INDX
@@ -293,10 +299,26 @@ int _3d_cube_inner(int ix, mat4x4 trans)
   //////////////////////////////////////////////////////////////////////////////
 
   const float consts[] = {
+    // 0
     trans[0][0], trans[0][1], trans[0][2], trans[0][3],
     trans[1][0], trans[1][1], trans[1][2], trans[1][3],
     trans[2][0], trans[2][1], trans[2][2], trans[2][3],
     trans[3][0], trans[3][1], trans[3][2], trans[3][3],
+
+    // 4
+    world_trans[0][0], world_trans[0][1], world_trans[0][2], world_trans[0][3],
+    world_trans[1][0], world_trans[1][1], world_trans[1][2], world_trans[1][3],
+    world_trans[2][0], world_trans[2][1], world_trans[2][2], world_trans[2][3],
+    world_trans[3][0], world_trans[3][1], world_trans[3][2], world_trans[3][3],
+
+    // 8
+    normal_trans[0][0], normal_trans[0][1], normal_trans[0][2], 0,
+    normal_trans[1][0], normal_trans[1][1], normal_trans[1][2], 0,
+    normal_trans[2][0], normal_trans[2][1], normal_trans[2][2], 0,
+    0, 0, 0, 0,
+
+    // 12
+    light_pos.x, light_pos.y, light_pos.z, light_pos.w,
   };
   const int consts_length = (sizeof (consts)) / (sizeof (consts[0]));
   assert(consts_length % 4 == 0);
@@ -327,7 +349,7 @@ int _3d_cube_inner(int ix, mat4x4 trans)
   // 3D_DRAW
   //////////////////////////////////////////////////////////////////////////////
 
-  T3(_3D_DRAW_IMMD_2, (1 + vertex_count * 5) - 1);
+  T3(_3D_DRAW_IMMD_2, (1 + vertex_count * 8) - 1);
   ib[ix++].u32
     = VAP_VF_CNTL__PRIM_TYPE(4)
     | VAP_VF_CNTL__PRIM_WALK(3)
@@ -344,12 +366,16 @@ int _3d_cube_inner(int ix, mat4x4 trans)
     for (int j = 0; j < 3; j++) {
       vec3 p = model->position[obj->triangle[i][j].position];
       vec2 t = model->texture[obj->triangle[i][j].texture];
+      vec3 n = model->normal[obj->triangle[i][j].normal];
 
       ib[ix++].f32 = p.x;
       ib[ix++].f32 = p.y;
       ib[ix++].f32 = p.z;
       ib[ix++].f32 = t.x;
       ib[ix++].f32 = t.y;
+      ib[ix++].f32 = n.x;//n.x;//n.x;
+      ib[ix++].f32 = n.y;//0;//n.y;//n.y;
+      ib[ix++].f32 = n.z;//n.z;
     }
   }
 
@@ -392,26 +418,62 @@ int _3d_cube(int ix, float theta)
   // RS
   //////////////////////////////////////////////////////////////////////////////
 
+  T0V(RS_COUNT
+      , RS_COUNT__IT_COUNT(16)
+      | RS_COUNT__IC_COUNT(0)
+      | RS_COUNT__W_ADDR(0)
+      | RS_COUNT__HIRES_EN(1)
+      );
   T0V(RS_IP_0
       , RS_IP__TEX_PTR_S(0)
       | RS_IP__TEX_PTR_T(1)
       | RS_IP__TEX_PTR_R(2)
       | RS_IP__TEX_PTR_Q(3)
-      | RS_IP__COL_PTR(0)
-      | RS_IP__COL_FMT(0)
       | RS_IP__OFFSET_EN(0)
       );
-  T0V(RS_COUNT
-      , RS_COUNT__IT_COUNT(4)
-      | RS_COUNT__IC_COUNT(0)
-      | RS_COUNT__W_ADDR(0)
-      | RS_COUNT__HIRES_EN(1)
+  T0V(RS_IP_1
+      , RS_IP__TEX_PTR_S(4)
+      | RS_IP__TEX_PTR_T(5)
+      | RS_IP__TEX_PTR_R(6)
+      | RS_IP__TEX_PTR_Q(7)
+      | RS_IP__OFFSET_EN(0)
       );
-  T0V(RS_INST_COUNT, 0x00000000);
+  T0V(RS_IP_2
+      , RS_IP__TEX_PTR_S(8)
+      | RS_IP__TEX_PTR_T(9)
+      | RS_IP__TEX_PTR_R(10)
+      | RS_IP__TEX_PTR_Q(11)
+      | RS_IP__OFFSET_EN(0)
+      );
+  T0V(RS_IP_2
+      , RS_IP__TEX_PTR_S(12)
+      | RS_IP__TEX_PTR_T(13)
+      | RS_IP__TEX_PTR_R(14)
+      | RS_IP__TEX_PTR_Q(15)
+      | RS_IP__OFFSET_EN(0)
+      );
+
+  T0V(RS_INST_COUNT
+      , RS_INST_COUNT__INST_COUNT(3));
   T0V(RS_INST_0
       , RS_INST__TEX_ID(0)
       | RS_INST__TEX_CN(1)
       | RS_INST__TEX_ADDR(0)
+      );
+  T0V(RS_INST_1
+      , RS_INST__TEX_ID(1)
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(1)
+      );
+  T0V(RS_INST_2
+      , RS_INST__TEX_ID(2)
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(2)
+      );
+  T0V(RS_INST_3
+      , RS_INST__TEX_ID(3)
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(3)
       );
 
   //////////////////////////////////////////////////////////////////////////////
@@ -485,7 +547,7 @@ int _3d_cube(int ix, float theta)
       | VAP_PROG_STREAM_CNTL__DATA_TYPE_1__FLOAT_2
       | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_1(0)
       | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_1(1)
-      | VAP_PROG_STREAM_CNTL__LAST_VEC_1(1)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_1(0)
       );
   T0V(VAP_PROG_STREAM_CNTL_EXT_0
       , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0__SELECT_X
@@ -500,12 +562,29 @@ int _3d_cube(int ix, float theta)
       | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_1(0b1111) // XYZW
       );
 
+  T0V(VAP_PROG_STREAM_CNTL_1
+      , VAP_PROG_STREAM_CNTL__DATA_TYPE_0__FLOAT_3
+      | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_0(0)
+      | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_0(2)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_0(1)
+      );
+  T0V(VAP_PROG_STREAM_CNTL_EXT_1
+      , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0__SELECT_X
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_0__SELECT_Y
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_Z
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0__SELECT_FP_ONE
+      | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(0b1111) // XYZW
+      );
+
   T0V(VAP_INDEX_OFFSET, 0x00000000);
 
   T0V(VAP_OUT_VTX_FMT_0
       , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
   T0V(VAP_OUT_VTX_FMT_1
-      , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4));
+      , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_1_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_2_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_3_COMP_CNT(4));
 
   //////////////////////////////////////////////////////////////////////////////
   // GA_US
@@ -536,23 +615,42 @@ int _3d_cube(int ix, float theta)
                          0.001f, 0.999f,
                          0.5f, 2.0f);
 
-  if (1) {
-    mat4x4 t = translate(vec3(0, 0, 3));
-    mat4x4 rx = rotate_x(theta1);
-    mat4x4 ry = rotate_y(theta2 * 2.0f);
-    mat4x4 s = scale(0.7f);
-    mat4x4 trans = aspect * p * t * rx * ry * s;
-
-    ix = _3d_cube_inner(ix, trans);
-  }
+  vec4 light_pos = vec4(0, 0, 0, 1.0f);
+  // light
   if (1) {
     mat4x4 t = translate(vec3(0, 0, 3));
     mat4x4 t1 = translate(vec3(1, 1, 1));
     mat4x4 s = scale(0.1f);
     mat4x4 rz = rotate_y(theta * 2.f);
-    mat4x4 trans = aspect * p * t * rz * t1 * s;
 
-    ix = _3d_cube_inner(ix, trans);
+    mat4x4 world_trans = rz * t1 * s;
+
+    mat3x3 normal_trans = transpose(inverse(submatrix(world_trans, 3, 3)));
+
+    mat4x4 trans = aspect * p * t * world_trans;
+
+    light_pos = world_trans * light_pos;
+
+    ix = _3d_cube_inner(ix, trans, world_trans, normal_trans, light_pos);
+  }
+
+  // object
+  if (1) {
+    mat4x4 t = translate(vec3(0, 0, 3));
+    mat4x4 rx = rotate_x(0 * theta1 * 0.5f);
+    mat4x4 ry = rotate_y(0 * theta2 * 0.8f + 1.4f);
+    mat4x4 s = scale(0.7f);
+
+    mat4x4 world_trans = rx * ry * s;
+
+    mat3x3 normal_trans = transpose(inverse(submatrix(world_trans, 3, 3)));
+
+    mat4x4 trans = aspect * p * t * world_trans;
+
+    printf("light_pos % 2.03f % 2.03f % 2.03f % 2.03f\n",
+           light_pos.x, light_pos.y, light_pos.z, light_pos.w);
+
+    ix = _3d_cube_inner(ix, trans, world_trans, normal_trans, light_pos);
   }
 
   return ix;
@@ -776,7 +874,7 @@ int indirect_buffer(float theta)
       , US_CONFIG__ZERO_TIMES_ANYTHING_EQUALS_ZERO(1)
       );
   T0V(US_PIXSIZE
-      , US_PIXSIZE__PIX_SIZE(1)
+      , US_PIXSIZE__PIX_SIZE(4)
       );
   T0V(US_FC_CTRL, 0);
 

@@ -1,7 +1,7 @@
 OPT = -O0
 
 CFLAGS += -g
-CFLAGS += -Wall -Werror -Wfatal-errors -Wno-error=unused-variable -Wno-narrowing
+CFLAGS += -Wall -Werror -Wfatal-errors -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-narrowing
 
 LDFLAGS += $(shell pkg-config --cflags --libs libdrm) -lm
 
