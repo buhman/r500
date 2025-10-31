@@ -279,7 +279,7 @@ mat4x4 perspective(float low1, float high1,
   return m2 * m1;
 }
 
-int _3d_cube_inner(int ix, mat4x4 trans, mat4x4 world_trans, mat3x3 normal_trans, vec4 light_pos)
+int _3d_cube_inner(int ix, mat4x4 trans, mat4x4 world_trans, vec4 light_pos)
 {
   T0V(VAP_PVS_STATE_FLUSH_REG, 0x00000000);
 
@@ -312,12 +312,6 @@ int _3d_cube_inner(int ix, mat4x4 trans, mat4x4 world_trans, mat3x3 normal_trans
     world_trans[3][0], world_trans[3][1], world_trans[3][2], world_trans[3][3],
 
     // 8
-    normal_trans[0][0], normal_trans[0][1], normal_trans[0][2], 0,
-    normal_trans[1][0], normal_trans[1][1], normal_trans[1][2], 0,
-    normal_trans[2][0], normal_trans[2][1], normal_trans[2][2], 0,
-    0, 0, 0, 0,
-
-    // 12
     light_pos.x, light_pos.y, light_pos.z, light_pos.w,
   };
   const int consts_length = (sizeof (consts)) / (sizeof (consts[0]));
@@ -373,9 +367,9 @@ int _3d_cube_inner(int ix, mat4x4 trans, mat4x4 world_trans, mat3x3 normal_trans
       ib[ix++].f32 = p.z;
       ib[ix++].f32 = t.x;
       ib[ix++].f32 = t.y;
-      ib[ix++].f32 = n.x;//n.x;//n.x;
-      ib[ix++].f32 = n.y;//0;//n.y;//n.y;
-      ib[ix++].f32 = n.z;//n.z;
+      ib[ix++].f32 = n.x;
+      ib[ix++].f32 = n.y;
+      ib[ix++].f32 = n.z;
     }
   }
 
@@ -445,7 +439,7 @@ int _3d_cube(int ix, float theta)
       | RS_IP__TEX_PTR_Q(11)
       | RS_IP__OFFSET_EN(0)
       );
-  T0V(RS_IP_2
+  T0V(RS_IP_3
       , RS_IP__TEX_PTR_S(12)
       | RS_IP__TEX_PTR_T(13)
       | RS_IP__TEX_PTR_R(14)
@@ -616,41 +610,40 @@ int _3d_cube(int ix, float theta)
                          0.5f, 2.0f);
 
   vec4 light_pos = vec4(0, 0, 0, 1.0f);
+
   // light
   if (1) {
     mat4x4 t = translate(vec3(0, 0, 3));
-    mat4x4 t1 = translate(vec3(1, 1, 1));
+    mat4x4 t1 = translate(vec3(1, 0, 0));
     mat4x4 s = scale(0.1f);
     mat4x4 rz = rotate_y(theta * 2.f);
 
     mat4x4 world_trans = rz * t1 * s;
 
-    mat3x3 normal_trans = transpose(inverse(submatrix(world_trans, 3, 3)));
+    //mat3x3 normal_trans = transpose(inverse(submatrix(world_trans, 3, 3)));
 
     mat4x4 trans = aspect * p * t * world_trans;
 
     light_pos = world_trans * light_pos;
 
-    ix = _3d_cube_inner(ix, trans, world_trans, normal_trans, light_pos);
+    ix = _3d_cube_inner(ix, trans, world_trans, light_pos);
   }
+
 
   // object
   if (1) {
     mat4x4 t = translate(vec3(0, 0, 3));
-    mat4x4 rx = rotate_x(0 * theta1 * 0.5f);
+    mat4x4 rx = rotate_x(1 * theta1 * 0.5f);
     mat4x4 ry = rotate_y(0 * theta2 * 0.8f + 1.4f);
-    mat4x4 s = scale(0.7f);
+    mat4x4 s = scale(0.9f);
 
     mat4x4 world_trans = rx * ry * s;
 
-    mat3x3 normal_trans = transpose(inverse(submatrix(world_trans, 3, 3)));
+    //mat3x3 normal_trans = transpose(inverse(submatrix(world_trans, 3, 3)));
 
     mat4x4 trans = aspect * p * t * world_trans;
 
-    printf("light_pos % 2.03f % 2.03f % 2.03f % 2.03f\n",
-           light_pos.x, light_pos.y, light_pos.z, light_pos.w);
-
-    ix = _3d_cube_inner(ix, trans, world_trans, normal_trans, light_pos);
+    ix = _3d_cube_inner(ix, trans, world_trans, light_pos);
   }
 
   return ix;

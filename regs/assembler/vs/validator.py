@@ -232,13 +232,13 @@ def validate_source_address_counts(sources_ast, sources, opcode):
 
     input_count = len(addresses_by_type(sources, SourceType.input))
     if input_count > 1:
-        source_ix = source_with_type_reversed(sources, SourceType.input)
+        source_ix = source_ix_with_type_reversed(sources, SourceType.input)
         raise ValidatorError(f"too many input addresses in operation(s); expected 1, have {input_count}",
                              sources_ast[source_ix].offset_identifier)
 
     alt_temporary_count = len(addresses_by_type(sources, SourceType.alt_temporary))
     if alt_temporary_count > 1:
-        source_ix = source_with_type_reversed(sources, SourceType.alt_temporary)
+        source_ix = source_ix_with_type_reversed(sources, SourceType.alt_temporary)
         raise ValidatorError(f"too many alt temporary addresses in operation(s); expected 1, have {alt_temporary_count}",
                              sources_ast[source_ix].offset_identifier)
 
