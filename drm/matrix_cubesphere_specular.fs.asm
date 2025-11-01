@@ -98,8 +98,25 @@ src1.a = float(96) :  -- 32
 src0.a = temp[5] :    -- spec
   temp[5].a = EX2 src0.a ;
 
+--
+-- diffuse:
+--
+
+-- max(dot(normal, light_dir), 0)
+src0.rgb = temp[2] , -- light dir
+src1.rgb = temp[1] : -- normal
+                DP3 src0.rgb src1.rgb ,
+   temp[6].a  = DP ;
+src0.a = temp[6] :
+  temp[6].a = MAX src0.a src0.0 ;
+
+-- intensity = diffuse + specular
+src0.a = temp[6] ,
+src1.a = temp[5] :
+  temp[6].a = MAD src0.a src1.1 src1.a ;
+
 OUT TEX_SEM_WAIT
-src1.a = temp[5] ,
-src1.rgb = temp[5] :
+src0.rgb = temp[4] ,
+src1.a = temp[6] :
   out[0].a    = MAX src1.1 src0.1 ,
-  out[0].rgb  = MAD src1.111 src1.aaa src1.000 ;
+  out[0].rgb  = MAD src0.rgb src1.aaa src1.000 ;
