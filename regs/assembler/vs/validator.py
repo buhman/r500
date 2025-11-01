@@ -382,7 +382,7 @@ def validate_instruction(ins):
     if len(opcodes) == 2:
         return validate_dual_math_instruction(ins.operations, opcodes)
     else:
-        assert len(opcodes) == 1
+        assert len(opcodes) == 1, (opcodes, ins)
         return validate_instruction_inner(ins.operations[0], opcodes[0])
 
 if __name__ == "__main__":

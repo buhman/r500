@@ -37,12 +37,14 @@ temp[3].z   = VE_DOT   const[6].xyz0    input[2].xyz0 ;
 -- position (clip space)
 out[0].xyzw = VE_ADD    temp[1].xyzw    const[0].0000 ;
 -- position (world space)
-out[1].xyzw = VE_ADD    temp[2].xyzw    const[0].0000 ;
+out[1].xyzw = VE_ADD    temp[2].xyzw    const[0].0000 ; -- 0 world pos
 -- normal
-out[2].xyzw = VE_ADD    temp[3].xyz0    const[0].0000 ;
+out[2].xyzw = VE_ADD    temp[3].xyz0    const[0].0000 ; -- 1 normal
 -- light pos (world space)
-out[3].xyzw = VE_ADD   const[8].xyzw    const[8].0000 ;
+out[3].xyzw = VE_ADD   const[8].xyzw    const[8].0000 ; -- 2 light pos / light dir
 -- view pos (world space)
-out[4].xyzw = VE_ADD   const[9].xyzw    const[9].0000 ;
+out[4].xyzw = VE_ADD   const[9].xyzw    const[9].0000 ; -- 3 view pos / view dir
 -- texture
-out[5].xyzw = VE_ADD   input[1].xy00    const[0].0000 ;
+out[5].xyzw = VE_ADD   input[1].xy00    const[0].0000 ; -- 4 texture
+
+                                                        -- 5 reflect dir

@@ -365,8 +365,8 @@ int _3d_cube_inner(int ix, mat4x4 trans, mat4x4 world_trans, vec4 light_pos, vec
       vec2 t = model->texture[obj->triangle[i][j].texture];
       vec3 n = model->normal[obj->triangle[i][j].normal];
 
-      fprintf(stderr, "% 2.03f, % 2.03f, % 2.03f, % 2.03f, % 2.03f, % 2.03f,\n",
-              p.x, p.y, p.z, n.x, n.y, n.z);
+      //fprintf(stderr, "% 2.03f, % 2.03f, % 2.03f, % 2.03f, % 2.03f, % 2.03f,\n",
+      //p.x, p.y, p.z, n.x, n.y, n.z);
 
       ib[ix++].f32 = p.x;
       ib[ix++].f32 = p.y;
