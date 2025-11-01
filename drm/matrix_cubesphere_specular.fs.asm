@@ -111,12 +111,14 @@ src0.a = temp[6] :
   temp[6].a = MAX src0.a src0.0 ;
 
 -- intensity = diffuse + specular
-src0.a = temp[6] ,
-src1.a = temp[5] :
-  temp[6].a = MAD src0.a src1.1 src1.a ;
+src0.a = temp[5] ,
+src1.a = float(16) , -- 0.03125
+src2.a = temp[6] ,
+  srcp.a = add :
+  temp[6].a = MAD srcp.a src1.1 src2.a ;
 
 OUT TEX_SEM_WAIT
 src0.rgb = temp[4] ,
 src1.a = temp[6] :
   out[0].a    = MAX src1.1 src0.1 ,
-  out[0].rgb  = MAD src0.rgb src1.aaa src1.000 ;
+  out[0].rgb  = MAD src0.rgb src1.aaa src2.000 ;
