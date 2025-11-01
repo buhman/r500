@@ -19,7 +19,9 @@
 #include "3d_registers_bits.h"
 #include "command_processor.h"
 
-#include "../model/vec.h"
+#include "math/float_types.hpp"
+#include "math/transform.hpp"
+
 #include "../model/blender_model.h"
 #include "../model/pumpkin/pumpkin.h"
 
@@ -91,14 +93,14 @@ static void * read_file(const char * filename, int * out_size)
 }
 
 static const uint32_t fragment_shader[] = {
-#include "texture_cube.fs.inc"
+#include "matrix_cubesphere_specular.fs.inc"
 #include "clear.fs.inc"
 };
 static const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
 static const int fragment_shader_instructions = (fragment_shader_length / 6) - 1;
 
 static const uint32_t vertex_shader[] = {
-  #include "pumpkin_man.vs.inc"
+  #include "matrix_cubesphere_specular.vs.inc"
   #include "clear_nop.vs.inc"
 };
 static const int vertex_shader_length = (sizeof (vertex_shader)) / (sizeof (vertex_shader[0]));
@@ -206,7 +208,7 @@ int _3d_clear(int ix, const struct reloc_indices * reloc_indices)
   T0V(VAP_PROG_STREAM_CNTL_EXT_0
       , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0__SELECT_X
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_0__SELECT_Y
-      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_FP_ZERO
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_FP_ONE
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0__SELECT_FP_ONE
       | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(0b1111)
       );
@@ -321,38 +323,31 @@ int aos(int ix,
         int start,
         int vertex_count)
 {
-  T0V(VAP_VTX_SIZE
-      , VAP_VTX_SIZE__DWORDS_PER_VTX(5)
-      );
-
-  T0V(VAP_INDEX_OFFSET, 0x00000000);
-
-  T0V(VAP_VF_MAX_VTX_INDX
-      , VAP_VF_MAX_VTX_INDX__MAX_INDX(vertex_count - 1)
-      );
-  T0V(VAP_VF_MIN_VTX_INDX
-      , VAP_VF_MIN_VTX_INDX__MIN_INDX(0)
-      );
-
   //////////////////////////////////////////////////////////////////////////////
   // AOS
   //////////////////////////////////////////////////////////////////////////////
 
-  T3(_3D_LOAD_VBPNTR, (4 - 1));
+  T3(_3D_LOAD_VBPNTR, (6 - 1));
   ib[ix++].u32 // VAP_VTX_NUM_ARRAYS
-    = VAP_VTX_NUM_ARRAYS__VTX_NUM_ARRAYS(2)
+    = VAP_VTX_NUM_ARRAYS__VTX_NUM_ARRAYS(3)
     | VAP_VTX_NUM_ARRAYS__VC_FORCE_PREFETCH(1)
     ;
   ib[ix++].u32 // VAP_VTX_AOS_ATTR01
     = VAP_VTX_AOS_ATTR__VTX_AOS_COUNT0(3)
-    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(5)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(8)
     | VAP_VTX_AOS_ATTR__VTX_AOS_COUNT1(2)
-    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE1(5)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE1(8)
     ;
   ib[ix++].u32 // VAP_VTX_AOS_ADDR0
     = (4 * (start + 0));
   ib[ix++].u32 // VAP_VTX_AOS_ADDR1
     = (4 * (start + 3));
+  ib[ix++].u32 // VAP_VTX_AOS_ATTR23
+    = VAP_VTX_AOS_ATTR__VTX_AOS_COUNT0(3)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(8)
+    ;
+  ib[ix++].u32 // VAP_VTX_AOS_ADDR2
+    = (4 * (start + 5));
 
   // VAP_VTX_AOS_ADDR is an absolute address in VRAM. However, DRM_RADEON_CS
   // modifies this to be an offset relative to the GEM buffer handles given via
@@ -362,15 +357,90 @@ int aos(int ix,
   ib[ix++].u32 = reloc_indices->vertexbuffer * 4; // index into relocs array for VAP_VTX_AOS_ADDR0
   T3(_NOP, 0);
   ib[ix++].u32 = reloc_indices->vertexbuffer * 4; // index into relocs array for VAP_VTX_AOS_ADDR1
+  T3(_NOP, 0);
+  ib[ix++].u32 = reloc_indices->vertexbuffer * 4; // index into relocs array for VAP_VTX_AOS_ADDR2
 
   return ix;
+}
+
+int load_consts(int ix,
+                const mat4x4& trans,
+                const mat4x4& world_trans,
+                const vec4& light_pos,
+                const vec4& view_pos)
+{
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP_PVS
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_PVS_STATE_FLUSH_REG, 0x00000000);
+
+  const float consts[] = {
+    // 0
+    trans[0][0], trans[0][1], trans[0][2], trans[0][3],
+    trans[1][0], trans[1][1], trans[1][2], trans[1][3],
+    trans[2][0], trans[2][1], trans[2][2], trans[2][3],
+    trans[3][0], trans[3][1], trans[3][2], trans[3][3],
+
+    // 4
+    world_trans[0][0], world_trans[0][1], world_trans[0][2], world_trans[0][3],
+    world_trans[1][0], world_trans[1][1], world_trans[1][2], world_trans[1][3],
+    world_trans[2][0], world_trans[2][1], world_trans[2][2], world_trans[2][3],
+    world_trans[3][0], world_trans[3][1], world_trans[3][2], world_trans[3][3],
+
+    // 8
+    light_pos.x, light_pos.y, light_pos.z, light_pos.w,
+
+    // 9
+    view_pos.x, view_pos.y, view_pos.z, view_pos.w,
+  };
+  const int consts_length = (sizeof (consts)) / (sizeof (consts[0]));
+  assert(consts_length % 4 == 0);
+
+  T0V(VAP_PVS_CONST_CNTL
+      , VAP_PVS_CONST_CNTL__PVS_CONST_BASE_OFFSET(0)
+      | VAP_PVS_CONST_CNTL__PVS_MAX_CONST_ADDR((consts_length / 4) - 1)
+      );
+
+  T0V(VAP_PVS_VECTOR_INDX_REG
+      , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(1024)
+      );
+
+  T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, (consts_length - 1));
+  for (int i = 0; i < consts_length; i++)
+    ib[ix++].f32 = consts[i];
+
+  return ix;
+}
+
+mat4x4 perspective(float low1, float high1,
+                   float low2, float high2,
+                   float low3, float high3)
+{
+  float scale2 = (high2 - low2) / (high1 - low1);
+  float scale3 = (high3 - low3) / (high1 - low1);
+
+  mat4x4 m1 = mat4x4(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, -low1,
+                     0, 0, 0, 1
+                     );
+
+  mat4x4 m2 = mat4x4(1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, scale2, low2,
+                     0, 0, scale3, low3
+                     );
+
+  return m2 * m1;
 }
 
 int _3d_object(int ix,
                const struct reloc_indices * reloc_indices,
                float theta,
                struct vb_object_offsets * object_offsets,
-               int object_count)
+               int object_count,
+               int vertex_shader_instructions)
 {
   //////////////////////////////////////////////////////////////////////////////
   // ZB
@@ -381,7 +451,7 @@ int _3d_object(int ix,
       | ZB_CNTL__ZWRITEENABLE__ENABLE // 1
       );
   T0V(ZB_ZSTENCILCNTL
-      , ZB_ZSTENCILCNTL__ZFUNC(5) // greater than
+      , ZB_ZSTENCILCNTL__ZFUNC__ALWAYS//(1) // less than
       );
 
   T0V(ZB_FORMAT
@@ -404,63 +474,74 @@ int _3d_object(int ix,
   // RS
   //////////////////////////////////////////////////////////////////////////////
 
+  T0V(RS_COUNT
+      , RS_COUNT__IT_COUNT(20)
+      | RS_COUNT__IC_COUNT(0)
+      | RS_COUNT__W_ADDR(0)
+      | RS_COUNT__HIRES_EN(1)
+      );
   T0V(RS_IP_0
       , RS_IP__TEX_PTR_S(0)
       | RS_IP__TEX_PTR_T(1)
       | RS_IP__TEX_PTR_R(2)
       | RS_IP__TEX_PTR_Q(3)
-      | RS_IP__COL_PTR(0)
-      | RS_IP__COL_FMT(0)
       | RS_IP__OFFSET_EN(0)
       );
-  T0V(RS_COUNT
-      , RS_COUNT__IT_COUNT(4)
-      | RS_COUNT__IC_COUNT(0)
-      | RS_COUNT__W_ADDR(0)
-      | RS_COUNT__HIRES_EN(1)
+  T0V(RS_IP_1
+      , RS_IP__TEX_PTR_S(4)
+      | RS_IP__TEX_PTR_T(5)
+      | RS_IP__TEX_PTR_R(6)
+      | RS_IP__TEX_PTR_Q(7)
+      | RS_IP__OFFSET_EN(0)
       );
-  T0V(RS_INST_COUNT, 0x00000000);
+  T0V(RS_IP_2
+      , RS_IP__TEX_PTR_S(8)
+      | RS_IP__TEX_PTR_T(9)
+      | RS_IP__TEX_PTR_R(10)
+      | RS_IP__TEX_PTR_Q(11)
+      | RS_IP__OFFSET_EN(0)
+      );
+  T0V(RS_IP_3
+      , RS_IP__TEX_PTR_S(12)
+      | RS_IP__TEX_PTR_T(13)
+      | RS_IP__TEX_PTR_R(14)
+      | RS_IP__TEX_PTR_Q(15)
+      | RS_IP__OFFSET_EN(0)
+      );
+  T0V(RS_IP_4
+      , RS_IP__TEX_PTR_S(16)
+      | RS_IP__TEX_PTR_T(17)
+      | RS_IP__TEX_PTR_R(18)
+      | RS_IP__TEX_PTR_Q(19)
+      | RS_IP__OFFSET_EN(0)
+      );
+
+  T0V(RS_INST_COUNT
+      , RS_INST_COUNT__INST_COUNT(4));
   T0V(RS_INST_0
       , RS_INST__TEX_ID(0)
       | RS_INST__TEX_CN(1)
       | RS_INST__TEX_ADDR(0)
       );
-
-  //////////////////////////////////////////////////////////////////////////////
-  // VAP_PVS
-  //////////////////////////////////////////////////////////////////////////////
-
-  float theta1 = 3.2 * 3.14f / 2;
-  //float theta2 = 3.14f * theta;
-  float theta2 = 2 * 3.14f / 2 + theta;
-  const float consts[] = {
-    I_PI_2, 0.5f, PI_2, -PI,
-    theta1, theta2, 0.1f, 0.5f,
-    3.0f/4.0f, 0.0f, 0.0f, 0.0f,
-  };
-  int consts_length = (sizeof (consts)) / (sizeof (consts[0]));
-  assert((consts_length % 4) == 0);
-
-  T0V(VAP_PVS_CONST_CNTL
-      , VAP_PVS_CONST_CNTL__PVS_CONST_BASE_OFFSET(0)
-      | VAP_PVS_CONST_CNTL__PVS_MAX_CONST_ADDR(consts_length / 4)
+  T0V(RS_INST_1
+      , RS_INST__TEX_ID(1)
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(1)
       );
-
-  T0V(VAP_PVS_VECTOR_INDX_REG
-      , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(1024)
+  T0V(RS_INST_2
+      , RS_INST__TEX_ID(2)
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(2)
       );
-
-  T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, (consts_length - 1));
-  for (int i = 0; i < consts_length; i++)
-    ib[ix++].f32 = consts[i];
-
-  T0V(VAP_PVS_CODE_CNTL_0
-      , VAP_PVS_CODE_CNTL_0__PVS_FIRST_INST(0)
-      | VAP_PVS_CODE_CNTL_0__PVS_XYZW_VALID_INST((vertex_shader_instructions - 1))
-      | VAP_PVS_CODE_CNTL_0__PVS_LAST_INST((vertex_shader_instructions - 1))
+  T0V(RS_INST_3
+      , RS_INST__TEX_ID(3)
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(3)
       );
-  T0V(VAP_PVS_CODE_CNTL_1
-      , VAP_PVS_CODE_CNTL_1__PVS_LAST_VTX_SRC_INST((vertex_shader_instructions - 1))
+  T0V(RS_INST_4
+      , RS_INST__TEX_ID(4)
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(4)
       );
 
   //////////////////////////////////////////////////////////////////////////////
@@ -476,10 +557,10 @@ int _3d_object(int ix,
       | VAP_VTE_CNTL__VPORT_X_OFFSET_ENA(1)
       | VAP_VTE_CNTL__VPORT_Y_SCALE_ENA(1)
       | VAP_VTE_CNTL__VPORT_Y_OFFSET_ENA(1)
-      | VAP_VTE_CNTL__VPORT_Z_SCALE_ENA(1)
-      | VAP_VTE_CNTL__VPORT_Z_OFFSET_ENA(1)
+      | VAP_VTE_CNTL__VPORT_Z_SCALE_ENA(0)
+      | VAP_VTE_CNTL__VPORT_Z_OFFSET_ENA(0)
       | VAP_VTE_CNTL__VTX_XY_FMT(0)
-      | VAP_VTE_CNTL__VTX_Z_FMT(0)
+      | VAP_VTE_CNTL__VTX_Z_FMT(1)
       | VAP_VTE_CNTL__VTX_W0_FMT(1)
       | VAP_VTE_CNTL__SERIAL_PROC_ENA(0)
       );
@@ -494,7 +575,7 @@ int _3d_object(int ix,
       | VAP_PROG_STREAM_CNTL__DATA_TYPE_1__FLOAT_2
       | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_1(0)
       | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_1(1)
-      | VAP_PROG_STREAM_CNTL__LAST_VEC_1(1)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_1(0)
       );
   T0V(VAP_PROG_STREAM_CNTL_EXT_0
       , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0__SELECT_X
@@ -509,10 +590,28 @@ int _3d_object(int ix,
       | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_1(0b1111) // XYZW
       );
 
+  T0V(VAP_PROG_STREAM_CNTL_1
+      , VAP_PROG_STREAM_CNTL__DATA_TYPE_0__FLOAT_3
+      | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_0(0)
+      | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_0(2)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_0(1)
+      );
+  T0V(VAP_PROG_STREAM_CNTL_EXT_1
+      , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0__SELECT_X
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_0__SELECT_Y
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_Z
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0__SELECT_FP_ONE
+      | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(0b1111) // XYZW
+      );
+
   T0V(VAP_OUT_VTX_FMT_0
       , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
   T0V(VAP_OUT_VTX_FMT_1
-      , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4));
+      , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_1_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_2_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_3_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_4_COMP_CNT(4));
 
   //////////////////////////////////////////////////////////////////////////////
   // GA_US
@@ -530,6 +629,62 @@ int _3d_object(int ix,
       | US_CODE_ADDR__END_ADDR(fragment_shader_instructions - 1)
       );
 
+  float theta1 = theta;
+  float theta2 = theta;
+
+  mat4x4 aspect = scale(vec3(3.0f/4.0f, 1, 1));
+
+  mat4x4 p = perspective(0.01f, 5.0f,
+                         0.001f, 0.999f,
+                         0.5f, 2.0f);
+
+  vec4 light_pos = vec4(0, 0, 0, 1.0f);
+
+  {
+    //mat4x4 t = translate(vec3(0, 0, 3));
+    mat4x4 t1 = translate(vec3(1, 0, 0));
+    mat4x4 s = scale(0.05f);
+    mat4x4 rz = rotate_y(theta * 2.f);
+
+    mat4x4 world_trans = rz * t1 * s;
+
+    //mat3x3 normal_trans = transpose(inverse(submatrix(world_trans, 3, 3)));
+
+    //mat4x4 trans = aspect * p * t * world_trans;
+
+    light_pos = world_trans * light_pos;
+  }
+
+  vec4 view_pos = vec4(0, 0, -3, 1.0f);
+
+  mat4x4 t = translate(vec3(0, 0, 3));
+  mat4x4 rx = rotate_x(1 * theta1 * 0.5f);
+  //mat4x4 ry = rotate_y(0 * theta2 * 0.8f + 1.4f);
+  mat4x4 ry = rotate_y(3.1415f * 1.0f);
+  mat4x4 s = scale(0.5f);
+
+  mat4x4 world_trans = rx * ry * s;
+
+  //mat3x3 normal_trans = transpose(inverse(submatrix(world_trans, 3, 3)));
+
+  mat4x4 trans = aspect * p * t * world_trans;
+
+  printf("load consts %d\n", vertex_shader_instructions);
+  ix = load_consts(ix,
+                   trans,
+                   world_trans,
+                   light_pos,
+                   view_pos);
+
+  T0V(VAP_PVS_CODE_CNTL_0
+      , VAP_PVS_CODE_CNTL_0__PVS_FIRST_INST(0)
+      | VAP_PVS_CODE_CNTL_0__PVS_XYZW_VALID_INST((vertex_shader_instructions - 1))
+      | VAP_PVS_CODE_CNTL_0__PVS_LAST_INST((vertex_shader_instructions - 1))
+      );
+  T0V(VAP_PVS_CODE_CNTL_1
+      , VAP_PVS_CODE_CNTL_1__PVS_LAST_VTX_SRC_INST((vertex_shader_instructions - 1))
+      );
+
   for (int object_ix = 0; object_ix < object_count; object_ix++) {
     int start = object_offsets[object_ix].start;
     int material_index = object_offsets[object_ix].material_index;
@@ -538,8 +693,8 @@ int _3d_object(int ix,
     int size = end - start;
     int vertex_count = size / 5;
 
-    printf("object_ix %d start %d end %d vertex_count %d\n",
-           object_ix, start, end, vertex_count);
+    //printf("object_ix %d start %d end %d vertex_count %d\n",
+    //object_ix, start, end, vertex_count);
 
     ix = texture(ix, reloc_indices, material_index);
     ix = aos(ix, reloc_indices, start, vertex_count);
@@ -784,7 +939,7 @@ int indirect_buffer(const struct reloc_indices * reloc_indices,
       , US_CONFIG__ZERO_TIMES_ANYTHING_EQUALS_ZERO(1)
       );
   T0V(US_PIXSIZE
-      , US_PIXSIZE__PIX_SIZE(1)
+      , US_PIXSIZE__PIX_SIZE(6)
       );
   T0V(US_FC_CTRL, 0);
 
@@ -852,9 +1007,9 @@ int indirect_buffer(const struct reloc_indices * reloc_indices,
   // VAP_PVS
   //////////////////////////////////////////////////////////////////////////////
 
-  printf("vs length %d\n", vertex_shader_length);
+  //printf("vs length %d\n", vertex_shader_length);
   assert(vertex_shader_length % 4 == 0);
-  printf("vs instructions %d\n", vertex_shader_instructions);
+  //printf("vs instructions %d\n", vertex_shader_instructions);
 
   T0V(VAP_PVS_VECTOR_INDX_REG
       , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(0)
@@ -868,9 +1023,9 @@ int indirect_buffer(const struct reloc_indices * reloc_indices,
   // GA_US
   //////////////////////////////////////////////////////////////////////////////
 
-  printf("fs length %d\n", fragment_shader_length);
+  //printf("fs length %d\n", fragment_shader_length);
   assert(fragment_shader_length % 6 == 0);
-  printf("fs instructions %d\n", fragment_shader_instructions);
+  //printf("fs instructions %d\n", fragment_shader_instructions);
 
   T0V(GA_US_VECTOR_INDEX, 0x00000000);
   T0_ONE_REG(GA_US_VECTOR_DATA, fragment_shader_length - 1);
@@ -885,7 +1040,8 @@ int indirect_buffer(const struct reloc_indices * reloc_indices,
   ix = _3d_clear(ix, reloc_indices);
   ix = _3d_object(ix, reloc_indices, theta,
                   object_offsets,
-                  object_count);
+                  object_count,
+                  vertex_shader_instructions);
 
   //////////////////////////////////////////////////////////////////////////////
   // padding
@@ -958,7 +1114,8 @@ int fill_vertexbuffer(void * ptr, int size,
   const int object_count = (sizeof (objects)) / (sizeof (objects[0]));
 
   // FIXME: iterate through meshes, not objects
-  struct vb_object_offsets * offsets = calloc((sizeof (struct vb_object_offsets)), object_count + 1);
+  struct vb_object_offsets * offsets =
+    (struct vb_object_offsets *)calloc((sizeof (struct vb_object_offsets)), object_count + 1);
 
   for (int object_ix = 0; object_ix < object_count; object_ix++) {
     const struct mesh * mesh = objects[object_ix].mesh;
@@ -971,10 +1128,14 @@ int fill_vertexbuffer(void * ptr, int size,
     assert(mesh->uv_layers_length == 1);
     const vec2 * uvmap = mesh->uv_layers[0];
     const vec3 * position = mesh->position;
+    const vec3 * normal = mesh->normal;
 
     int last_mat_ix = -1;
 
     for (int polygon_ix = 0; polygon_ix < mesh->polygons_length; polygon_ix++) {
+
+      printf("[%d] position_length %d normal_length %d\n",
+             polygon_ix, mesh->position_length, mesh->normal_length);
 
       int uv_ix = polygon_ix * 3;
       const struct polygon * polygon = &mesh->polygons[polygon_ix];
@@ -984,6 +1145,9 @@ int fill_vertexbuffer(void * ptr, int size,
       const vec2 * at = &uvmap[uv_ix + 0];
       const vec2 * bt = &uvmap[uv_ix + 1];
       const vec2 * ct = &uvmap[uv_ix + 2];
+      const vec3 * an = &normal[polygon->a];
+      const vec3 * bn = &normal[polygon->b];
+      const vec3 * cn = &normal[polygon->c];
 
       if (last_mat_ix != polygon->material_index) {
         printf("new material: object_ix %d material_index %d\n",
@@ -993,25 +1157,34 @@ int fill_vertexbuffer(void * ptr, int size,
       }
       //assert(polygon->material_index == object_ix);
 
-      assert((ix + (5 * 3)) < (size / 4));
+      assert((ix + (8 * 3)) < (size / 4));
 
       fptr[ix++] = ap->x;
       fptr[ix++] = ap->y;
       fptr[ix++] = ap->z;
       fptr[ix++] = at->x;
       fptr[ix++] = 1.0f - at->y;
+      fptr[ix++] = an->x;
+      fptr[ix++] = an->y;
+      fptr[ix++] = an->z;
 
       fptr[ix++] = bp->x;
       fptr[ix++] = bp->y;
       fptr[ix++] = bp->z;
       fptr[ix++] = bt->x;
       fptr[ix++] = 1.0f - bt->y;
+      fptr[ix++] = bn->x;
+      fptr[ix++] = bn->y;
+      fptr[ix++] = bn->z;
 
       fptr[ix++] = cp->x;
       fptr[ix++] = cp->y;
       fptr[ix++] = cp->z;
       fptr[ix++] = ct->x;
       fptr[ix++] = 1.0f - ct->y;
+      fptr[ix++] = cn->x;
+      fptr[ix++] = cn->y;
+      fptr[ix++] = cn->z;
     }
   }
 
@@ -1091,7 +1264,7 @@ int main()
   int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
 
   const int colorbuffer_size = 1600 * 1200 * 4;
-  const int vertexbuffer_size = 1 * 1024 * 1024;
+  const int vertexbuffer_size = 4 * 1024 * 1024;
 
   int colorbuffer_handle[2];
   int zbuffer_handle;
@@ -1149,7 +1322,8 @@ int main()
   float theta = 0;
 
   int relocs_length = 4 + texture_handles_length;
-  struct drm_radeon_cs_reloc * relocs = calloc((sizeof (struct drm_radeon_cs_reloc)), relocs_length);
+  struct drm_radeon_cs_reloc * relocs =
+    (struct drm_radeon_cs_reloc *)calloc((sizeof (struct drm_radeon_cs_reloc)), relocs_length);
   int relocs_size = (sizeof (struct drm_radeon_cs_reloc)) * relocs_length;
 
   const struct reloc_indices reloc_indices = {
@@ -1250,7 +1424,8 @@ int main()
 #define D1GRPH_UPDATE__D1GRPH_SURFACE_UPDATE_PENDING (1 << 2)
 
     uint32_t d1crtc_double_buffer_control = rreg(rmmio, D1CRTC_DOUBLE_BUFFER_CONTROL);
-    printf("D1CRTC_DOUBLE_BUFFER_CONTROL: %08x\n", d1crtc_double_buffer_control);
+    //printf("D1CRTC_DOUBLE_BUFFER_CONTROL: %08x\n", d1crtc_double_buffer_control);
+    //printf("here\n");
     assert(d1crtc_double_buffer_control == (1 << 8));
 
     // addresses were retrieved from /sys/kernel/debug/radeon_vram_mm
@@ -1268,8 +1443,6 @@ int main()
     // next state
     theta += 0.01f;
     colorbuffer_ix = (colorbuffer_ix + 1) & 1;
-
-    break;
   }
 
   {

@@ -121,4 +121,5 @@ OUT TEX_SEM_WAIT
 src0.rgb = temp[4] ,
 src1.a = temp[6] :
   out[0].a    = MAX src1.1 src0.1 ,
-  out[0].rgb  = MAD src0.rgb src1.aaa src2.000 ;
+  --out[0].rgb  = MAD src0.rgb src1.aaa src2.000 ;
+  out[0].rgb  = MAD src0.111 src1.111 src2.000 ;
