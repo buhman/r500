@@ -1,11 +1,13 @@
 #include <assert.h>
 #include <stdio.h>
 #include <sys/mman.h>
+#include <stdlib.h>
 
 #include <xf86drm.h>
 #include <libdrm/radeon_drm.h>
 
 #include "buffer.h"
+#include "../file.h"
 
 int create_buffer(int fd, int buffer_size, void ** out_ptr)
 {
@@ -69,4 +71,33 @@ int create_flush_buffer(int fd)
   }
   assert(args.handle != 0);
   return args.handle;
+}
+
+int * load_textures(int fd,
+                    const char ** textures,
+                    int textures_length)
+{
+  int * texturebuffer_handle = (int *)malloc((sizeof (int)) * textures_length);
+
+  for (int i = 0; i < textures_length; i++) {
+    int size = 0;
+    void * buf = file_read(textures[i], &size);
+    assert(buf != NULL);
+
+    printf("load texture[%d]: %d\n", i, size);
+
+    void * ptr = NULL;
+    int handle = create_buffer(fd, size, &ptr);
+
+    for (int i = 0; i < size / 4; i++) {
+      ((uint32_t*)ptr)[i] = ((uint32_t*)buf)[i];
+    }
+    asm volatile ("" ::: "memory");
+    free(buf);
+    munmap(ptr, size);
+
+    texturebuffer_handle[i] = handle;
+  }
+
+  return texturebuffer_handle;
 }

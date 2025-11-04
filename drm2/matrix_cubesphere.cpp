@@ -11,18 +11,15 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#include <xf86drm.h>
-#include <libdrm/radeon_drm.h>
-
 #include "r500/3d_registers.h"
 #include "r500/3d_registers_undocumented.h"
 #include "r500/3d_registers_bits.h"
 #include "r500/indirect_buffer.h"
 #include "r500/shader.h"
 #include "r500/display_controller.h"
-#include "r500/buffer.h"
 
-#include "file.h"
+#include "drm/buffer.h"
+#include "drm/drm.h"
 
 #include "math/float_types.hpp"
 #include "math/transform.hpp"
@@ -30,10 +27,6 @@
 
 #include "../model/model2.h"
 #include "../model/cubesphere.h"
-
-#define COLORBUFFER_RELOC_INDEX 0
-#define ZBUFFER_RELOC_INDEX 1
-#define TEXTURE_RELOC_INDEX 2
 
 #define CUBESPHERE_SHADER 0
 #define CLEAR_SHADER 1
@@ -95,8 +88,8 @@ void _3d_clear(struct shaders& shaders)
       );
 
   T0V(VAP_VTE_CNTL
-      , VAP_VTE_CNTL__VTX_XY_FMT(1)
-      | VAP_VTE_CNTL__VTX_Z_FMT(1)
+      , VAP_VTE_CNTL__VTX_XY_FMT(1) // disable W division
+      | VAP_VTE_CNTL__VTX_Z_FMT(1)  // disable W division
       );
 
   T0V(VAP_CNTL_STATUS
@@ -266,8 +259,8 @@ void _3d_cube(struct shaders& shaders,
       | VAP_VTE_CNTL__VPORT_Y_OFFSET_ENA(1)
       | VAP_VTE_CNTL__VPORT_Z_SCALE_ENA(0)
       | VAP_VTE_CNTL__VPORT_Z_OFFSET_ENA(0)
-      | VAP_VTE_CNTL__VTX_XY_FMT(0)
-      | VAP_VTE_CNTL__VTX_Z_FMT(1)
+      | VAP_VTE_CNTL__VTX_XY_FMT(0) // enable W division
+      | VAP_VTE_CNTL__VTX_Z_FMT(1)  // disable W division
       | VAP_VTE_CNTL__VTX_W0_FMT(1)
       | VAP_VTE_CNTL__SERIAL_PROC_ENA(0)
       );
@@ -400,6 +393,11 @@ int indirect_buffer(shaders& shaders,
   return ib_ix;
 }
 
+const char * textures[] = {
+  "../texture/butterfly_1024x1024_argb8888.data",
+};
+const int textures_length = (sizeof (textures)) / (sizeof (textures[0]));
+
 int main()
 {
   struct shaders shaders = {
@@ -411,18 +409,13 @@ int main()
 
   void * rmmio = map_pci_resource2();
 
-  //////////////////////////////////////////////////////////////////////////////
-  // DRI card0
-  //////////////////////////////////////////////////////////////////////////////
-
-  int ret;
   int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
   assert(fd != -1);
 
   const int colorbuffer_size = 1600 * 1200 * 4;
   int colorbuffer_handle[2];
   int zbuffer_handle;
-  int texturebuffer_handle;
+  int * texturebuffer_handle;
   int flush_handle;
 
   void * colorbuffer_ptr[2];
@@ -433,103 +426,25 @@ int main()
   colorbuffer_handle[1] = create_buffer(fd, colorbuffer_size, &colorbuffer_ptr[1]);
   zbuffer_handle = create_buffer(fd, colorbuffer_size, &zbuffer_ptr);
   flush_handle = create_flush_buffer(fd);
+  texturebuffer_handle = load_textures(fd, textures, textures_length);
 
   fprintf(stderr, "colorbuffer handle[0] %d\n", colorbuffer_handle[0]);
   fprintf(stderr, "colorbuffer handle[1] %d\n", colorbuffer_handle[1]);
   fprintf(stderr, "zbuffer handle %d\n", zbuffer_handle);
 
-  // texture
-  {
-    const int texture_size = 1024 * 1024 * 4;
-    void * texturebuffer_ptr;
-
-    texturebuffer_handle = create_buffer(fd, texture_size, &texturebuffer_ptr);
-
-    void * texture_buf = file_read("../texture/butterfly_1024x1024_argb8888.data", NULL);
-    assert(texture_buf != NULL);
-    for (int i = 0; i < texture_size / 4; i++) {
-      ((uint32_t*)texturebuffer_ptr)[i] = ((uint32_t*)texture_buf)[i];
-    }
-    asm volatile ("" ::: "memory");
-    free(texture_buf);
-    munmap(texturebuffer_ptr, texture_size);
-  }
-
-  uint32_t flags[2] = {
-    5, // RADEON_CS_KEEP_TILING_FLAGS | RADEON_CS_END_OF_FRAME
-    0, // RADEON_CS_RING_GFX
-  };
-
   int colorbuffer_ix = 0;
-
   float theta = 0;
 
   while (true) {
     int ib_dwords = indirect_buffer(shaders, theta);
 
-    struct drm_radeon_cs_reloc relocs[] = {
-      {
-        .handle = colorbuffer_handle[colorbuffer_ix],
-        .read_domains = 4, // RADEON_GEM_DOMAIN_VRAM
-        .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM
-        .flags = 8,
-      },
-      {
-        .handle = zbuffer_handle,
-        .read_domains = 4, // RADEON_GEM_DOMAIN_VRAM
-        .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM
-        .flags = 8,
-      },
-      {
-        .handle = texturebuffer_handle,
-        .read_domains = 4, // RADEON_GEM_DOMAIN_VRAM
-        .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM
-        .flags = 8,
-      },
-      {
-        .handle = flush_handle,
-        .read_domains = 2, // RADEON_GEM_DOMAIN_GTT
-        .write_domain = 2, // RADEON_GEM_DOMAIN_GTT
-        .flags = 0,
-      }
-    };
-
-    struct drm_radeon_cs_chunk chunks[3] = {
-      {
-        .chunk_id = RADEON_CHUNK_ID_IB,
-        .length_dw = ib_dwords,
-        .chunk_data = (uint64_t)(uintptr_t)ib,
-      },
-      {
-        .chunk_id = RADEON_CHUNK_ID_RELOCS,
-        .length_dw = (sizeof (relocs)) / (sizeof (uint32_t)),
-        .chunk_data = (uint64_t)(uintptr_t)relocs,
-      },
-      {
-        .chunk_id = RADEON_CHUNK_ID_FLAGS,
-        .length_dw = (sizeof (flags)) / (sizeof (uint32_t)),
-        .chunk_data = (uint64_t)(uintptr_t)&flags,
-      },
-    };
-
-    uint64_t chunks_array[3] = {
-      (uint64_t)(uintptr_t)&chunks[0],
-      (uint64_t)(uintptr_t)&chunks[1],
-      (uint64_t)(uintptr_t)&chunks[2],
-    };
-
-    struct drm_radeon_cs cs = {
-      .num_chunks = 3,
-      .cs_id = 0,
-      .chunks = (uint64_t)(uintptr_t)chunks_array,
-      .gart_limit = 0,
-      .vram_limit = 0,
-    };
-
-    ret = drmCommandWriteRead(fd, DRM_RADEON_CS, &cs, (sizeof (struct drm_radeon_cs)));
-    if (ret != 0) {
-      perror("drmCommandWriteRead(DRM_RADEON_CS)");
-    }
+    drm_radeon_cs(fd,
+                  colorbuffer_handle[colorbuffer_ix],
+                  zbuffer_handle,
+                  flush_handle,
+                  texturebuffer_handle,
+                  textures_length,
+                  ib_dwords);
 
     primary_surface_address(rmmio, colorbuffer_ix);
 

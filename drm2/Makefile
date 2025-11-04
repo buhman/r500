@@ -14,16 +14,14 @@ FRAGMENT_SHADERS = $(patsubst %.asm,%.bin,$(wildcard *.fs.asm))
 SHADER_BIN = $(VERTEX_SHADERS) $(FRAGMENT_SHADERS)
 
 R500_COMMON = \
-	r500/buffer.o \
 	r500/display_controller.o \
 	r500/indirect_buffer.o \
 	r500/shader.o \
+	drm/buffer.o \
+	drm/drm.o \
 	file.o
 
 matrix_cubesphere: $(R500_COMMON) matrix_cubesphere.o | shaders
-	$(CXX) $(LDFLAGS) $^ -o $@
-
-matrix_cubesphere2: $(R500_COMMON) matrix_cubesphere2.o | shaders
 	$(CXX) $(LDFLAGS) $^ -o $@
 
 %.o: %.c
