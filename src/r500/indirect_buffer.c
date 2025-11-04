@@ -650,6 +650,27 @@ void ib_vap_stream_cntl__2()
       );
 }
 
+void ib_vap_stream_cntl__3()
+{
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP_PROG_STREAM_CNTL
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_PROG_STREAM_CNTL_0
+      , VAP_PROG_STREAM_CNTL__DATA_TYPE_0__FLOAT_3
+      | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_0(0)
+      | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_0(0)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_0(1)
+      );
+  T0V(VAP_PROG_STREAM_CNTL_EXT_0
+      , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0__SELECT_X
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_0__SELECT_Y
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_Z
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0__SELECT_FP_ONE
+      | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(0b1111)
+      );
+}
+
 void ib_vap_stream_cntl__323()
 {
   //////////////////////////////////////////////////////////////////////////////

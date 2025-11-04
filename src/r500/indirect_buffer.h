@@ -64,6 +64,7 @@ void ib_vap_pvs(struct shader_offset * offset);
 void ib_ga_us(struct shader_offset * offset);
 void ib_vap_pvs_const_cntl(const float * consts, int size);
 void ib_vap_stream_cntl__2();
+void ib_vap_stream_cntl__3();
 void ib_vap_stream_cntl__323();
 
 #ifdef __cplusplus
