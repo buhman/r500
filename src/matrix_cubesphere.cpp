@@ -51,9 +51,20 @@ struct shaders {
 
 void _3d_clear(struct shaders& shaders)
 {
-  ib_zbuffer(ZBUFFER_RELOC_INDEX, 7); // always
-
   ib_rs_instructions(0);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP OUT
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_OUT_VTX_FMT_0
+      , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
+  T0V(VAP_OUT_VTX_FMT_1
+      , 0x0);
+
+  //
+
+  ib_zbuffer(ZBUFFER_RELOC_INDEX, 7); // always
 
   ib_texture__0();
 
@@ -99,11 +110,6 @@ void _3d_clear(struct shaders& shaders)
   T0V(VAP_VTX_SIZE
       , VAP_VTX_SIZE__DWORDS_PER_VTX(2)
       );
-
-  T0V(VAP_OUT_VTX_FMT_0
-      , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
-  T0V(VAP_OUT_VTX_FMT_1
-      , 0x0);
 
   //////////////////////////////////////////////////////////////////////////////
   // GA POINT SIZE
@@ -225,9 +231,23 @@ void _3d_cube_inner(mat4x4 trans,
 void _3d_cube(struct shaders& shaders,
               float theta)
 {
-  ib_zbuffer(ZBUFFER_RELOC_INDEX, 1); // less
-
   ib_rs_instructions(4);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP OUT
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_OUT_VTX_FMT_0
+      , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
+  T0V(VAP_OUT_VTX_FMT_1
+      , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_1_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_2_COMP_CNT(4)
+      | VAP_OUT_VTX_FMT_1__TEX_3_COMP_CNT(4));
+
+  //
+
+  ib_zbuffer(ZBUFFER_RELOC_INDEX, 1); // less
 
   ib_texture__1(TEXTURE_RELOC_INDEX);
 
@@ -281,18 +301,6 @@ void _3d_cube(struct shaders& shaders,
   T0V(VAP_VF_MIN_VTX_INDX
       , VAP_VF_MIN_VTX_INDX__MIN_INDX(0)
       );
-
-  //////////////////////////////////////////////////////////////////////////////
-  // VAP OUT
-  //////////////////////////////////////////////////////////////////////////////
-
-  T0V(VAP_OUT_VTX_FMT_0
-      , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1));
-  T0V(VAP_OUT_VTX_FMT_1
-      , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4)
-      | VAP_OUT_VTX_FMT_1__TEX_1_COMP_CNT(4)
-      | VAP_OUT_VTX_FMT_1__TEX_2_COMP_CNT(4)
-      | VAP_OUT_VTX_FMT_1__TEX_3_COMP_CNT(4));
 
   //////////////////////////////////////////////////////////////////////////////
   // matrix
