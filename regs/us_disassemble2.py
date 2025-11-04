@@ -4,6 +4,7 @@ import parse_bits
 from collections import OrderedDict
 from functools import partial
 from pprint import pprint
+import struct
 
 VERBOSE = environ.get("VERBOSE", "false").lower() == "true"
 
@@ -479,9 +480,15 @@ def parse_hex(s):
 
 if __name__ == "__main__":
     filename = sys.argv[1]
-    with open(filename) as f:
-        buf = f.read()
-    code = [parse_hex(c.strip()) for c in buf.split(',') if c.strip()]
+    if filename.endswith(".bin"):
+        with open(filename, 'rb') as f:
+            buf = f.read()
+        code = [struct.unpack("<I", buf[i*4:i*4+4])[0] for i in range(len(buf) // 4)]
+    else:
+        with open(filename) as f:
+            buf = f.read()
+        code = [parse_hex(c.strip()) for c in buf.split(',') if c.strip()]
+
     for i in range(len(code) // 6):
         start = (i + 0) * 6
         end   = (i + 1) * 6

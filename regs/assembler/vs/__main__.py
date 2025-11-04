@@ -1,4 +1,5 @@
 import sys
+import struct
 
 from assembler.lexer import Lexer, LexerError
 from assembler.validator import ValidatorError
@@ -48,9 +49,22 @@ def frontend(filename, buf):
         raise
 
 if __name__ == "__main__":
+    assert len(sys.argv) in {2, 3}
     input_filename = sys.argv[1]
-    #output_filename = sys.argv[2]
+    binary = len(sys.argv) == 3
+    if binary:
+        output_filename = sys.argv[2]
+
     with open(input_filename, 'rb') as f:
         buf = f.read()
-    for cw in frontend(input_filename, buf):
-        print(f"0x{cw[0]:08x}, 0x{cw[1]:08x}, 0x{cw[2]:08x}, 0x{cw[3]:08x},")
+
+    code_gen = list(frontend(input_filename, buf))
+
+    if not binary:
+        for cw in code_gen:
+            print(f"0x{cw[0]:08x}, 0x{cw[1]:08x}, 0x{cw[2]:08x}, 0x{cw[3]:08x},")
+    else:
+        with open(output_filename, 'wb') as f:
+            for cw in code_gen:
+                data = struct.pack("<IIII", *cw)
+                f.write(data)

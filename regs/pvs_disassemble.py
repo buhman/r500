@@ -6,6 +6,7 @@ import pvs_dual_math
 import itertools
 from functools import partial
 import sys
+import struct
 
 def out(level, *args):
     sys.stdout.write("    " * level + " ".join(args))
@@ -248,8 +249,14 @@ def parse_hex(s):
 
 if __name__ == "__main__":
     filename = sys.argv[1]
-    with open(filename) as f:
-        buf = f.read()
-    code = [parse_hex(c.strip()) for c in buf.split(',') if c.strip()]
+    if filename.endswith(".bin"):
+        with open(filename, 'rb') as f:
+            buf = f.read()
+        code = [struct.unpack("<I", buf[i*4:i*4+4])[0] for i in range(len(buf) // 4)]
+    else:
+        with open(filename) as f:
+            buf = f.read()
+        code = [parse_hex(c.strip()) for c in buf.split(',') if c.strip()]
+
     for i in range(len(code) // 4):
         parse_instruction(code[i*4:i*4+4])
