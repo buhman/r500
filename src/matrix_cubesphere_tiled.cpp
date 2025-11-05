@@ -559,7 +559,7 @@ int _tile_texture(const shaders& shaders,
   ib_generic_initialization();
 
   ib_viewport(width, height);
-  ib_colorbuffer(output_reloc_index, pitch, 0, 0); // macrotile, microtile
+  ib_colorbuffer(output_reloc_index, pitch, 1, 1); // macrotile, microtile
 
   T0V(US_OUT_FMT_0
       , US_OUT_FMT__OUT_FMT(0)  // C4_8
@@ -645,8 +645,8 @@ int _tile_texture(const shaders& shaders,
 
   //
 
-  int macrotile = 0;
-  int microtile = 0;
+  int macrotile = 1;
+  int microtile = 1;
   int clamp = 2; // clamp to [0.0, 1.0]
   ib_texture__1(input_reloc_index,
                 width, height,
@@ -782,15 +782,17 @@ int main()
                   ib_dwords);
   }
 
-  while (false) {
+  while (true) {
     int ib_dwords = indirect_buffer(shaders, theta);
 
     drm_radeon_cs(fd,
                   colorbuffer_handle[colorbuffer_ix],
                   zbuffer_handle,
                   flush_handle,
-                  texturebuffer_handle,
-                  textures_length,
+                  //texturebuffer_handle,
+                  //textures_length,
+                  &test_handle,
+                  1,
                   ib_dwords);
 
     primary_surface_address(rmmio, colorbuffer_ix);
