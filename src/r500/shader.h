@@ -16,6 +16,13 @@ void load_us_shaders(struct shader_offset * offsets, int offsets_length);
 
 struct shader_offset * load_shaders(const char ** paths, int paths_length);
 
+struct shaders {
+  struct shader_offset * vertex;
+  struct shader_offset * fragment;
+  int vertex_length;
+  int fragment_length;
+};
+
 #ifdef __cplusplus
 }
 #endif

@@ -17,6 +17,7 @@
 #include "r500/indirect_buffer.h"
 #include "r500/shader.h"
 #include "r500/display_controller.h"
+#include "r500/texture.h"
 
 #include "drm/buffer.h"
 #include "drm/drm.h"
@@ -41,18 +42,11 @@ const int vertex_shader_paths_length = (sizeof (vertex_shader_paths)) / (sizeof 
 const char * fragment_shader_paths[] = {
   "clear.fs.bin",
   "matrix_cubesphere.fs.bin",
-  "light.fs.bin"
+  "light.fs.bin",
 };
 const int fragment_shader_paths_length = (sizeof (fragment_shader_paths)) / (sizeof (fragment_shader_paths[0]));
 
-struct shaders {
-  struct shader_offset * vertex;
-  struct shader_offset * fragment;
-  int vertex_length;
-  int fragment_length;
-};
-
-void _3d_clear(struct shaders& shaders)
+void _3d_clear(const shaders& shaders)
 {
   ib_rs_instructions(0);
 
@@ -67,7 +61,7 @@ void _3d_clear(struct shaders& shaders)
 
   //
 
-  ib_zbuffer(ZBUFFER_RELOC_INDEX, 7); // always
+  ib_zbuffer(ZBUFFER_RELOC_INDEX, 1600, 7); // always
 
   ib_texture__0();
 
@@ -298,7 +292,7 @@ void _3d_light_inner(mat4x4 trans)
   }
 }
 
-vec3 _3d_light(struct shaders& shaders,
+vec3 _3d_light(const shaders& shaders,
                const mat4x4& view_to_clip,
                float theta)
 {
@@ -315,7 +309,7 @@ vec3 _3d_light(struct shaders& shaders,
 
   //
 
-  ib_zbuffer(ZBUFFER_RELOC_INDEX, 1); // less
+  ib_zbuffer(ZBUFFER_RELOC_INDEX, 1600, 1); // less
 
   ib_texture__0();
 
@@ -382,7 +376,7 @@ vec3 _3d_light(struct shaders& shaders,
   return light_pos;
 }
 
-void _3d_cube(struct shaders& shaders,
+void _3d_cube(const shaders& shaders,
               const mat4x4& view_to_clip,
               float theta,
               const vec3& light_pos)
@@ -403,9 +397,17 @@ void _3d_cube(struct shaders& shaders,
 
   //
 
-  ib_zbuffer(ZBUFFER_RELOC_INDEX, 1); // less
+  ib_zbuffer(ZBUFFER_RELOC_INDEX, 1600, 1); // less
 
-  ib_texture__1(TEXTURE_RELOC_INDEX);
+  int width = 1024;
+  int height = 1024;
+  int macrotile = 0;
+  int microtile = 0;
+  int clamp = 0; // wrap/repeat
+  ib_texture__1(TEXTUREBUFFER_RELOC_INDEX,
+                width, height,
+                macrotile, microtile,
+                clamp);
 
   ib_vap_stream_cntl__323();
 
@@ -470,19 +472,28 @@ void _3d_cube(struct shaders& shaders,
   _3d_cube_inner(trans, world_trans, light_pos);
 }
 
-int indirect_buffer(shaders& shaders,
+int indirect_buffer(const shaders& shaders,
                     float theta)
 {
+  int width = 1600;
+  int height = 1200;
+  int pitch = width;
+
   ib_ix = 0;
 
   ib_generic_initialization();
 
+  ib_viewport(width, height);
+  ib_colorbuffer(COLORBUFFER_RELOC_INDEX, pitch, 0, 0);
+
+  T0V(GB_ENABLE, 0);
+
   T0V(US_OUT_FMT_0
       , US_OUT_FMT__OUT_FMT(0)  // C4_8
-      | US_OUT_FMT__C0_SEL(3)   // Blue
-      | US_OUT_FMT__C1_SEL(2)   // Green
-      | US_OUT_FMT__C2_SEL(1)   // Red
-      | US_OUT_FMT__C3_SEL(0)   // Alpha
+      | US_OUT_FMT__C0_SEL__BLUE
+      | US_OUT_FMT__C1_SEL__GREEN
+      | US_OUT_FMT__C2_SEL__RED
+      | US_OUT_FMT__C3_SEL__ALPHA
       | US_OUT_FMT__OUT_SIGN(0)
       );
   T0V(US_OUT_FMT_1
@@ -491,11 +502,9 @@ int indirect_buffer(shaders& shaders,
   T0V(US_OUT_FMT_2
       , US_OUT_FMT__OUT_FMT(15) // render target is not used
       );
-  T0V(US_OUT_FMT_2
+  T0V(US_OUT_FMT_3
       , US_OUT_FMT__OUT_FMT(15) // render target is not used
       );
-
-  ib_colorbuffer(COLORBUFFER_RELOC_INDEX);
 
   load_pvs_shaders(shaders.vertex, shaders.vertex_length);
   load_us_shaders(shaders.fragment, shaders.fragment_length);
@@ -559,7 +568,14 @@ int main()
   colorbuffer_handle[1] = create_buffer(fd, colorbuffer_size, &colorbuffer_ptr[1]);
   zbuffer_handle = create_buffer(fd, colorbuffer_size, &zbuffer_ptr);
   flush_handle = create_flush_buffer(fd);
-  texturebuffer_handle = load_textures(fd, textures, textures_length);
+  //texturebuffer_handle = load_textures(fd, textures, textures_length);
+  texturebuffer_handle = load_textures_tiled(fd,
+                                             zbuffer_handle,
+                                             flush_handle,
+                                             textures,
+                                             textures_length,
+                                             1024,
+                                             1024);
 
   fprintf(stderr, "colorbuffer handle[0] %d\n", colorbuffer_handle[0]);
   fprintf(stderr, "colorbuffer handle[1] %d\n", colorbuffer_handle[1]);
@@ -584,6 +600,8 @@ int main()
     // next state
     theta += 0.01f;
     colorbuffer_ix = (colorbuffer_ix + 1) & 1;
+
+    break;
   }
 
   close(fd);

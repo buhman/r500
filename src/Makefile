@@ -17,6 +17,7 @@ R500_COMMON = \
 	r500/display_controller.o \
 	r500/indirect_buffer.o \
 	r500/shader.o \
+	r500/texture.o \
 	drm/buffer.o \
 	drm/drm.o \
 	file.o

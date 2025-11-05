@@ -37,7 +37,7 @@ void drm_radeon_cs(int fd,
   };
 
   for (int i = 0; i < texturebuffer_handles_length; i++) {
-    relocs[3 + i] = (struct drm_radeon_cs_reloc){
+    relocs[TEXTUREBUFFER_RELOC_INDEX + i] = (struct drm_radeon_cs_reloc){
       .handle = texturebuffer_handles[i],
       .read_domains = 4, // RADEON_GEM_DOMAIN_VRAM
       .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM

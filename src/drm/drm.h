@@ -3,7 +3,7 @@
 #define COLORBUFFER_RELOC_INDEX 0
 #define ZBUFFER_RELOC_INDEX 1
 #define FLUSH_RELOC_INDEX 2
-#define TEXTURE_RELOC_INDEX 3
+#define TEXTUREBUFFER_RELOC_INDEX 3
 
 #ifdef __cplusplus
 extern "C" {
