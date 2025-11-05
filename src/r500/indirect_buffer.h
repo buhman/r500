@@ -55,11 +55,15 @@ extern union u32_f32 ib[16384];
 extern volatile int ib_ix;
 
 void ib_generic_initialization();
-void ib_colorbuffer(int reloc_index);
-void ib_zbuffer(int reloc_index, int zfunc);
+void ib_viewport(int width, int height);
+void ib_colorbuffer(int reloc_index, int pitch, int macrotile, int microtile);
+void ib_zbuffer(int reloc_index, int pitch, int zfunc);
 void ib_rs_instructions(int count);
 void ib_texture__0();
-void ib_texture__1(int reloc_index);
+void ib_texture__1(int reloc_index,
+                   int width, int height,
+                   int macrotile, int microtile,
+                   int clamp);
 void ib_vap_pvs(struct shader_offset * offset);
 void ib_ga_us(struct shader_offset * offset);
 void ib_vap_pvs_const_cntl(const float * consts, int size);

@@ -136,11 +136,6 @@ void ib_generic_initialization()
       | GA_ROUND_MODE__GEOMETRY_MASK(0)
       );
 
-  T0Vf(GA_POINT_S0, 0.0f);
-  T0Vf(GA_POINT_T0, 1.0f);
-  T0Vf(GA_POINT_S1, 1.0f);
-  T0Vf(GA_POINT_T1, 0.0f);
-
   T0V(GA_COLOR_CONTROL
       , GA_COLOR_CONTROL__RGB0_SHADING(2)
       | GA_COLOR_CONTROL__ALPHA0_SHADING(2)
@@ -160,7 +155,6 @@ void ib_generic_initialization()
       );
 
   T0V(GB_SELECT, 0x00000000);
-  T0V(GB_ENABLE, 0x00000000);
 
   T0V(GB_MSPOS0
       , GB_MSPOS0__MS_X0(6)
@@ -278,33 +272,9 @@ void ib_generic_initialization()
   T0V(US_W_FMT
       , US_W_FMT__W_FMT(0) // W is always zero
       );
-
-  //////////////////////////////////////////////////////////////////////////////
-  // SC
-  //////////////////////////////////////////////////////////////////////////////
-
-  T0V(SC_SCISSOR0
-      , SC_SCISSOR0__XS0(0)
-      | SC_SCISSOR0__YS0(0)
-      );
-  T0V(SC_SCISSOR1
-      , SC_SCISSOR1__XS1(1600 - 1)
-      | SC_SCISSOR1__YS1(1200 - 1)
-      );
-
-  //////////////////////////////////////////////////////////////////////////////
-  // VAP
-  //////////////////////////////////////////////////////////////////////////////
-
-  T0Vf(VAP_VPORT_XSCALE,   800.0f);
-  T0Vf(VAP_VPORT_XOFFSET,  800.0f);
-  T0Vf(VAP_VPORT_YSCALE,  -600.0f);
-  T0Vf(VAP_VPORT_YOFFSET,  600.0f);
-  T0Vf(VAP_VPORT_ZSCALE,     0.5f);
-  T0Vf(VAP_VPORT_ZOFFSET,    0.5f);
 }
 
-void ib_colorbuffer(int reloc_index)
+void ib_colorbuffer(int reloc_index, int pitch, int macrotile, int microtile)
 {
 
   //////////////////////////////////////////////////////////////////////////////
@@ -318,8 +288,10 @@ void ib_colorbuffer(int reloc_index)
   TU(reloc_index * 4); // index into relocs array
 
   T0V(RB3D_COLORPITCH0
-      , RB3D_COLORPITCH__COLORPITCH(1600 >> 1)
-      | RB3D_COLORPITCH__COLORFORMAT(6) // ARGB8888
+      , RB3D_COLORPITCH__COLORPITCH(pitch >> 1)
+      | RB3D_COLORPITCH__COLORTILE(macrotile)
+      | RB3D_COLORPITCH__COLORMICROTILE(microtile)
+      | RB3D_COLORPITCH__COLORFORMAT__ARGB8888
       );
   // The COLORPITCH NOP is ignored/not applied due to
   // RADEON_CS_KEEP_TILING_FLAGS, but is still required.
@@ -327,7 +299,37 @@ void ib_colorbuffer(int reloc_index)
   TU(reloc_index * 4); // index into relocs array
 }
 
-void ib_zbuffer(int reloc_index, int zfunc)
+void ib_viewport(int width, int height)
+{
+  //////////////////////////////////////////////////////////////////////////////
+  // SC
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(SC_SCISSOR0
+      , SC_SCISSOR0__XS0(0)
+      | SC_SCISSOR0__YS0(0)
+      );
+  T0V(SC_SCISSOR1
+      , SC_SCISSOR1__XS1(width - 1)
+      | SC_SCISSOR1__YS1(height - 1)
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP
+  //////////////////////////////////////////////////////////////////////////////
+
+  float x = ((float)width) * 0.5f;
+  float y = ((float)height) * 0.5f;
+
+  T0Vf(VAP_VPORT_XSCALE,   x);
+  T0Vf(VAP_VPORT_XOFFSET,  x);
+  T0Vf(VAP_VPORT_YSCALE,  -y);
+  T0Vf(VAP_VPORT_YOFFSET,  y);
+  T0Vf(VAP_VPORT_ZSCALE,   0.5f);
+  T0Vf(VAP_VPORT_ZOFFSET,  0.5f);
+}
+
+void ib_zbuffer(int reloc_index, int pitch, int zfunc)
 {
   //////////////////////////////////////////////////////////////////////////////
   // ZB
@@ -349,7 +351,7 @@ void ib_zbuffer(int reloc_index, int zfunc)
   TU(reloc_index * 4); // index into relocs array
 
   T0V(ZB_DEPTHPITCH
-      , ZB_DEPTHPITCH__DEPTHPITCH(1600 >> 2)
+      , ZB_DEPTHPITCH__DEPTHPITCH(pitch >> 2)
       | ZB_DEPTHPITCH__DEPTHMACROTILE(1)
       | ZB_DEPTHPITCH__DEPTHMICROTILE(1)
       );
@@ -518,7 +520,10 @@ void ib_texture__0()
   T0V(TX_ENABLE, 0x00000000);
 }
 
-void ib_texture__1(int reloc_index)
+void ib_texture__1(int reloc_index,
+                   int width, int height,
+                   int macrotile, int microtile,
+                   int clamp)
 {
   //////////////////////////////////////////////////////////////////////////////
   // TX
@@ -528,17 +533,21 @@ void ib_texture__1(int reloc_index)
 
   T0V(TX_ENABLE
       , TX_ENABLE__TEX_0_ENABLE__ENABLE);
+
   T0V(TX_FILTER0_0
-      , TX_FILTER0__MAG_FILTER__LINEAR
+      , TX_FILTER0__CLAMP_S(clamp)
+      | TX_FILTER0__CLAMP_T(clamp)
+      | TX_FILTER0__MAG_FILTER__LINEAR
       | TX_FILTER0__MIN_FILTER__LINEAR
       );
   T0V(TX_FILTER1_0
       , TX_FILTER1__LOD_BIAS(1)
+      | TX_FILTER1__BORDER_FIX(1)
       );
   T0V(TX_BORDER_COLOR_0, 0);
   T0V(TX_FORMAT0_0
-      , TX_FORMAT0__TXWIDTH(1024 - 1)
-      | TX_FORMAT0__TXHEIGHT(1024 - 1)
+      , TX_FORMAT0__TXWIDTH(width - 1)
+      | TX_FORMAT0__TXHEIGHT(height - 1)
       );
 
   T0V(TX_FORMAT1_0
@@ -552,9 +561,8 @@ void ib_texture__1(int reloc_index)
   T0V(TX_FORMAT2_0, 0);
 
   T0V(TX_OFFSET_0
-      //, TX_OFFSET__MACRO_TILE(1)
-      //| TX_OFFSET__MICRO_TILE(1)
-      , 0
+      , TX_OFFSET__MACRO_TILE(macrotile)
+      | TX_OFFSET__MICRO_TILE(microtile)
       );
 
   T3(_NOP, 0);

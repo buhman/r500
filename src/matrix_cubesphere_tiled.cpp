@@ -31,17 +31,20 @@
 #define CLEAR_SHADER 0
 #define CUBESPHERE_SHADER 1
 #define LIGHT_SHADER 2
+#define TEXTURE_TILE_SHADER 3
 
 const char * vertex_shader_paths[] = {
   "clear.vs.bin",
   "matrix_cubesphere.vs.bin",
   "light.vs.bin",
+  "texture_tile.vs.bin",
 };
 const int vertex_shader_paths_length = (sizeof (vertex_shader_paths)) / (sizeof (vertex_shader_paths[0]));
 const char * fragment_shader_paths[] = {
   "clear.fs.bin",
   "matrix_cubesphere.fs.bin",
-  "light.fs.bin"
+  "light.fs.bin",
+  "texture_tile.fs.bin",
 };
 const int fragment_shader_paths_length = (sizeof (fragment_shader_paths)) / (sizeof (fragment_shader_paths[0]));
 
@@ -52,7 +55,7 @@ struct shaders {
   int fragment_length;
 };
 
-void _3d_clear(struct shaders& shaders)
+void _3d_clear(const shaders& shaders)
 {
   ib_rs_instructions(0);
 
@@ -298,7 +301,7 @@ void _3d_light_inner(mat4x4 trans)
   }
 }
 
-vec3 _3d_light(struct shaders& shaders,
+vec3 _3d_light(const shaders& shaders,
                const mat4x4& view_to_clip,
                float theta)
 {
@@ -382,7 +385,7 @@ vec3 _3d_light(struct shaders& shaders,
   return light_pos;
 }
 
-void _3d_cube(struct shaders& shaders,
+void _3d_cube(const shaders& shaders,
               const mat4x4& view_to_clip,
               float theta,
               const vec3& light_pos)
@@ -478,7 +481,7 @@ void _3d_cube(struct shaders& shaders,
   _3d_cube_inner(trans, world_trans, light_pos);
 }
 
-int indirect_buffer(shaders& shaders,
+int indirect_buffer(const shaders& shaders,
                     float theta)
 {
   int width = 1600;
@@ -496,10 +499,10 @@ int indirect_buffer(shaders& shaders,
 
   T0V(US_OUT_FMT_0
       , US_OUT_FMT__OUT_FMT(0)  // C4_8
-      | US_OUT_FMT__C0_SEL(3)   // Blue
-      | US_OUT_FMT__C1_SEL(2)   // Green
-      | US_OUT_FMT__C2_SEL(1)   // Red
-      | US_OUT_FMT__C3_SEL(0)   // Alpha
+      | US_OUT_FMT__C0_SEL__BLUE
+      | US_OUT_FMT__C1_SEL__GREEN
+      | US_OUT_FMT__C2_SEL__RED
+      | US_OUT_FMT__C3_SEL__ALPHA
       | US_OUT_FMT__OUT_SIGN(0)
       );
   T0V(US_OUT_FMT_1
@@ -508,7 +511,7 @@ int indirect_buffer(shaders& shaders,
   T0V(US_OUT_FMT_2
       , US_OUT_FMT__OUT_FMT(15) // render target is not used
       );
-  T0V(US_OUT_FMT_2
+  T0V(US_OUT_FMT_3
       , US_OUT_FMT__OUT_FMT(15) // render target is not used
       );
 
@@ -541,6 +544,180 @@ int indirect_buffer(shaders& shaders,
   return ib_ix;
 }
 
+int _tile_texture(const shaders& shaders,
+                  int input_reloc_index,
+                  int output_reloc_index)
+{
+  int width = 1024;
+  int height = 1024;
+  int pitch = width;
+  float x = (float)width * 0.5f;
+  float y = (float)height * 0.5f;
+
+  ib_ix = 0;
+
+  ib_generic_initialization();
+
+  ib_viewport(width, height);
+  ib_colorbuffer(output_reloc_index, pitch, 0, 0); // macrotile, microtile
+
+  T0V(US_OUT_FMT_0
+      , US_OUT_FMT__OUT_FMT(0)  // C4_8
+      | US_OUT_FMT__C0_SEL__RED
+      | US_OUT_FMT__C1_SEL__GREEN
+      | US_OUT_FMT__C2_SEL__BLUE
+      | US_OUT_FMT__C3_SEL__ALPHA
+      | US_OUT_FMT__OUT_SIGN(0)
+      );
+  T0V(US_OUT_FMT_1
+      , US_OUT_FMT__OUT_FMT(15) // render target is not used
+      );
+  T0V(US_OUT_FMT_2
+      , US_OUT_FMT__OUT_FMT(15) // render target is not used
+      );
+  T0V(US_OUT_FMT_3
+      , US_OUT_FMT__OUT_FMT(15) // render target is not used
+      );
+
+  // shaders
+
+  load_pvs_shaders(shaders.vertex, shaders.vertex_length);
+  load_us_shaders(shaders.fragment, shaders.fragment_length);
+
+  // GA
+
+  T0V(GB_ENABLE
+    , GB_ENABLE__POINT_STUFF_ENABLE(1)
+    | GB_ENABLE__TEX0_SOURCE(2) // stuff with source texture coordinates s,t
+    );
+
+  T0Vf(GA_POINT_S0, 0.0f);
+  T0Vf(GA_POINT_T0, 1.0f);
+  T0Vf(GA_POINT_S1, 1.0f);
+  T0Vf(GA_POINT_T1, 0.0f);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // RS
+  //////////////////////////////////////////////////////////////////////////////
+
+  int rs_instructions = 1;
+
+  ib_rs_instructions(0);
+
+  T0V(RS_IP_0
+    , RS_IP__TEX_PTR_S(0)
+    | RS_IP__TEX_PTR_T(1)
+    | RS_IP__TEX_PTR_R(62) // constant 0.0
+    | RS_IP__TEX_PTR_Q(63) // constant 1.0
+    );
+
+  T0V(RS_COUNT
+      , RS_COUNT__IT_COUNT(2)
+      | RS_COUNT__IC_COUNT(0)
+      | RS_COUNT__W_ADDR(0)
+      | RS_COUNT__HIRES_EN(1)
+      );
+
+  T0V(RS_INST_COUNT
+      , RS_INST_COUNT__INST_COUNT(rs_instructions - 1));
+
+  T0V(RS_INST_0
+      , RS_INST__TEX_ID(0)
+      | RS_INST__TEX_CN(1)
+      | RS_INST__TEX_ADDR(0)
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP OUT
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_OUT_VTX_FMT_0
+      , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1)
+      );
+  T0V(VAP_OUT_VTX_FMT_1
+      , 0
+      );
+
+  //
+
+  T0V(ZB_CNTL, 0);
+  T0V(ZB_ZSTENCILCNTL, 0);
+
+  //
+
+  int macrotile = 0;
+  int microtile = 0;
+  int clamp = 2; // clamp to [0.0, 1.0]
+  ib_texture__1(input_reloc_index,
+                width, height,
+                macrotile, microtile,
+                clamp);
+
+  ib_vap_stream_cntl__2();
+
+  T0V(US_PIXSIZE
+      , US_PIXSIZE__PIX_SIZE(1)
+      );
+
+  ib_ga_us(&shaders.fragment[TEXTURE_TILE_SHADER]);
+  ib_vap_pvs(&shaders.vertex[TEXTURE_TILE_SHADER]);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_CLIP_CNTL
+      , VAP_CLIP_CNTL__CLIP_DISABLE(1)
+      );
+
+  T0V(VAP_VTE_CNTL
+      , VAP_VTE_CNTL__VTX_XY_FMT(1) // disable W division
+      | VAP_VTE_CNTL__VTX_Z_FMT(1)  // disable W division
+      );
+
+  T0V(VAP_CNTL_STATUS
+      , VAP_CNTL_STATUS__PVS_BYPASS(0)
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // GA POINT SIZE
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(GA_POINT_SIZE
+      , GA_POINT_SIZE__HEIGHT((int)(x * 12.0f))
+      | GA_POINT_SIZE__WIDTH((int)(y * 12.0f))
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // 3D_DRAW
+  //////////////////////////////////////////////////////////////////////////////
+
+  const int dwords_per_vtx = 2;
+
+  T0V(VAP_VTX_SIZE
+      , VAP_VTX_SIZE__DWORDS_PER_VTX(dwords_per_vtx)
+      );
+
+  const float center[] = {
+    x, y,
+  };
+  const int vertex_count = 1;
+  T3(_3D_DRAW_IMMD_2, (1 + vertex_count * dwords_per_vtx) - 1);
+  TU( VAP_VF_CNTL__PRIM_TYPE(1) // point list
+    | VAP_VF_CNTL__PRIM_WALK(3)
+    | VAP_VF_CNTL__INDEX_SIZE(0)
+    | VAP_VF_CNTL__VTX_REUSE_DIS(0)
+    | VAP_VF_CNTL__DUAL_INDEX_MODE(0)
+    | VAP_VF_CNTL__USE_ALT_NUM_VERTS(0)
+    | VAP_VF_CNTL__NUM_VERTICES(vertex_count)
+    );
+  for (int i = 0; i < 2; i++) {
+    TF(center[i]);
+  }
+
+  return ib_ix;
+}
+
 const char * textures[] = {
   "../texture/butterfly_1024x1024_argb8888.data",
 };
@@ -565,13 +742,16 @@ int main()
   int zbuffer_handle;
   int * texturebuffer_handle;
   int flush_handle;
+  int test_handle;
 
   void * colorbuffer_ptr[2];
   void * zbuffer_ptr;
+  void * test_ptr;
 
   // colorbuffer
   colorbuffer_handle[0] = create_buffer(fd, colorbuffer_size, &colorbuffer_ptr[0]);
   colorbuffer_handle[1] = create_buffer(fd, colorbuffer_size, &colorbuffer_ptr[1]);
+  test_handle = create_buffer(fd, 1600 * 1200 * 4, &test_ptr);
   zbuffer_handle = create_buffer(fd, colorbuffer_size, &zbuffer_ptr);
   flush_handle = create_flush_buffer(fd);
   texturebuffer_handle = load_textures(fd, textures, textures_length);
@@ -579,11 +759,30 @@ int main()
   fprintf(stderr, "colorbuffer handle[0] %d\n", colorbuffer_handle[0]);
   fprintf(stderr, "colorbuffer handle[1] %d\n", colorbuffer_handle[1]);
   fprintf(stderr, "zbuffer handle %d\n", zbuffer_handle);
+  fprintf(stderr, "test handle %d\n", test_handle);
 
   int colorbuffer_ix = 0;
   float theta = 0;
 
-  while (true) {
+  {
+    int ib_dwords = _tile_texture(shaders,
+                                  TEXTUREBUFFER_RELOC_INDEX, // input
+                                  COLORBUFFER_RELOC_INDEX);  // output
+
+    //int ib_dwords = indirect_buffer(shaders, theta);
+
+    printf("here2\n");
+
+    drm_radeon_cs(fd,
+                  test_handle, // colorbuffer
+                  zbuffer_handle, // unused
+                  flush_handle,
+                  texturebuffer_handle,
+                  textures_length,
+                  ib_dwords);
+  }
+
+  while (false) {
     int ib_dwords = indirect_buffer(shaders, theta);
 
     drm_radeon_cs(fd,
@@ -599,6 +798,16 @@ int main()
     // next state
     theta += 0.01f;
     colorbuffer_ix = (colorbuffer_ix + 1) & 1;
+  }
+
+
+  {
+    printf("test.data\n");
+    int out_fd = open("test.data", O_RDWR|O_CREAT, 0644);
+    assert(out_fd >= 0);
+    ssize_t write_length = write(out_fd, test_ptr, 1024 * 1024 * 4);
+    assert(write_length == 1024 * 1024 * 4);
+    close(out_fd);
   }
 
   close(fd);

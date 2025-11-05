@@ -24,6 +24,9 @@ R500_COMMON = \
 matrix_cubesphere: $(R500_COMMON) matrix_cubesphere.o | shaders
 	$(CXX) $(LDFLAGS) $^ -o $@
 
+matrix_cubesphere_tiled: $(R500_COMMON) matrix_cubesphere_tiled.o | shaders
+	$(CXX) $(LDFLAGS) $^ -o $@
+
 %.o: %.c
 	$(CC) $(ARCH) $(CFLAGS) $(OPT) -c $< -o $@
 

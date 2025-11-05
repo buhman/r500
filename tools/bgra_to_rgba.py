@@ -17,7 +17,7 @@ for i in range(len(buf) // 4):
     out[i * 4 + 2] = b
     out[i * 4 + 3] = a
 
-im = Image.frombuffer("RGBA", (1600, 1200), out)
-im.save(sys.argv[2])
-#with open(sys.argv[2], 'wb') as f:
-#    f.write(out)
+#im = Image.frombuffer("RGBA", (1600, 1200), out)
+#im.save(sys.argv[2])
+with open(sys.argv[2], 'wb') as f:
+    f.write(out)
