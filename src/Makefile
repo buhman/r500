@@ -21,10 +21,7 @@ R500_COMMON = \
 	drm/drm.o \
 	file.o
 
-matrix_cubesphere: $(R500_COMMON) matrix_cubesphere.o | shaders
-	$(CXX) $(LDFLAGS) $^ -o $@
-
-matrix_cubesphere_tiled: $(R500_COMMON) matrix_cubesphere_tiled.o | shaders
+%: $(R500_COMMON) %.o | shaders
 	$(CXX) $(LDFLAGS) $^ -o $@
 
 %.o: %.c
@@ -48,9 +45,9 @@ matrix_cubesphere_tiled: $(R500_COMMON) matrix_cubesphere_tiled.o | shaders
 shaders: $(SHADER_BIN)
 	@true
 
-#find . -type f ! -name "*.*" -delete
 clean:
-	find . -type f -name "*.o" -delete
+	find . -type f -name "*.o" -delete -print
+	find . -type f -executable ! -name '*.*' -delete -print
 
 .SUFFIXES:
 .INTERMEDIATE:

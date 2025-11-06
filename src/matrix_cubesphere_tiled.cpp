@@ -492,6 +492,9 @@ int indirect_buffer(const shaders& shaders,
 
   ib_generic_initialization();
 
+  T0V(RB3D_BLENDCNTL, 0);
+  T0V(RB3D_ABLENDCNTL, 0);
+
   ib_viewport(width, height);
   ib_colorbuffer(COLORBUFFER_RELOC_INDEX, pitch, 0, 0);
 
