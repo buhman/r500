@@ -51,7 +51,7 @@ union u32_f32 {
   float f32;
 };
 
-extern union u32_f32 ib[16384];
+extern union u32_f32 ib[16384 * 100];
 extern volatile int ib_ix;
 
 void ib_generic_initialization();
@@ -67,6 +67,7 @@ void ib_texture__1(int reloc_index,
 void ib_vap_pvs(struct shader_offset * offset);
 void ib_ga_us(struct shader_offset * offset);
 void ib_vap_pvs_const_cntl(const float * consts, int size);
+void ib_vap_pvs_const_offset(const float * consts, int size, int offset);
 void ib_vap_stream_cntl__2();
 void ib_vap_stream_cntl__3();
 void ib_vap_stream_cntl__32();

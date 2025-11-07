@@ -8,6 +8,7 @@ with open(sys.argv[1]) as f:
     values = [
         int(s.strip(), 16)
         for s in f.read().strip().split(",")
+        if s
     ]
 
 undocumented_registers = {

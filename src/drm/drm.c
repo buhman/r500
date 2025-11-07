@@ -7,13 +7,13 @@
 #include "drm.h"
 #include "../r500/indirect_buffer.h" // for extern uint32_t ib[];
 
-void drm_radeon_cs(int fd,
-                   int colorbuffer_handle,
-                   int zbuffer_handle,
-                   int flush_handle,
-                   int * texturebuffer_handles,
-                   int texturebuffer_handles_length,
-                   int ib_dwords)
+int drm_radeon_cs(int fd,
+                  int colorbuffer_handle,
+                  int zbuffer_handle,
+                  int flush_handle,
+                  int * texturebuffer_handles,
+                  int texturebuffer_handles_length,
+                  int ib_dwords)
 {
   struct drm_radeon_cs_reloc relocs[3 + texturebuffer_handles_length];
 
@@ -85,5 +85,8 @@ void drm_radeon_cs(int fd,
   int ret = drmCommandWriteRead(fd, DRM_RADEON_CS, &cs, (sizeof (struct drm_radeon_cs)));
   if (ret != 0) {
     perror("drmCommandWriteRead(DRM_RADEON_CS)");
+    return -1;
   }
+
+  return 0;
 }

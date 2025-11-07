@@ -9,7 +9,7 @@
 #include "3d_registers_undocumented.h"
 #include "3d_registers_bits.h"
 
-union u32_f32 ib[16384];
+union u32_f32 ib[16384 * 100];
 volatile int ib_ix;
 
 void ib_generic_initialization()
@@ -623,11 +623,26 @@ void ib_vap_pvs_const_cntl(const float * consts, int size)
 
   T0V(VAP_PVS_CONST_CNTL
       , VAP_PVS_CONST_CNTL__PVS_CONST_BASE_OFFSET(0)
-      | VAP_PVS_CONST_CNTL__PVS_MAX_CONST_ADDR((size / 4) - 1)
+      | VAP_PVS_CONST_CNTL__PVS_MAX_CONST_ADDR(consts_length - 1)
       );
 
   T0V(VAP_PVS_VECTOR_INDX_REG
       , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(1024)
+      );
+
+  T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, (consts_length - 1));
+  for (int i = 0; i < consts_length; i++)
+    TF(consts[i]);
+}
+
+void ib_vap_pvs_const_offset(const float * consts, int size, int offset)
+{
+  assert(size % 16 == 0);
+
+  const int consts_length = size / 4;
+
+  T0V(VAP_PVS_VECTOR_INDX_REG
+      , VAP_PVS_VECTOR_INDX_REG__OCTWORD_OFFSET(1024 + offset)
       );
 
   T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, (consts_length - 1));

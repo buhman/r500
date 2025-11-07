@@ -9,13 +9,13 @@
 extern "C" {
 #endif
 
-void drm_radeon_cs(int fd,
-                   int colorbuffer_handle,
-                   int zbuffer_handle,
-                   int flush_handle,
-                   int * texturebuffer_handles,
-                   int texturebuffer_handles_length,
-                   int ib_dwords);
+int drm_radeon_cs(int fd,
+                  int colorbuffer_handle,
+                  int zbuffer_handle,
+                  int flush_handle,
+                  int * texturebuffer_handles,
+                  int texturebuffer_handles_length,
+                  int ib_dwords);
 
 #ifdef __cplusplus
 }
