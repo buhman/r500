@@ -687,8 +687,8 @@ int _tile_texture(const shaders& shaders,
   //////////////////////////////////////////////////////////////////////////////
 
   T0V(GA_POINT_SIZE
-      , GA_POINT_SIZE__HEIGHT((int)(x * 12.0f))
-      | GA_POINT_SIZE__WIDTH((int)(y * 12.0f))
+      , GA_POINT_SIZE__HEIGHT((int)(y * 12.0f))
+      | GA_POINT_SIZE__WIDTH((int)(x * 12.0f))
       );
 
   //////////////////////////////////////////////////////////////////////////////
@@ -788,15 +788,17 @@ int main()
   while (true) {
     int ib_dwords = indirect_buffer(shaders, theta);
 
-    drm_radeon_cs(fd,
-                  colorbuffer_handle[colorbuffer_ix],
-                  zbuffer_handle,
-                  flush_handle,
-                  //texturebuffer_handle,
-                  //textures_length,
-                  &test_handle,
-                  1,
-                  ib_dwords);
+    int ret = drm_radeon_cs(fd,
+                            colorbuffer_handle[colorbuffer_ix],
+                            zbuffer_handle,
+                            flush_handle,
+                            //texturebuffer_handle,
+                            //textures_length,
+                            &test_handle,
+                            1,
+                            ib_dwords);
+    if (ret == -1)
+      break;
 
     primary_surface_address(rmmio, colorbuffer_ix);
 
