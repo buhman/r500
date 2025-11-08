@@ -64,10 +64,15 @@ void ib_texture__1(int reloc_index,
                    int width, int height,
                    int macrotile, int microtile,
                    int clamp);
+void ib_texture__1_float32(int reloc_index,
+                           int width, int height,
+                           int macrotile, int microtile,
+                           int clamp);
 void ib_vap_pvs(struct shader_offset * offset);
 void ib_ga_us(struct shader_offset * offset);
 void ib_vap_pvs_const_cntl(const float * consts, int size);
 void ib_vap_pvs_const_offset(const float * consts, int size, int offset);
+void ib_ga_consts(const float * consts, int consts_length, int index);
 void ib_vap_stream_cntl__2();
 void ib_vap_stream_cntl__3();
 void ib_vap_stream_cntl__32();

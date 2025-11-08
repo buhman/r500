@@ -567,6 +567,55 @@ void ib_texture__1(int reloc_index,
   TU(reloc_index * 4); // index into relocs array
 }
 
+void ib_texture__1_float32(int reloc_index,
+                           int width, int height,
+                           int macrotile, int microtile,
+                           int clamp)
+{
+  //////////////////////////////////////////////////////////////////////////////
+  // TX
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(TX_INVALTAGS, 0x00000000);
+
+  T0V(TX_ENABLE
+      , TX_ENABLE__TEX_0_ENABLE__ENABLE);
+
+  T0V(TX_FILTER0_0
+      , TX_FILTER0__CLAMP_S(clamp)
+      | TX_FILTER0__CLAMP_T(clamp)
+      | TX_FILTER0__MAG_FILTER__POINT
+      | TX_FILTER0__MIN_FILTER__POINT
+      );
+  T0V(TX_FILTER1_0
+      , TX_FILTER1__LOD_BIAS(1)
+      | TX_FILTER1__BORDER_FIX(1)
+      );
+  T0V(TX_BORDER_COLOR_0, 0);
+  T0V(TX_FORMAT0_0
+      , TX_FORMAT0__TXWIDTH(width - 1)
+      | TX_FORMAT0__TXHEIGHT(height - 1)
+      );
+
+  T0V(TX_FORMAT1_0
+      , TX_FORMAT1__TXFORMAT__TX_FMT_32F_32F_32F_32F
+      | TX_FORMAT1__SEL_ALPHA(3)
+      | TX_FORMAT1__SEL_RED(0)
+      | TX_FORMAT1__SEL_GREEN(1)
+      | TX_FORMAT1__SEL_BLUE(2)
+      | TX_FORMAT1__TEX_COORD_TYPE__2D
+      );
+  T0V(TX_FORMAT2_0, 0);
+
+  T0V(TX_OFFSET_0
+      , TX_OFFSET__MACRO_TILE(macrotile)
+      | TX_OFFSET__MICRO_TILE(microtile)
+      );
+
+  T3(_NOP, 0);
+  TU(reloc_index * 4); // index into relocs array
+}
+
 void ib_vap_pvs(struct shader_offset * offset)
 {
   const int instruction_size = 4 * 4; // bytes
@@ -646,6 +695,19 @@ void ib_vap_pvs_const_offset(const float * consts, int size, int offset)
       );
 
   T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, (consts_length - 1));
+  for (int i = 0; i < consts_length; i++)
+    TF(consts[i]);
+}
+
+void ib_ga_consts(const float * consts, int consts_length, int index)
+{
+  assert(consts_length % 4 == 0);
+
+  T0V(GA_US_VECTOR_INDEX
+      , GA_US_VECTOR_INDEX__INDEX(index)
+      | GA_US_VECTOR_INDEX__TYPE(1)
+      );
+  T0_ONE_REG(GA_US_VECTOR_DATA, (consts_length - 1));
   for (int i = 0; i < consts_length; i++)
     TF(consts[i]);
 }
