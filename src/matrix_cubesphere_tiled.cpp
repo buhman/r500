@@ -410,8 +410,8 @@ void _3d_cube(const shaders& shaders,
 
   int width = 1024;
   int height = 1024;
-  int macrotile = 0;
-  int microtile = 0;
+  int macrotile = 1;
+  int microtile = 1;
   int clamp = 0; // wrap/repeat
   ib_texture__1(TEXTUREBUFFER_RELOC_INDEX,
                 width, height,
@@ -648,8 +648,8 @@ int _tile_texture(const shaders& shaders,
 
   //
 
-  int macrotile = 1;
-  int microtile = 1;
+  int macrotile = 0;
+  int microtile = 0;
   int clamp = 2; // clamp to [0.0, 1.0]
   ib_texture__1(input_reloc_index,
                 width, height,
