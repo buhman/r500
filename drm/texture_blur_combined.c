@@ -707,7 +707,7 @@ int main()
   intermediate_handle[1] = create_colorbuffer(fd, texture_size, NULL);
 
   {
-    void * texture_buf = read_file("../texture/butterfly_1024x1024_argb8888.data");
+    void * texture_buf = read_file("../texture/butterfly_1024x1024_rgba8888.data");
     assert(texture_buf != NULL);
     for (int i = 0; i < texture_size / 4; i++) {
       ((uint32_t*)texturebuffer_ptr)[i] = ((uint32_t*)texture_buf)[i];

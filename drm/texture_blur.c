@@ -663,7 +663,7 @@ int main()
     assert(texturebuffer_ptr != MAP_FAILED);
 
     // copy texture
-    void * texture_buf = read_file("../texture/butterfly_128x128_argb8888.data");
+    void * texture_buf = read_file("../texture/butterfly_128x128_rgba8888.data");
     assert(texture_buf != NULL);
 
     for (int i = 0; i < texture_size / 4; i++) {

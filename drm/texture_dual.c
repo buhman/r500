@@ -699,10 +699,10 @@ int main()
 
   const int texture_size = 1024 * 1024 * 4;
   texturebuffer_handle[0] = load_texture(fd,
-                                         "../texture/butterfly_1024x1024_argb8888.data",
+                                         "../texture/butterfly_1024x1024_rgba8888.data",
                                          texture_size);
   texturebuffer_handle[1] = load_texture(fd,
-                                         "../texture/bird_1024x1024_argb8888.data",
+                                         "../texture/bird_1024x1024_rgba8888.data",
                                          texture_size);
 
   { // clear colorbuffer

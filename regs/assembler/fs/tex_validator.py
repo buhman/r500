@@ -55,7 +55,7 @@ def validate_swizzle(token):
     return tuple(swizzles[c] for c in token.lexeme)
 
 def validate_mask_swizzle(token) -> tuple[AlphaMask, RGBMask]:
-    argb_masks = OrderedDict([
+    rgba_masks = OrderedDict([
         (b"none" , (AlphaMask.NONE, RGBMask.NONE)),
         (b"r"    , (AlphaMask.NONE, RGBMask.R)),
         (b"g"    , (AlphaMask.NONE, RGBMask.G)),
@@ -72,9 +72,9 @@ def validate_mask_swizzle(token) -> tuple[AlphaMask, RGBMask]:
         (b"gba"  , (AlphaMask.A, RGBMask.GB)),
         (b"rgba" , (AlphaMask.A, RGBMask.RGB)),
     ])
-    if token.lexeme not in argb_masks:
+    if token.lexeme not in rgba_masks:
         raise ValidatorError("invalid destination mask", token)
-    return argb_masks[token.lexeme]
+    return rgba_masks[token.lexeme]
 
 def validate_masks(ins_ast: parser.TEXInstruction):
     addresses = set()

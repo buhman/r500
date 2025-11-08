@@ -722,7 +722,7 @@ int _tile_texture(const shaders& shaders,
 }
 
 const char * textures[] = {
-  "../texture/butterfly_1024x1024_argb8888.data",
+  "../texture/butterfly_1024x1024_rgba8888.data",
 };
 const int textures_length = (sizeof (textures)) / (sizeof (textures[0]));
 
