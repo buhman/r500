@@ -499,10 +499,10 @@ int indirect_buffer(shaders& shaders,
 
   T0V(US_OUT_FMT_0
       , US_OUT_FMT__OUT_FMT(0)  // C4_8
-      | US_OUT_FMT__C0_SEL(3)   // Blue
-      | US_OUT_FMT__C1_SEL(2)   // Green
-      | US_OUT_FMT__C2_SEL(1)   // Red
-      | US_OUT_FMT__C3_SEL(0)   // Alpha
+      | US_OUT_FMT__C0_SEL__BLUE
+      | US_OUT_FMT__C1_SEL__GREEN
+      | US_OUT_FMT__C2_SEL__RED
+      | US_OUT_FMT__C3_SEL__ALPHA
       | US_OUT_FMT__OUT_SIGN(0)
       );
   T0V(US_OUT_FMT_1
@@ -589,13 +589,15 @@ int main()
   while (true) {
     int ib_dwords = indirect_buffer(shaders, theta);
 
-    drm_radeon_cs(fd,
-                  colorbuffer_handle[colorbuffer_ix],
-                  zbuffer_handle,
-                  flush_handle,
-                  texturebuffer_handle,
-                  textures_length,
-                  ib_dwords);
+    int ret = drm_radeon_cs(fd,
+                            colorbuffer_handle[colorbuffer_ix],
+                            zbuffer_handle,
+                            flush_handle,
+                            texturebuffer_handle,
+                            textures_length,
+                            ib_dwords);
+    if (ret == -1)
+      break;
 
     primary_surface_address(rmmio, colorbuffer_ix);
 
