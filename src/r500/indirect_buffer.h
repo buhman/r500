@@ -7,23 +7,23 @@
 
 #define T0(address, count)                                              \
   do {                                                                  \
-    ib[ib_ix++].u32 = TYPE_0_COUNT(count) | TYPE_0_BASE_INDEX(address >> 2);   \
+    ib[ib_ix++].u32 = TYPE_0_COUNT(count) | TYPE_0_BASE_INDEX((address) >> 2); \
   } while (0);
 
 #define T0_ONE_REG(address, count)                                      \
   do {                                                                  \
-    ib[ib_ix++].u32 = TYPE_0_COUNT(count) | TYPE_0_ONE_REG | TYPE_0_BASE_INDEX(address >> 2); \
+    ib[ib_ix++].u32 = TYPE_0_COUNT(count) | TYPE_0_ONE_REG | TYPE_0_BASE_INDEX((address) >> 2); \
   } while (0);
 
 #define T0V(address, value)                                             \
   do {                                                                  \
-    ib[ib_ix++].u32 = TYPE_0_COUNT(0) | TYPE_0_BASE_INDEX(address >> 2);   \
+    ib[ib_ix++].u32 = TYPE_0_COUNT(0) | TYPE_0_BASE_INDEX((address) >> 2); \
     ib[ib_ix++].u32 = value;                                               \
   } while (0);
 
 #define T0Vf(address, value)                                            \
   do {                                                                  \
-    ib[ib_ix++].u32 = TYPE_0_COUNT(0) | TYPE_0_BASE_INDEX(address >> 2);   \
+    ib[ib_ix++].u32 = TYPE_0_COUNT(0) | TYPE_0_BASE_INDEX((address) >> 2); \
     ib[ib_ix++].f32 = value;                                               \
   } while (0);
 
@@ -57,6 +57,11 @@ extern volatile int ib_ix;
 void ib_generic_initialization();
 void ib_viewport(int width, int height);
 void ib_colorbuffer(int reloc_index, int pitch, int macrotile, int microtile);
+void ib_colorbuffer2(int buffer_index,
+                     int reloc_index,
+                     int pitch,
+                     int macrotile, int microtile,
+                     int colorformat);
 void ib_zbuffer(int reloc_index, int pitch, int zfunc);
 void ib_rs_instructions(int count);
 void ib_texture__0();
@@ -68,6 +73,12 @@ void ib_texture__1_float32(int reloc_index,
                            int width, int height,
                            int macrotile, int microtile,
                            int clamp);
+void ib_texture2(int texture_index,
+                 int reloc_index,
+                 int width, int height,
+                 int macrotile, int microtile,
+                 int clamp,
+                 int txformat);
 void ib_vap_pvs(struct shader_offset * offset);
 void ib_ga_us(struct shader_offset * offset);
 void ib_vap_pvs_const_cntl(const float * consts, int size);

@@ -272,7 +272,8 @@ void ib_generic_initialization()
       );
 }
 
-void ib_colorbuffer(int reloc_index, int pitch, int macrotile, int microtile)
+void ib_colorbuffer(int reloc_index, int pitch,
+                    int macrotile, int microtile)
 {
 
   //////////////////////////////////////////////////////////////////////////////
@@ -290,6 +291,38 @@ void ib_colorbuffer(int reloc_index, int pitch, int macrotile, int microtile)
       | RB3D_COLORPITCH__COLORTILE(macrotile)
       | RB3D_COLORPITCH__COLORMICROTILE(microtile)
       | RB3D_COLORPITCH__COLORFORMAT__ARGB8888
+      );
+  // The COLORPITCH NOP is ignored/not applied due to
+  // RADEON_CS_KEEP_TILING_FLAGS, but is still required.
+  T3(_NOP, 0);
+  TU(reloc_index * 4); // index into relocs array
+}
+
+void ib_colorbuffer2(int buffer_index,
+                     int reloc_index,
+                     int pitch,
+                     int macrotile, int microtile,
+                     int colorformat)
+{
+  assert(buffer_index >= 0 && buffer_index <= 3);
+
+  int reg_offset = buffer_index * 4;
+
+  //////////////////////////////////////////////////////////////////////////////
+  // CB
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(RB3D_COLOROFFSET0 + reg_offset
+      , 0x00000000 // value replaced by kernel from relocs
+      );
+  T3(_NOP, 0);
+  TU(reloc_index * 4); // index into relocs array
+
+  T0V(RB3D_COLORPITCH0 + reg_offset
+      , RB3D_COLORPITCH__COLORPITCH(pitch >> 1)
+      | RB3D_COLORPITCH__COLORTILE(macrotile)
+      | RB3D_COLORPITCH__COLORMICROTILE(microtile)
+      | RB3D_COLORPITCH__COLORFORMAT(colorformat)
       );
   // The COLORPITCH NOP is ignored/not applied due to
   // RADEON_CS_KEEP_TILING_FLAGS, but is still required.
@@ -586,6 +619,7 @@ void ib_texture__1_float32(int reloc_index,
       | TX_FILTER0__CLAMP_T(clamp)
       | TX_FILTER0__MAG_FILTER__POINT
       | TX_FILTER0__MIN_FILTER__POINT
+      | TX_FILTER0__ID(0)
       );
   T0V(TX_FILTER1_0
       , TX_FILTER1__LOD_BIAS(1)
@@ -608,6 +642,57 @@ void ib_texture__1_float32(int reloc_index,
   T0V(TX_FORMAT2_0, 0);
 
   T0V(TX_OFFSET_0
+      , TX_OFFSET__MACRO_TILE(macrotile)
+      | TX_OFFSET__MICRO_TILE(microtile)
+      );
+
+  T3(_NOP, 0);
+  TU(reloc_index * 4); // index into relocs array
+}
+
+void ib_texture2(int texture_index,
+                 int reloc_index,
+                 int width, int height,
+                 int macrotile, int microtile,
+                 int clamp,
+                 int txformat)
+{
+  assert(texture_index >= 0 && texture_index <= 15);
+
+  int texture_offset = texture_index * 4;
+
+  T0V(TX_FILTER0_0 + texture_offset
+      , TX_FILTER0__CLAMP_S(clamp)
+      | TX_FILTER0__CLAMP_T(clamp)
+      | TX_FILTER0__MAG_FILTER__POINT
+      | TX_FILTER0__MIN_FILTER__POINT
+      | TX_FILTER0__ID(texture_index)
+      );
+  T0V(TX_FILTER1_0 + texture_offset
+      , TX_FILTER1__LOD_BIAS(1)
+      | TX_FILTER1__BORDER_FIX(0)
+      );
+  T0V(TX_BORDER_COLOR_0 + texture_offset
+      , 0
+      );
+  T0V(TX_FORMAT0_0 + texture_offset
+      , TX_FORMAT0__TXWIDTH(width - 1)
+      | TX_FORMAT0__TXHEIGHT(height - 1)
+      );
+
+  T0V(TX_FORMAT1_0 + texture_offset
+      , TX_FORMAT1__TXFORMAT(txformat)
+      | TX_FORMAT1__SEL_ALPHA(3)
+      | TX_FORMAT1__SEL_RED(0)
+      | TX_FORMAT1__SEL_GREEN(1)
+      | TX_FORMAT1__SEL_BLUE(2)
+      | TX_FORMAT1__TEX_COORD_TYPE__2D
+      );
+  T0V(TX_FORMAT2_0 + texture_offset
+      , 0
+      );
+
+  T0V(TX_OFFSET_0 + texture_offset
       , TX_OFFSET__MACRO_TILE(macrotile)
       | TX_OFFSET__MICRO_TILE(microtile)
       );

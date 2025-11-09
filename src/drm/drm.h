@@ -18,6 +18,11 @@ int drm_radeon_cs(int fd,
                   int texturebuffer_handles_length,
                   int ib_dwords);
 
+int drm_radeon_cs2(int fd,
+                   int * handles,
+                   int handles_length,
+                   int ib_dwords);
+
 #ifdef __cplusplus
 }
 #endif
