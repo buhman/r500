@@ -10,7 +10,7 @@
 int drm_radeon_cs(int fd,
                   int colorbuffer_handle,
                   int zbuffer_handle,
-                  int flush_handle,
+                  int vertexbuffer_handle,
                   int * texturebuffer_handles,
                   int texturebuffer_handles_length,
                   int ib_dwords)
@@ -29,11 +29,19 @@ int drm_radeon_cs(int fd,
     .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM
     .flags = 8,
   };
+  /*
   relocs[FLUSH_RELOC_INDEX] = (struct drm_radeon_cs_reloc){
     .handle = flush_handle,
     .read_domains = 2, // RADEON_GEM_DOMAIN_GTT
     .write_domain = 2, // RADEON_GEM_DOMAIN_GTT
     .flags = 0,
+  };
+  */
+  relocs[VERTEXBUFFER_RELOC_INDEX] = (struct drm_radeon_cs_reloc){
+    .handle = vertexbuffer_handle,
+    .read_domains = 4, // RADEON_GEM_DOMAIN_VRAM
+    .write_domain = 4, // RADEON_GEM_DOMAIN_VRAM
+    .flags = 8,
   };
 
   for (int i = 0; i < texturebuffer_handles_length; i++) {

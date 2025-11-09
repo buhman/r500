@@ -204,7 +204,7 @@ mat4x4 perspective(float low1, float high1,
   return m2 * m1;
 }
 
-void _3d_plane_inner(mat4x4 trans)
+void _3d_plane_inner()
 {
   //////////////////////////////////////////////////////////////////////////////
   // 3D_DRAW
@@ -222,8 +222,8 @@ void _3d_plane_inner(mat4x4 trans)
     {1.0, 1.0f},
     {0.0, 1.0f},
   };
-  const int vertex_count = 4;
 
+  const int vertex_count = 4;
   T3(_3D_DRAW_IMMD_2, (1 + vertex_count * dwords_per_vtx) - 1);
   TU( VAP_VF_CNTL__PRIM_TYPE(5) // triangle fan
     | VAP_VF_CNTL__PRIM_WALK(3)
@@ -237,6 +237,51 @@ void _3d_plane_inner(mat4x4 trans)
     TF(vertices[i].x);
     TF(vertices[i].y);
   }
+}
+
+void _3d_particle_inner()
+{
+  T0V(VAP_VF_MAX_VTX_INDX
+      , VAP_VF_MAX_VTX_INDX__MAX_INDX(3)
+      );
+  T0V(VAP_VF_MIN_VTX_INDX
+      , VAP_VF_MIN_VTX_INDX__MIN_INDX(0)
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // AOS
+  //////////////////////////////////////////////////////////////////////////////
+
+  T3(_3D_LOAD_VBPNTR, (3 - 1));
+  TU( // VAP_VTX_NUM_ARRAYS
+      VAP_VTX_NUM_ARRAYS__VTX_NUM_ARRAYS(1)
+    | VAP_VTX_NUM_ARRAYS__VC_FORCE_PREFETCH(1)
+    );
+  TU( // VAP_VTX_AOS_ATTR01
+      VAP_VTX_AOS_ATTR__VTX_AOS_COUNT0(2)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(2)
+    );
+  TU( // VAP_VTX_AOS_ADDR0
+      (4 * 0);
+    );
+
+  T3(_NOP, 0);
+  TU(VERTEXBUFFER_RELOC_INDEX * 4); // index into relocs array for VAP_VTX_AOS_ADDR0
+
+  //////////////////////////////////////////////////////////////////////////////
+  // 3D_DRAW
+  //////////////////////////////////////////////////////////////////////////////
+
+  const int vertex_count = 4;
+  T3(_3D_DRAW_VBUF_2, (1 - 1));
+  TU( VAP_VF_CNTL__PRIM_TYPE(5) // triangle fan
+    | VAP_VF_CNTL__PRIM_WALK(2) // vertex list (data fetched from memory)
+    | VAP_VF_CNTL__INDEX_SIZE(0)
+    | VAP_VF_CNTL__VTX_REUSE_DIS(0)
+    | VAP_VF_CNTL__DUAL_INDEX_MODE(0)
+    | VAP_VF_CNTL__USE_ALT_NUM_VERTS(0)
+    | VAP_VF_CNTL__NUM_VERTICES(vertex_count)
+    );
 }
 
 void _3d_plane(const shaders& shaders,
@@ -331,7 +376,7 @@ void _3d_plane(const shaders& shaders,
 
   // plane_inner
 
-  _3d_plane_inner(trans);
+  _3d_plane_inner();
 }
 
 void _3d_particle(const shaders& shaders,
@@ -463,8 +508,8 @@ void _3d_particle(const shaders& shaders,
     ib_vap_pvs_const_cntl(consts, (sizeof (consts)));
 
     // plane_inner
-
-    _3d_plane_inner(trans);
+    //_3d_plane_inner();
+    _3d_particle_inner();
   }
 }
 
@@ -591,6 +636,36 @@ void init_particles(particle * particles, const int particles_length)
   }
 }
 
+int init_particles_vertexbuffer(int fd, int particles_length)
+{
+  const vec2 vertices[] = {
+    {0.0, 0.0f},
+    {1.0, 0.0f},
+    {1.0, 1.0f},
+    {0.0, 1.0f},
+  };
+  const int vertex_count = 4;
+
+  const int size = particles_length * vertex_count * 2 * (sizeof (float));
+
+  void * ptr;
+  int handle = create_buffer(fd, size, &ptr);
+
+  float * ptrf = (float*)ptr;
+
+  int ix = 0;
+  for (int j = 0; j < particles_length; j++) {
+    for (int i = 0; i < vertex_count; i++) {
+      ptrf[ix++] = vertices[i].x;
+      ptrf[ix++] = vertices[i].y;
+    }
+  }
+  munmap(ptr, size);
+  printf("init vertexbuffer %d %d\n", ix, size);
+
+  return handle;
+}
+
 int main()
 {
   struct shaders shaders = {
@@ -609,7 +684,8 @@ int main()
   int colorbuffer_handle[2];
   int zbuffer_handle;
   int * texturebuffer_handle;
-  int flush_handle;
+  //int flush_handle;
+  int vertexbuffer_handle;
 
   void * colorbuffer_ptr[2];
   void * zbuffer_ptr;
@@ -618,7 +694,7 @@ int main()
   colorbuffer_handle[0] = create_buffer(fd, colorbuffer_size, &colorbuffer_ptr[0]);
   colorbuffer_handle[1] = create_buffer(fd, colorbuffer_size, &colorbuffer_ptr[1]);
   zbuffer_handle = create_buffer(fd, colorbuffer_size, &zbuffer_ptr);
-  flush_handle = create_flush_buffer(fd);
+  //flush_handle = create_flush_buffer(fd);
   texturebuffer_handle = load_textures(fd, textures, textures_length);
 
   fprintf(stderr, "colorbuffer handle[0] %d\n", colorbuffer_handle[0]);
@@ -630,7 +706,9 @@ int main()
 
   particle particles[10] = {};
   const int particles_length = (sizeof (particles)) / (sizeof (particles[0]));
+  vertexbuffer_handle = init_particles_vertexbuffer(fd, particles_length);
   init_particles(particles, particles_length);
+  fprintf(stderr, "vertexbuffer handle %d\n", vertexbuffer_handle);
 
   while (true) {
     int ib_dwords = indirect_buffer(shaders,
@@ -641,7 +719,7 @@ int main()
     int ret = drm_radeon_cs(fd,
                             colorbuffer_handle[colorbuffer_ix],
                             zbuffer_handle,
-                            flush_handle,
+                            vertexbuffer_handle,
                             texturebuffer_handle,
                             textures_length,
                             ib_dwords);
