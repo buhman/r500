@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -275,6 +276,8 @@ void _3d_particle_inner(int particles_length, int position_offset)
 {
   const int vertex_count = 4 * particles_length;
 
+  assert(vertex_count <= 0xffffff);
+
   //////////////////////////////////////////////////////////////////////////////
   // VF
   //////////////////////////////////////////////////////////////////////////////
@@ -317,14 +320,17 @@ void _3d_particle_inner(int particles_length, int position_offset)
   // 3D_DRAW
   //////////////////////////////////////////////////////////////////////////////
 
+  T0V(VAP_ALT_NUM_VERTICES,
+      vertex_count);
+
   T3(_3D_DRAW_VBUF_2, (1 - 1));
   TU( VAP_VF_CNTL__PRIM_TYPE(13) // quad list
     | VAP_VF_CNTL__PRIM_WALK(2) // vertex list (data fetched from memory)
     | VAP_VF_CNTL__INDEX_SIZE(0)
     | VAP_VF_CNTL__VTX_REUSE_DIS(0)
     | VAP_VF_CNTL__DUAL_INDEX_MODE(0)
-    | VAP_VF_CNTL__USE_ALT_NUM_VERTS(0)
-    | VAP_VF_CNTL__NUM_VERTICES(vertex_count)
+    | VAP_VF_CNTL__USE_ALT_NUM_VERTS(1)
+    | VAP_VF_CNTL__NUM_VERTICES(0)
     );
 }
 
@@ -1309,8 +1315,8 @@ int main()
   int colorbuffer_ix = 0;
   float theta = PI * 0.5;
 
-  const int floatbuffer_width = 64;
-  const int floatbuffer_height = 64;
+  const int floatbuffer_width = 512;
+  const int floatbuffer_height = 256;
   floatbuffer_state state = create_floatbuffers(fd, floatbuffer_width * floatbuffer_height);
 
   vertexbuffer_handle = init_particles_vertexbuffer(fd, state.length, &vertexbuffer_ptr);
@@ -1366,6 +1372,13 @@ int main()
 
       if (ret == -1)
         break;
+
+
+      struct timespec duration = {
+        .tv_sec = 0,
+        .tv_nsec = 18000000,
+      };
+      nanosleep(&duration, NULL);
     }
 
     primary_surface_address(rmmio, colorbuffer_ix);

@@ -243,6 +243,8 @@ void _3d_particle_inner(int particles_length, int position_offset)
 {
   const int vertex_count = 4 * particles_length;
 
+  assert(vertex_count <= 0xffffff);
+
   //////////////////////////////////////////////////////////////////////////////
   // VF
   //////////////////////////////////////////////////////////////////////////////
@@ -285,14 +287,17 @@ void _3d_particle_inner(int particles_length, int position_offset)
   // 3D_DRAW
   //////////////////////////////////////////////////////////////////////////////
 
+  T0V(VAP_ALT_NUM_VERTICES,
+      vertex_count);
+
   T3(_3D_DRAW_VBUF_2, (1 - 1));
   TU( VAP_VF_CNTL__PRIM_TYPE(13) // quad list
     | VAP_VF_CNTL__PRIM_WALK(2) // vertex list (data fetched from memory)
     | VAP_VF_CNTL__INDEX_SIZE(0)
     | VAP_VF_CNTL__VTX_REUSE_DIS(0)
     | VAP_VF_CNTL__DUAL_INDEX_MODE(0)
-    | VAP_VF_CNTL__USE_ALT_NUM_VERTS(0)
-    | VAP_VF_CNTL__NUM_VERTICES(vertex_count)
+    | VAP_VF_CNTL__USE_ALT_NUM_VERTS(1)
+    | VAP_VF_CNTL__NUM_VERTICES(0)
     );
 }
 
@@ -730,7 +735,7 @@ int main()
   int colorbuffer_ix = 0;
   float theta = PI * 0.5;
 
-  particle particles[16 * 16] = {};
+  particle particles[512 * 256] = {};
   const int particles_length = (sizeof (particles)) / (sizeof (particles[0]));
   vertexbuffer_handle = init_particles_vertexbuffer(fd, particles_length, &vertexbuffer_ptr);
   init_particles(particles, particles_length);
