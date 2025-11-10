@@ -667,7 +667,9 @@ int init_particles_vertexbuffer(int fd, int particles_length, float ** ptr_out)
   };
   const int vertex_count = 4;
 
-  const int size = particles_length * vertex_count * 2 * (sizeof (float)) * 2;
+  const int size = particles_length * vertex_count * 2 * (sizeof (float))
+                 + particles_length * vertex_count * 3 * (sizeof (float));
+  printf("%d size %d\n", particles_length, size);
 
   void * ptr;
   int handle = create_buffer(fd, size, &ptr);
@@ -728,7 +730,7 @@ int main()
   int colorbuffer_ix = 0;
   float theta = PI * 0.5;
 
-  particle particles[10] = {};
+  particle particles[16 * 16] = {};
   const int particles_length = (sizeof (particles)) / (sizeof (particles[0]));
   vertexbuffer_handle = init_particles_vertexbuffer(fd, particles_length, &vertexbuffer_ptr);
   init_particles(particles, particles_length);

@@ -698,7 +698,8 @@ int init_particles_vertexbuffer(int fd, int particles_length, float ** ptr_out)
   };
   const int vertex_count = 4;
 
-  const int size = particles_length * vertex_count * 2 * (sizeof (float)) * 2;
+  const int size = particles_length * vertex_count * 2 * (sizeof (float))
+                 + particles_length * vertex_count * 2 * (sizeof (float));
 
   void * ptr;
   int handle = create_buffer(fd, size, &ptr);
@@ -1007,7 +1008,7 @@ int _floatbuffer(const shaders& shaders,
   };
   const int vertex_count = 4;
   T3(_3D_DRAW_IMMD_2, (1 + vertex_count * dwords_per_vtx) - 1);
-  TU( VAP_VF_CNTL__PRIM_TYPE(5) // triangle fan
+  TU( VAP_VF_CNTL__PRIM_TYPE(13) // quad list
     | VAP_VF_CNTL__PRIM_WALK(3)
     | VAP_VF_CNTL__INDEX_SIZE(0)
     | VAP_VF_CNTL__VTX_REUSE_DIS(0)
@@ -1042,13 +1043,29 @@ void check_particles2(floatbuffer_state& state)
   particle_position * out_pos = (particle_position *)state.ptrs[fb_output + 0];
   particle_velocity * out_vel = (particle_velocity *)state.ptrs[fb_output + 1];
 
+  int unequal = 0;
+
   for (int i = 0; i < state.length; i++) {
-    printf("[%d] %d %d %d %d\n", i, fb_input + 0, fb_input + 1, fb_output + 0, fb_output + 1);
-    printf("   in pos (% 3.04f % 3.04f % 3.04f)\n", in_pos[i].position.x, in_pos[i].position.y, in_pos[i].position.z);
-    printf("   in vel (% 3.04f % 3.04f % 3.04f)\n", in_vel[i].velocity.x, in_vel[i].velocity.y, in_vel[i].velocity.z);
-    printf("  out pos (% 3.04f % 3.04f % 3.04f)\n", out_pos[i].position.x, out_pos[i].position.y, out_pos[i].position.z);
-    printf("  out vel (% 3.04f % 3.04f % 3.04f)\n", out_vel[i].velocity.x, out_vel[i].velocity.y, out_vel[i].velocity.z);
+    bool pos_eq =
+      (in_pos[i].position.x == out_pos[i].position.x) &&
+      (in_pos[i].position.y == out_pos[i].position.y) &&
+      (in_pos[i].position.z == out_pos[i].position.z);
+
+    bool vel_eq =
+      (in_vel[i].velocity.x == out_vel[i].velocity.x) &&
+      (in_vel[i].velocity.y == out_vel[i].velocity.y) &&
+      (in_vel[i].velocity.z == out_vel[i].velocity.z);
+
+    if (!(pos_eq && vel_eq)) {
+      unequal += 1;
+      printf("[%d] %d %d %d %d\n", i, fb_input + 0, fb_input + 1, fb_output + 0, fb_output + 1);
+      printf("   in pos (% 3.04f % 3.04f % 3.04f)\n", in_pos[i].position.x, in_pos[i].position.y, in_pos[i].position.z);
+      printf("   in vel (% 3.04f % 3.04f % 3.04f)\n", in_vel[i].velocity.x, in_vel[i].velocity.y, in_vel[i].velocity.z);
+      printf("  out pos (% 3.04f % 3.04f % 3.04f)\n", out_pos[i].position.x, out_pos[i].position.y, out_pos[i].position.z);
+      printf("  out vel (% 3.04f % 3.04f % 3.04f)\n", out_vel[i].velocity.x, out_vel[i].velocity.y, out_vel[i].velocity.z);
+    }
   }
+  printf("unequal %d\n", unequal);
 }
 
 int main()
@@ -1090,8 +1107,8 @@ int main()
   int colorbuffer_ix = 0;
   float theta = PI * 0.5;
 
-  const int floatbuffer_width = 4;
-  const int floatbuffer_height = 4;
+  const int floatbuffer_width = 8;
+  const int floatbuffer_height = 8;
   floatbuffer_state state = create_floatbuffers(fd, floatbuffer_width * floatbuffer_height);
 
   vertexbuffer_handle = init_particles_vertexbuffer(fd, state.length, &vertexbuffer_ptr);
