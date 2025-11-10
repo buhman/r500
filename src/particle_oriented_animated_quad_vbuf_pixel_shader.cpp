@@ -1158,15 +1158,17 @@ int _floatbuffer(const shaders& shaders,
 
   // fragment constants
   //const vec3 velocity_scale = vec3(0.003f, 0.01f, 0.003f);
-  const vec3 velocity_scale = vec3(0.09f, 0.50f, 0.09f);
-  const float delta_age = 0.01f;
+  const vec3 velocity_scale = vec3(0.9f, 5.0f, 0.9f);
+  const float delta_age = -0.01f;
   const float velocity_attenuation = -0.6f; // multiplied by velocity.y after bounce
   const float gravity = -0.04f;
+  const float max_age = 3.0f;
+  const float reset_radius = 20.0f;
   const float fragment_consts[] = {
     // 0:
     velocity_scale.x, velocity_scale.y, velocity_scale.z, delta_age,
     // 1:
-    velocity_attenuation, gravity, 0, 0,
+    velocity_attenuation, gravity, max_age, reset_radius,
   };
   int fragment_consts_length = (sizeof (fragment_consts)) / (sizeof (fragment_consts[0]));
   ib_ga_consts(fragment_consts, fragment_consts_length, 0);
@@ -1307,8 +1309,8 @@ int main()
   int colorbuffer_ix = 0;
   float theta = PI * 0.5;
 
-  const int floatbuffer_width = 8;
-  const int floatbuffer_height = 8;
+  const int floatbuffer_width = 64;
+  const int floatbuffer_height = 64;
   floatbuffer_state state = create_floatbuffers(fd, floatbuffer_width * floatbuffer_height);
 
   vertexbuffer_handle = init_particles_vertexbuffer(fd, state.length, &vertexbuffer_ptr);

@@ -20,7 +20,7 @@
 -- const[0] = { velocity_scale.rgb, delta_age }
 -- gravity = -0.05
 -- velocity_attenuation = -0.7
--- const[1] = { velocity_attenuation, gravity, 0, 0 }
+-- const[1] = { velocity_attenuation, gravity, max_age, 0 }
 
 -- out[0].rgb  : position
 -- out[0].a    : age
@@ -64,14 +64,48 @@ src2.rgb = temp[4] : -- position
 src0.rgb = temp[4] :
   temp[4].g = MAX |src0.0g0| |src0.0g0| ;
 
+--
+-- reset
+--
+
+-- normalize(vec3(velocity.x, 0, velocity.z))
+src0.rgb = temp[1] : -- velocity
+              DP3 src0.r0b src0.r0b ,
+  temp[2].a = DP ;
+src0.a   = temp[2] :
+  temp[2].a   = RSQ |src0.a| ;
+src0.a   = temp[2] ,
+src0.rgb = temp[1] : -- velocity
+  temp[2].rgb = MAD src0.r0b src0.a0a src0.000 ;
+
+-- age = age + max_age
+-- reset__position = reset__position * 20
+src0.a   = temp[0]  , -- age
+src1.rgb = const[1] , -- max_age
+src2.a   = const[1] , -- reset_radius
+src0.rgb = temp[2]  : -- reset__position
+  temp[2].a   = MAD src0.a src0.1 src1.b ,
+  temp[2].rgb = MAD src0.rgb src2.aaa src2.000 ;
+
+-- reset__velocity
+src0.a   = temp[1] , -- delta
+src1.a   = float(64) , -- 2.0
+src0.rgb = temp[1] : -- velocity
+  temp[3].rgb = MAD src0.rab src1.1a1 src1.000 ;
+
 OUT
 src0.a   = temp[4]  , -- update__age
-src0.rgb = temp[4]  : -- update__position
-  out[0].a    = MAX src0.a src0.a ,
-  out[0].rgb  = MAX src0.rgb src0.rgb ;
+src1.a   = temp[2]  , -- reset__age
+src2.a   = temp[0]  , -- age
+src0.rgb = temp[4]  , -- update__position
+src1.rgb = temp[2]  : -- reset__position
+  out[0].a    = CMP src0.a src1.a src2.a ,
+  out[0].rgb  = CMP src0.rgb src1.rgb src2.aaa ;
 
 OUT TEX_SEM_WAIT
 src0.a   = temp[1]  , -- delta
-src0.rgb = temp[5]  : -- update__velocity
-  out[1].a    = MAX src0.a src0.a ,
-  out[1].rgb  = MAX src0.rgb src0.rgb ;
+src2.a   = temp[0]  , -- age
+src0.rgb = temp[5]  , -- update__velocity
+src1.rgb = temp[3]  : -- reset__velocity
+  out[1].a    = MAX src0.a src0.a , -- constant
+  out[1].rgb  = CMP src0.rgb src1.rgb src2.aaa ;
