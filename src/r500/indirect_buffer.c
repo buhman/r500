@@ -330,6 +330,39 @@ void ib_colorbuffer2(int buffer_index,
   TU(reloc_index * 4); // index into relocs array
 }
 
+void ib_colorbuffer3(int buffer_index,
+                     int reloc_index,
+                     int offset,
+                     int pitch,
+                     int macrotile, int microtile,
+                     int colorformat)
+{
+  assert(buffer_index >= 0 && buffer_index <= 3);
+
+  int reg_offset = buffer_index * 4;
+
+  //////////////////////////////////////////////////////////////////////////////
+  // CB
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(RB3D_COLOROFFSET0 + reg_offset
+      , offset // value replaced by kernel from relocs
+      );
+  T3(_NOP, 0);
+  TU(reloc_index * 4); // index into relocs array
+
+  T0V(RB3D_COLORPITCH0 + reg_offset
+      , RB3D_COLORPITCH__COLORPITCH(pitch >> 1)
+      | RB3D_COLORPITCH__COLORTILE(macrotile)
+      | RB3D_COLORPITCH__COLORMICROTILE(microtile)
+      | RB3D_COLORPITCH__COLORFORMAT(colorformat)
+      );
+  // The COLORPITCH NOP is ignored/not applied due to
+  // RADEON_CS_KEEP_TILING_FLAGS, but is still required.
+  T3(_NOP, 0);
+  TU(reloc_index * 4); // index into relocs array
+}
+
 void ib_viewport(int width, int height)
 {
   //////////////////////////////////////////////////////////////////////////////
@@ -860,6 +893,36 @@ void ib_vap_stream_cntl__32()
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_0__SELECT_Y
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_Z
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0__SELECT_FP_ONE
+      | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(0b1111) // XYZW
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_1__SELECT_X
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_1__SELECT_Y
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_1__SELECT_FP_ZERO
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_1__SELECT_FP_ONE
+      | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_1(0b1111) // XYZW
+      );
+}
+
+void ib_vap_stream_cntl__42()
+{
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP_PROG_STREAM_CNTL
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_PROG_STREAM_CNTL_0
+      , VAP_PROG_STREAM_CNTL__DATA_TYPE_0__FLOAT_4
+      | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_0(0)
+      | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_0(0)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_0(0)
+      | VAP_PROG_STREAM_CNTL__DATA_TYPE_1__FLOAT_2
+      | VAP_PROG_STREAM_CNTL__SKIP_DWORDS_1(0)
+      | VAP_PROG_STREAM_CNTL__DST_VEC_LOC_1(1)
+      | VAP_PROG_STREAM_CNTL__LAST_VEC_1(1)
+      );
+  T0V(VAP_PROG_STREAM_CNTL_EXT_0
+      , VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_0__SELECT_X
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_0__SELECT_Y
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Z_0__SELECT_Z
+      | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_W_0__SELECT_W
       | VAP_PROG_STREAM_CNTL_EXT__WRITE_ENA_0(0b1111) // XYZW
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_X_1__SELECT_X
       | VAP_PROG_STREAM_CNTL_EXT__SWIZZLE_SELECT_Y_1__SELECT_Y

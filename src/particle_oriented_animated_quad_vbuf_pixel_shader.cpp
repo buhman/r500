@@ -32,6 +32,7 @@
 #define PARTICLE_SHADER 2
 #define TEXTURE_TILE_SHADER 3
 #define PARTICLE_PHYSICS_SHADER 4
+#define VERTEX_BUFFER_COPY_SHADER 5
 
 #define PARTICLE_POSITION_RELOC_INDEX 5
 
@@ -41,6 +42,7 @@ const char * vertex_shader_paths[] = {
   "particle_particle_animated_quad_vbuf.vs.bin",
   "texture_tile.vs.bin",
   "particle_physics.vs.bin",
+  "vertex_buffer_copy.vs.bin",
 };
 const int vertex_shader_paths_length = (sizeof (vertex_shader_paths)) / (sizeof (vertex_shader_paths[0]));
 const char * fragment_shader_paths[] = {
@@ -49,6 +51,7 @@ const char * fragment_shader_paths[] = {
   "particle_particle.fs.bin",
   "texture_tile.fs.bin",
   "particle_physics.fs.bin",
+  "vertex_buffer_copy.fs.bin",
 };
 const int fragment_shader_paths_length = (sizeof (fragment_shader_paths)) / (sizeof (fragment_shader_paths[0]));
 
@@ -293,8 +296,8 @@ void _3d_particle_inner(int particles_length, int position_offset)
     | VAP_VTX_NUM_ARRAYS__VC_FORCE_PREFETCH(1)
     );
   TU( // VAP_VTX_AOS_ATTR01
-      VAP_VTX_AOS_ATTR__VTX_AOS_COUNT0(3)
-    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(3)
+      VAP_VTX_AOS_ATTR__VTX_AOS_COUNT0(4)
+    | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE0(4)
     | VAP_VTX_AOS_ATTR__VTX_AOS_COUNT1(2)
     | VAP_VTX_AOS_ATTR__VTX_AOS_STRIDE1(2)
     );
@@ -468,7 +471,7 @@ void _3d_particle(const shaders& shaders,
                 macrotile, microtile,
                 clamp);
 
-  ib_vap_stream_cntl__32();
+  ib_vap_stream_cntl__42();
 
   // shaders
   T0V(US_PIXSIZE
@@ -543,6 +546,7 @@ void _3d_particle(const shaders& shaders,
   ib_vap_pvs_const_cntl(consts, (sizeof (consts)));
 
   int offset = state.length * 4 * 2;
+  /*
   int ix = 0;
   particle_position * pos = state.position_output();
   for (int i = 0; i < state.length; i++) {
@@ -554,17 +558,197 @@ void _3d_particle(const shaders& shaders,
       ix++;
       vertexbuffer_ptr[offset + ix] = position.z;
       ix++;
+      vertexbuffer_ptr[offset + ix] = 1; // W
+      ix++;
     };
   }
   asm volatile ("" ::: "memory");
+  */
 
   _3d_particle_inner(state.length, offset);
 }
 
 void _copy_to_vertexbuffer(const shaders& shaders,
-                           const floatbuffer_state& state)
+                           const floatbuffer_state& state,
+                           int floatbuffer_width,
+                           int floatbuffer_height)
 {
+  assert(floatbuffer_width <= 1024);
+  int viewport_width = floatbuffer_width * 4;
+  int viewport_height = floatbuffer_height;
+  int texture_width = floatbuffer_width;
+  int texture_height = floatbuffer_height;
 
+  int macrotile = 0;
+  int microtile = 0;
+
+  T0V(SC_SCISSOR0
+      , SC_SCISSOR0__XS0(0)
+      | SC_SCISSOR0__YS0(0)
+      );
+  T0V(SC_SCISSOR1
+      , SC_SCISSOR1__XS1(viewport_width - 1)
+      | SC_SCISSOR1__YS1(viewport_height - 1)
+      );
+  T0Vf(VAP_VPORT_XSCALE, (float)viewport_width);
+  T0Vf(VAP_VPORT_YSCALE, (float)viewport_height);
+
+  int colorformat = 7; // ARGB32323232
+
+  int offset = state.length * 4 * 2 * (sizeof (float));
+
+  ib_colorbuffer3(0,
+                  VERTEXBUFFER_RELOC_INDEX,
+                  offset,
+                  viewport_width,
+                  macrotile,
+                  microtile,
+                  colorformat);
+
+  T0V(US_OUT_FMT_0
+      , US_OUT_FMT__OUT_FMT(21)  // C4_32_FP
+      | US_OUT_FMT__C0_SEL__RED
+      | US_OUT_FMT__C1_SEL__GREEN
+      | US_OUT_FMT__C2_SEL__BLUE
+      | US_OUT_FMT__C3_SEL__ALPHA
+      | US_OUT_FMT__OUT_SIGN(0)
+      );
+  T0V(US_OUT_FMT_1
+      , US_OUT_FMT__OUT_FMT(15) // render target is not used
+      );
+  T0V(US_OUT_FMT_2
+      , US_OUT_FMT__OUT_FMT(15) // render target is not used
+      );
+  T0V(US_OUT_FMT_3
+      , US_OUT_FMT__OUT_FMT(15) // render target is not used
+      );
+
+  // shaders
+  //load_pvs_shaders(shaders.vertex, shaders.vertex_length);
+  //load_us_shaders(shaders.fragment, shaders.fragment_length);
+
+  // GA
+
+  T0V(GB_ENABLE
+      , 0
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // RS
+  //////////////////////////////////////////////////////////////////////////////
+
+  ib_rs_instructions(1);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP OUT
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_OUT_VTX_FMT_0
+      , VAP_OUT_VTX_FMT_0__VTX_POS_PRESENT(1)
+      );
+  T0V(VAP_OUT_VTX_FMT_1
+      , VAP_OUT_VTX_FMT_1__TEX_0_COMP_CNT(4)
+      );
+
+  //
+
+  T0V(ZB_CNTL, 0);
+  T0V(ZB_ZSTENCILCNTL, 0);
+
+  //
+
+  //////////////////////////////////////////////////////////////////////////////
+  // TX
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(TX_INVALTAGS, 0x00000000);
+
+  T0V(TX_ENABLE
+      , TX_ENABLE__TEX_0_ENABLE__ENABLE
+      );
+
+  int clamp = 2; // clamp to [0.0, 1.0]
+  int txformat = 29; // TX_FMT_32F_32F_32F_32F
+  ib_texture2(0,
+              PARTICLE_POSITION_RELOC_INDEX,
+              texture_width, texture_height,
+              macrotile, microtile,
+              clamp,
+              txformat);
+
+  // shaders
+
+  ib_vap_stream_cntl__2();
+
+  T0V(US_PIXSIZE
+      , US_PIXSIZE__PIX_SIZE(2)
+      );
+
+  ib_ga_us(&shaders.fragment[VERTEX_BUFFER_COPY_SHADER]);
+  ib_vap_pvs(&shaders.vertex[VERTEX_BUFFER_COPY_SHADER]);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // VAP
+  //////////////////////////////////////////////////////////////////////////////
+
+  T0V(VAP_CLIP_CNTL
+      , VAP_CLIP_CNTL__CLIP_DISABLE(1)
+      );
+
+  T0V(VAP_VTE_CNTL
+      , VAP_VTE_CNTL__VPORT_X_SCALE_ENA(1)
+      | VAP_VTE_CNTL__VPORT_Y_SCALE_ENA(1)
+      | VAP_VTE_CNTL__VTX_XY_FMT(1) // disable W division
+      | VAP_VTE_CNTL__VTX_Z_FMT(1)  // disable W division
+      );
+
+  T0V(VAP_CNTL_STATUS
+      , VAP_CNTL_STATUS__PVS_BYPASS(0)
+      );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // 3D_DRAW
+  //////////////////////////////////////////////////////////////////////////////
+
+  const int dwords_per_vtx = 2;
+
+  T0V(VAP_VTX_SIZE
+      , VAP_VTX_SIZE__DWORDS_PER_VTX(dwords_per_vtx)
+      );
+
+  const float vertices[] = {
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    0.0f, 1.0f,
+  };
+  const int vertex_count = 4;
+  T3(_3D_DRAW_IMMD_2, (1 + vertex_count * dwords_per_vtx) - 1);
+  TU( VAP_VF_CNTL__PRIM_TYPE(13) // quad list
+    | VAP_VF_CNTL__PRIM_WALK(3)
+    | VAP_VF_CNTL__INDEX_SIZE(0)
+    | VAP_VF_CNTL__VTX_REUSE_DIS(0)
+    | VAP_VF_CNTL__DUAL_INDEX_MODE(0)
+    | VAP_VF_CNTL__USE_ALT_NUM_VERTS(0)
+    | VAP_VF_CNTL__NUM_VERTICES(vertex_count)
+    );
+  for (int i = 0; i < vertex_count * 2; i++) {
+    TF(vertices[i]);
+  }
+
+  //
+
+  T0V(RB3D_DSTCACHE_CTLSTAT
+      , RB3D_DSTCACHE_CTLSTAT__DC_FLUSH(0x2) // Flush dirty 3D data
+      | RB3D_DSTCACHE_CTLSTAT__DC_FREE(0x2)  // Free 3D tags
+      );
+
+  T0V(ZB_ZCACHE_CTLSTAT
+      , ZB_ZCACHE_CTLSTAT__ZC_FLUSH(1)
+      | ZB_ZCACHE_CTLSTAT__ZC_FREE(1)
+      );
+
+  T0V(WAIT_UNTIL, 0x00020000);
 }
 
 int indirect_buffer(const shaders& shaders,
@@ -572,7 +756,9 @@ int indirect_buffer(const shaders& shaders,
                     //const particle * particles,
                     //const int particles_length,
                     float theta,
-                    float * vertexbuffer_ptr)
+                    float * vertexbuffer_ptr,
+                    int floatbuffer_width,
+                    int floatbuffer_height)
 {
   int width = 1600;
   int height = 1200;
@@ -582,7 +768,10 @@ int indirect_buffer(const shaders& shaders,
 
   ib_generic_initialization();
 
-  _copy_to_vertexbuffer(shaders, state);
+  _copy_to_vertexbuffer(shaders,
+                        state,
+                        floatbuffer_width,
+                        floatbuffer_height);
 
   T0V(RB3D_BLENDCNTL, 0);
   T0V(RB3D_ABLENDCNTL, 0);
@@ -610,8 +799,8 @@ int indirect_buffer(const shaders& shaders,
       , US_OUT_FMT__OUT_FMT(15) // render target is not used
       );
 
-  load_pvs_shaders(shaders.vertex, shaders.vertex_length);
-  load_us_shaders(shaders.fragment, shaders.fragment_length);
+  //load_pvs_shaders(shaders.vertex, shaders.vertex_length);
+  //load_us_shaders(shaders.fragment, shaders.fragment_length);
 
   //////////////////////////////////////////////////////////////////////////////
   // DRAW
@@ -707,7 +896,7 @@ int init_particles_vertexbuffer(int fd, int particles_length, float ** ptr_out)
   const int vertex_count = 4;
 
   const int size = particles_length * vertex_count * 2 * (sizeof (float))
-                 + particles_length * vertex_count * 3 * (sizeof (float));
+                 + particles_length * vertex_count * 4 * (sizeof (float));
 
   void * ptr;
   int handle = create_buffer(fd, size, &ptr);
@@ -930,7 +1119,8 @@ int _floatbuffer(const shaders& shaders,
 
   T0V(TX_ENABLE
       , TX_ENABLE__TEX_0_ENABLE__ENABLE
-      | TX_ENABLE__TEX_1_ENABLE__ENABLE);
+      | TX_ENABLE__TEX_1_ENABLE__ENABLE
+      );
 
   int clamp = 2; // clamp to [0.0, 1.0]
   int txformat = 29; // TX_FMT_32F_32F_32F_32F
@@ -1151,7 +1341,9 @@ int main()
       int ib_dwords = indirect_buffer(shaders,
                                       state,
                                       theta,
-                                      vertexbuffer_ptr);
+                                      vertexbuffer_ptr,
+                                      floatbuffer_width,
+                                      floatbuffer_height);
 
       assert(textures_length == 2);
       int particle_position_handle = state.handles[fb_output + 0];

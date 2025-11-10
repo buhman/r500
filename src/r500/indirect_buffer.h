@@ -62,6 +62,12 @@ void ib_colorbuffer2(int buffer_index,
                      int pitch,
                      int macrotile, int microtile,
                      int colorformat);
+void ib_colorbuffer3(int buffer_index,
+                     int reloc_index,
+                     int offset,
+                     int pitch,
+                     int macrotile, int microtile,
+                     int colorformat);
 void ib_zbuffer(int reloc_index, int pitch, int zfunc);
 void ib_rs_instructions(int count);
 void ib_texture__0();
@@ -87,6 +93,7 @@ void ib_ga_consts(const float * consts, int consts_length, int index);
 void ib_vap_stream_cntl__2();
 void ib_vap_stream_cntl__3();
 void ib_vap_stream_cntl__32();
+void ib_vap_stream_cntl__42();
 void ib_vap_stream_cntl__323();
 
 #ifdef __cplusplus
