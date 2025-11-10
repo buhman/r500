@@ -33,6 +33,8 @@
 #define TEXTURE_TILE_SHADER 3
 #define PARTICLE_PHYSICS_SHADER 4
 
+#define PARTICLE_POSITION_RELOC_INDEX 5
+
 const char * vertex_shader_paths[] = {
   "clear.vs.bin",
   "particle_plane_fan.vs.bin",
@@ -542,9 +544,7 @@ void _3d_particle(const shaders& shaders,
 
   int offset = state.length * 4 * 2;
   int ix = 0;
-
   particle_position * pos = state.position_output();
-
   for (int i = 0; i < state.length; i++) {
     const vec3& position = pos[i].position;
     for (int j = 0; j < 4; j++) {
@@ -561,6 +561,12 @@ void _3d_particle(const shaders& shaders,
   _3d_particle_inner(state.length, offset);
 }
 
+void _copy_to_vertexbuffer(const shaders& shaders,
+                           const floatbuffer_state& state)
+{
+
+}
+
 int indirect_buffer(const shaders& shaders,
                     const floatbuffer_state& state,
                     //const particle * particles,
@@ -575,6 +581,8 @@ int indirect_buffer(const shaders& shaders,
   ib_ix = 0;
 
   ib_generic_initialization();
+
+  _copy_to_vertexbuffer(shaders, state);
 
   T0V(RB3D_BLENDCNTL, 0);
   T0V(RB3D_ABLENDCNTL, 0);
@@ -699,7 +707,7 @@ int init_particles_vertexbuffer(int fd, int particles_length, float ** ptr_out)
   const int vertex_count = 4;
 
   const int size = particles_length * vertex_count * 2 * (sizeof (float))
-                 + particles_length * vertex_count * 2 * (sizeof (float));
+                 + particles_length * vertex_count * 3 * (sizeof (float));
 
   void * ptr;
   int handle = create_buffer(fd, size, &ptr);
@@ -810,9 +818,10 @@ int _floatbuffer(const shaders& shaders,
   /*
   float vx = ((float)viewport_width) * 0.5f;
   float vy = ((float)viewport_height) * 0.5f;
-  */
   float tx = 0.5f / ((float)texture_width);
   float ty = 0.5f / ((float)texture_height);
+  */
+  /*
   printf("tx ty: %f %f\n", tx, ty);
 
   printf("relocs: %d %d %d %d\n",
@@ -820,6 +829,7 @@ int _floatbuffer(const shaders& shaders,
          input_reloc_index1,
          output_reloc_index0,
          output_reloc_index1);
+  */
 
   int macrotile = 0;
   int microtile = 0;
@@ -1143,13 +1153,22 @@ int main()
                                       theta,
                                       vertexbuffer_ptr);
 
-      int ret = drm_radeon_cs(fd,
-                              colorbuffer_handle[colorbuffer_ix],
-                              zbuffer_handle,
-                              vertexbuffer_handle,
-                              texturebuffer_handle,
-                              textures_length,
-                              ib_dwords);
+      assert(textures_length == 2);
+      int particle_position_handle = state.handles[fb_output + 0];
+      int handles[] = {
+        colorbuffer_handle[colorbuffer_ix], // 0
+        zbuffer_handle,                     // 1
+        vertexbuffer_handle,                // 2
+        texturebuffer_handle[0],            // 3
+        texturebuffer_handle[1],            // 4
+        particle_position_handle,           // 5
+      };
+      int handles_length = (sizeof (handles)) / (sizeof (handles[0]));
+
+      int ret = drm_radeon_cs2(fd,
+                               handles,
+                               handles_length,
+                               ib_dwords);
 
       if (ret == -1)
         break;
@@ -1162,28 +1181,6 @@ int main()
     colorbuffer_ix = (colorbuffer_ix + 1) & 1;
 
     state.flip = (state.flip + 1) & 1;
-
-    //
-    // update particles
-    //
-    /*
-    for (int i = 0; i < particles_length; i++) {
-      if (particles[i].age <= 0) {
-        particles[i].age += max_age;
-        reset_particle(particles[i]);
-      } else {
-        particles[i].age -= 0.01f;
-        particles[i].position += vec3(particles[i].velocity.x * 0.9f,
-                                      particles[i].velocity.y * 5.0f,
-                                      particles[i].velocity.z * 0.9f);
-        particles[i].velocity += vec3(0, -0.04, 0);
-        if (particles[i].position.y < 0) {
-          particles[i].position.y = fabsf(particles[i].position.y);
-          particles[i].velocity.y *= -0.6f;
-        }
-      }
-    }
-    */
   }
 
   {
