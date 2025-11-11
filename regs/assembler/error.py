@@ -1,8 +1,10 @@
 import sys
 
-def print_error(filename, buf, e):
+def print_error(e):
     assert len(e.args) == 2, e
     message, token = e.args
+    with open(token.filename, 'rb') as f:
+        buf = f.read()
     lines = buf.splitlines()
     line = lines[token.line - 1]
 
@@ -11,7 +13,7 @@ def print_error(filename, buf, e):
     col_pointer = '^' * len(token.lexeme)
     RED = "\033[0;31m"
     DEFAULT = "\033[0;0m"
-    print(f'File: "{filename}", line {token.line}, column {token.col}\n', file=sys.stderr)
+    print(f'File: "{token.filename}", line {token.line}, column {token.col}\n', file=sys.stderr)
     sys.stderr.write('    ')
     wrote_default = False
     for i, c in enumerate(line.decode('utf-8')):

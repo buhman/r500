@@ -10,8 +10,8 @@ from assembler.fs.validator import validate_instruction
 from assembler.fs.emitter import emit_instruction
 from assembler.error import print_error
 
-def frontend_inner(buf):
-    lexer = Lexer(buf, find_keyword, emit_newlines=False, minus_is_token=True)
+def frontend_inner(filename, buf):
+    lexer = Lexer(filename, buf, find_keyword, emit_newlines=False, minus_is_token=True)
     tokens = list(lexer.lex_tokens())
     parser = Parser(tokens)
     for ins_ast in parser.instructions():
@@ -22,15 +22,15 @@ def frontend_inner(buf):
 
 def frontend(filename, buf):
     try:
-        yield from frontend_inner(buf)
+        yield from frontend_inner(filename, buf)
     except LexerError as e:
-        print_error(filename, buf, e)
+        print_error(e)
         raise
     except ParserError as e:
-        print_error(filename, buf, e)
+        print_error(e)
         raise
     except ValidatorError as e:
-        print_error(filename, buf, e)
+        print_error(e)
         raise
 
 if __name__ == "__main__":

@@ -22,8 +22,8 @@ out[0].xz    = VE_MAD    input[0].-y-_-0-_ temp[0].x_0_      temp[0].y_0_
 out[0].yw    = VE_MAD    input[0]._x_0     temp[0]._x_0      temp[0]._z_1
 """
 
-def frontend_inner(buf):
-    lexer = Lexer(buf, find_keyword)
+def frontend_inner(filename, buf):
+    lexer = Lexer(filename, buf, find_keyword)
     tokens = list(lexer.lex_tokens())
     parser = Parser(tokens)
     for ins in parser.instructions():
@@ -37,15 +37,15 @@ def frontend_inner(buf):
 
 def frontend(filename, buf):
     try:
-        yield from frontend_inner(buf)
+        yield from frontend_inner(filename, buf)
     except ParserError as e:
-        print_error(input_filename, buf, e)
+        print_error(e)
         raise
     except LexerError as e:
-        print_error(input_filename, buf, e)
+        print_error(e)
         raise
     except ValidatorError as e:
-        print_error(filename, buf, e)
+        print_error(e)
         raise
 
 if __name__ == "__main__":

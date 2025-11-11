@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from itertools import chain
 from typing import Union, Any
+from os import path
 
 DEBUG = True
 
@@ -25,6 +26,7 @@ class TT(Enum):
 
 @dataclass
 class Token:
+    filename: str
     start_ix: int
     line: int
     col: int
@@ -43,7 +45,10 @@ class LexerError(Exception):
     pass
 
 class Lexer:
-    def __init__(self, buf: memoryview, find_keyword,
+    def __init__(self,
+                 filename: str,
+                 buf: memoryview,
+                 find_keyword,
                  emit_newlines=False,
                  minus_is_token=False):
         self.start_ix = 0
@@ -54,6 +59,8 @@ class Lexer:
         self.find_keyword = find_keyword
         self.emit_newlines = emit_newlines
         self.minus_is_token = minus_is_token
+        self.filename = filename
+        self.nested_lexer = None
 
     def at_end_p(self):
         return self.current_ix >= len(self.buf)
@@ -74,7 +81,7 @@ class Lexer:
         return self.buf[self.current_ix]
 
     def pos(self):
-        return self.start_ix, self.line, self.col - (self.current_ix - self.start_ix)
+        return self.filename, self.start_ix, self.line, self.col - (self.current_ix - self.start_ix)
 
     def identifier(self):
         while not self.at_end_p() and self.peek() in identifier_characters:
@@ -85,8 +92,26 @@ class Lexer:
         else:
             return Token(*self.pos(), TT.identifier, self.lexeme(), None)
 
+    def include(self, filename):
+        dirname = path.dirname(self.filename)
+        new_filename = path.join(dirname, filename.decode('utf-8'))
+        with open(new_filename, 'rb') as f:
+            buf = f.read()
+        self.nested_lexer = Lexer(new_filename,
+                                  buf,
+                                  find_keyword=self.find_keyword,
+                                  emit_newlines=self.emit_newlines,
+                                  minus_is_token=self.minus_is_token)
+
     def lex_token(self):
         while True:
+            if self.nested_lexer is not None:
+                token = self.nested_lexer.lex_token()
+                if token.type is TT.eof:
+                    self.nested_lexer = None
+                else:
+                    return token
+
             self.start_ix = self.current_ix
 
             if self.at_end_p():
@@ -122,8 +147,24 @@ class Lexer:
             elif self.minus_is_token and c == ord('-'):
                 return Token(*self.pos(), TT.minus, self.lexeme())
             elif c == ord('#'):
-                while not self.at_end_p() and self.peek() != ord('\n'):
+                for c in b"include":
+                    o = self.advance()
+                    if o != c:
+                        token = Token(*self.pos(), None, self.lexeme())
+                        raise LexerError(f"unexpected character at line:{self.line} col:{self.col}, expected `#include`", token)
+                while self.peek() == ord(' '):
                     self.advance()
+                self.start_ix = self.current_ix
+                quote = self.advance()
+                if quote != ord('"'):
+                    token = Token(*self.pos(), None, self.lexeme())
+                    raise LexerError(f"unexpected character at line:{self.line} col:{self.col}, expected `\"`", token)
+                self.start_ix = self.current_ix
+                while self.peek() != ord('"'):
+                    self.advance()
+                filename = self.lexeme()
+                assert self.advance() == ord('"')
+                self.include(filename)
             elif c == ord(' ') or c == ord('\r') or c == ord('\t'):
                 pass
             elif c == ord('\n'):
