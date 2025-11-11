@@ -75,8 +75,9 @@ src0.rgb = temp[1] : -- velocity
 src0.a   = temp[2] :
   temp[2].a   = RSQ |src0.a| ;
 src0.a   = temp[2] ,
-src0.rgb = temp[1] : -- velocity
-  temp[2].rgb = MAD src0.r0b src0.a0a src0.000 ;
+src0.rgb = temp[1] , -- velocity
+src1.a   = temp[1] : -- delta
+  temp[2].rgb = MAD src0.r0b src0.a0a src1.0a0 ;
 
 -- age = age + max_age
 -- reset__position = reset__position * 20
@@ -88,10 +89,19 @@ src0.rgb = temp[2]  : -- reset__position
   temp[2].rgb = MAD src0.rgb src2.aaa src2.000 ;
 
 -- reset__velocity
-src0.a   = temp[1] , -- delta
-src1.a   = float(64) , -- 2.0
-src0.rgb = temp[1] : -- velocity
-  temp[3].rgb = MAD src0.rab src1.1a1 src1.000 ;
+-- (p.velocity.x * 0.5 + 0.5)
+-- velocity.xz = velocity.xz
+src0.rgb = temp[1]   , -- velocity.x
+src1.a   = float(48) : -- 0.5
+  temp[3].a   = MAD src0.r src1.a src1.a ,
+  temp[3].rgb = MAX src0.r0b src0.r0b ;
+
+-- reset__velocity
+-- velocity.y = (temp[3].a * delta + 2.0)
+src0.a   = temp[1]   , -- delta
+src1.a   = float(56) , -- 1.0
+src2.a   = temp[3]   : --
+  temp[3].g = MAD src2.0a0 src0.0a0 src1.0a0 ;
 
 OUT
 src0.a   = temp[4]  , -- update__age

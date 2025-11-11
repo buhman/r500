@@ -49,7 +49,7 @@ const int vertex_shader_paths_length = (sizeof (vertex_shader_paths)) / (sizeof 
 const char * fragment_shader_paths[] = {
   "clear.fs.bin",
   "particle_plane.fs.bin",
-  "particle_particle.fs.bin",
+  "particle_particle_colored.fs.bin",
   "texture_tile.fs.bin",
   "particle_physics.fs.bin",
   "vertex_buffer_copy.fs.bin",
@@ -965,7 +965,7 @@ void init_particles2(void * position_ptr,
     float vx = xorshift32f(state) * 2.0f - 1.0f;
     float vz = xorshift32f(state) * 2.0f - 1.0f;
 
-    float new_age = max_age * sinf(fi * rl * 2) * 0.5f + 0.5f;
+    float new_age = max_age * sinf(fi * rl * 2.0f) * 0.5f + 0.5f;
 
     vec3 new_position = vec3(sx, sy, sz);
     vec3 new_velocity = normalize(vec3(vx * 0.5f, 0.0f, vz * 0.5f));
@@ -1304,6 +1304,7 @@ int main()
   // colorbuffer
   colorbuffer_handle[0] = create_buffer(fd, colorbuffer_size, &colorbuffer_ptr[0]);
   colorbuffer_handle[1] = create_buffer(fd, colorbuffer_size, &colorbuffer_ptr[1]);
+
   zbuffer_handle = create_buffer(fd, colorbuffer_size, &zbuffer_ptr);
   //flush_handle = create_flush_buffer(fd);
   texturebuffer_handle = load_textures(fd, textures, textures_length);
@@ -1315,7 +1316,7 @@ int main()
   int colorbuffer_ix = 0;
   float theta = PI * 0.5;
 
-  const int floatbuffer_width = 512;
+  const int floatbuffer_width = 256;
   const int floatbuffer_height = 256;
   floatbuffer_state state = create_floatbuffers(fd, floatbuffer_width * floatbuffer_height);
 
@@ -1374,11 +1375,13 @@ int main()
         break;
 
 
-      struct timespec duration = {
-        .tv_sec = 0,
-        .tv_nsec = 18000000,
-      };
-      nanosleep(&duration, NULL);
+      if (0) {
+        struct timespec duration = {
+          .tv_sec = 0,
+          .tv_nsec = 17000000,
+        };
+        nanosleep(&duration, NULL);
+      }
     }
 
     primary_surface_address(rmmio, colorbuffer_ix);
