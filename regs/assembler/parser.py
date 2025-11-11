@@ -22,8 +22,8 @@ class BaseParser:
         self.current_ix += 1
         return token
 
-    def match(self, token_type):
-        token = self.peek()
+    def match(self, token_type, offset=0):
+        token = self.peek(offset)
         return token.type == token_type
 
     def match_keyword(self, keyword):

@@ -35,6 +35,7 @@ class ALUSwizzleSel:
 @dataclass
 class ALUOperation:
     dest_addr_swizzles: list[DestAddrSwizzle]
+    omod: tuple[Token, Token]
     opcode_keyword: Token
     swizzle_sels: list[ALUSwizzleSel]
 
@@ -115,6 +116,15 @@ class Parser(BaseParser):
             return token.keyword in opcode_keywords
         return False
 
+    def alu_is_omod(self):
+        is_omod = (
+            self.match(TT.identifier, offset=0)
+            and self.match(TT.dot, offset=1)
+            and self.match(TT.identifier, offset=2)
+            and self.match(TT.star, offset=3)
+        )
+        return is_omod
+
     def alu_is_neg(self):
         result = self.match(TT.minus)
         if result:
@@ -154,8 +164,16 @@ class Parser(BaseParser):
 
     def alu_operation(self):
         dest_addr_swizzles = []
-        while not self.alu_is_opcode():
+        while not (self.alu_is_opcode() or self.alu_is_omod()):
             dest_addr_swizzles.append(self.dest_addr_swizzle())
+
+        omod = None
+        if self.alu_is_omod():
+            omod_integer = self.consume(TT.identifier, "expected omod decimal identifier")
+            self.consume(TT.dot, "expected omod decimal dot")
+            omod_decimal = self.consume(TT.identifier, "expected omod decimal identifier")
+            self.consume(TT.star, "expected omod star")
+            omod = (omod_integer, omod_decimal)
 
         opcode_keyword = self.consume(TT.keyword, "expected opcode keyword")
 
@@ -165,6 +183,7 @@ class Parser(BaseParser):
 
         return ALUOperation(
             dest_addr_swizzles,
+            omod,
             opcode_keyword,
             swizzle_sels
         )

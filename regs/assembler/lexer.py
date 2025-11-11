@@ -21,6 +21,7 @@ class TT(Enum):
     bar = auto()
     comma = auto()
     minus = auto()
+    star = auto()
 
 @dataclass
 class Token:
@@ -112,6 +113,8 @@ class Lexer:
                 return Token(*self.pos(), TT.semicolon, self.lexeme())
             elif c == ord(','):
                 return Token(*self.pos(), TT.comma, self.lexeme())
+            elif c == ord('*'):
+                return Token(*self.pos(), TT.star, self.lexeme())
             elif c == ord('-') and self.peek() == ord('-'):
                 self.advance()
                 while not self.at_end_p() and self.peek() != ord('\n'):

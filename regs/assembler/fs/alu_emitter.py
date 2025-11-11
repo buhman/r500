@@ -17,6 +17,9 @@ def emit_alpha_op(code, alpha_op):
     if alpha_op.dest.omask is not None:
         US_CMN_INST.ALPHA_OMASK(code, alpha_op.dest.omask.value)
 
+    # omod
+    US_ALU_ALPHA_INST.OMOD(code, alpha_op.omod.value)
+
     # opcode
     US_ALU_ALPHA_INST.ALPHA_OP(code, alpha_op.opcode.value)
 
@@ -58,6 +61,9 @@ def emit_rgb_op(code, rgb_op):
         US_CMN_INST.RGB_WMASK(code, rgb_op.dest.wmask.value)
     if rgb_op.dest.omask is not None:
         US_CMN_INST.RGB_OMASK(code, rgb_op.dest.omask.value)
+
+    # omod
+    US_ALU_RGB_INST.OMOD(code, rgb_op.omod.value)
 
     # opcode
     US_ALU_RGBA_INST.RGB_OP(code, rgb_op.opcode.value)

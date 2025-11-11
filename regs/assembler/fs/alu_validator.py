@@ -110,6 +110,26 @@ class Swizzle(IntEnum):
     one = 6
     unused = 7
 
+class Omod(IntEnum):
+    mul_1 = 0
+    mul_2 = 1
+    mul_4 = 2
+    mul_8 = 3
+    div_2 = 4
+    div_4 = 5
+    div_8 = 6
+    disable = 7
+
+omod_lexemes = OrderedDict([
+    ((b"1", b"0"), Omod.mul_1),
+    ((b"2", b"0"), Omod.mul_2),
+    ((b"4", b"0"), Omod.mul_4),
+    ((b"8", b"0"), Omod.mul_8),
+    ((b"0", b"5"), Omod.div_2),
+    ((b"0", b"25"), Omod.div_4),
+    ((b"0", b"125"), Omod.div_8),
+])
+
 @dataclass
 class SwizzleSel:
     src: SwizzleSelSrc
@@ -119,12 +139,14 @@ class SwizzleSel:
 @dataclass
 class AlphaOperation:
     dest: AlphaDest
+    omod: Omod
     opcode: AlphaOp
     sels: list[SwizzleSel]
 
 @dataclass
 class RGBOperation:
     dest: RGBDest
+    omod: Omod
     opcode: RGBOp
     sels: list[SwizzleSel]
 
@@ -413,14 +435,27 @@ def validate_instruction_operation_sels(swizzle_sels, is_alpha):
         sels.append(SwizzleSel(src, swizzle, mod))
     return sels
 
+def validate_omod_operation(operation):
+    omod = Omod.mul_1
+    if operation.omod != None:
+        integer, decimal = operation.omod
+        key = (integer.lexeme, decimal.lexeme)
+        if key not in omod_lexemes:
+            valid_omods = b", ".join(b".".join(key) for key in omod_lexemes.keys()).decode('utf-8')
+            raise ValidatorError(f"invalid omod, expected one of [{valid_omods}]", integer)
+        omod = omod_lexemes[key]
+    return omod
+
 def validate_alpha_instruction_operation(operation):
     dest = validate_instruction_operation_dest(operation.dest_addr_swizzles,
                                                mask_lookup=alpha_masks,
                                                type_cls=AlphaDest)
+    omod = validate_omod_operation(operation)
     opcode = alpha_op_kws[operation.opcode_keyword.keyword]
     sels = validate_instruction_operation_sels(operation.swizzle_sels, is_alpha=True)
     return AlphaOperation(
         dest,
+        omod,
         opcode,
         sels
     )
@@ -429,10 +464,12 @@ def validate_rgb_instruction_operation(operation):
     dest = validate_instruction_operation_dest(operation.dest_addr_swizzles,
                                                mask_lookup=rgb_masks,
                                                type_cls=RGBDest)
+    omod = validate_omod_operation(operation)
     opcode = rgb_op_kws[operation.opcode_keyword.keyword]
     sels = validate_instruction_operation_sels(operation.swizzle_sels, is_alpha=False)
     return RGBOperation(
         dest,
+        omod,
         opcode,
         sels
     )
