@@ -304,18 +304,18 @@ int indirect_buffer(float time)
       | SC_SCISSOR0__YS0(0)
       );
   T0V(SC_SCISSOR1
-      , SC_SCISSOR1__XS1(1600 - 1)
-      | SC_SCISSOR1__YS1(1200 - 1)
+      , SC_SCISSOR1__XS1(800 - 1)
+      | SC_SCISSOR1__YS1(600 - 1)
       );
 
   //////////////////////////////////////////////////////////////////////////////
   // VAP
   //////////////////////////////////////////////////////////////////////////////
 
-  T0Vf(VAP_VPORT_XSCALE,   800.0f);
-  T0Vf(VAP_VPORT_XOFFSET,  800.0f);
-  T0Vf(VAP_VPORT_YSCALE,  -600.0f);
-  T0Vf(VAP_VPORT_YOFFSET,  600.0f);
+  T0Vf(VAP_VPORT_XSCALE,   400.0f);
+  T0Vf(VAP_VPORT_XOFFSET,  400.0f);
+  T0Vf(VAP_VPORT_YSCALE,  -300.0f);
+  T0Vf(VAP_VPORT_YOFFSET,  300.0f);
   T0Vf(VAP_VPORT_ZSCALE,     0.5f);
   T0Vf(VAP_VPORT_ZOFFSET,    0.5f);
 
@@ -409,7 +409,7 @@ int indirect_buffer(float time)
   };
   const int vertex_shader_length = (sizeof (vertex_shader)) / (sizeof (vertex_shader[0]));
   assert(vertex_shader_length % 4 == 0);
-  printf("vs length %d\n", vertex_shader_length);
+  //printf("vs length %d\n", vertex_shader_length);
 
   T0_ONE_REG(VAP_PVS_VECTOR_DATA_REG_128, vertex_shader_length - 1);
   for (int i = 0; i < vertex_shader_length; i++) {
@@ -449,10 +449,17 @@ int indirect_buffer(float time)
 
   // fragment constants
 
+#define PI (3.14159274101257324219f)
+#define PI_2 (PI * 2.0f)
+#define I_PI_2 (1.0f / (PI_2))
+
   const float fragment_consts[] = {
-    time, 0, 0, 0,
+    time, 1.2, 0.01, 0.4,
+    PI_2, I_PI_2, 0, 0,
+    0.25, 0.40625, 0.5625, 0,
   };
   int fragment_consts_length = (sizeof (fragment_consts)) / (sizeof (fragment_consts[0]));
+  assert(fragment_consts_length % 4 == 0);
 
   T0V(GA_US_VECTOR_INDEX
       , GA_US_VECTOR_INDEX__INDEX(0)
@@ -465,16 +472,16 @@ int indirect_buffer(float time)
   // fragment code
 
   const uint32_t fragment_shader[] = {
-    #include "shadertoy_palette.fs.inc"
+    #include "shadertoy_palette_fractal.fs.inc"
   };
   const int fragment_shader_length = (sizeof (fragment_shader)) / (sizeof (fragment_shader[0]));
   assert(fragment_shader_length % 6 == 0);
-  printf("fs length %d\n", fragment_shader_length);
+  //printf("fs length %d\n", fragment_shader_length);
   const int fragment_shader_instructions = fragment_shader_length / 6;
-  printf("fs instructions %d\n", fragment_shader_instructions);
+  //printf("fs instructions %d\n", fragment_shader_instructions);
 
   T0V(US_PIXSIZE
-      , US_PIXSIZE__PIX_SIZE(2) // pixel shader stack frame size
+      , US_PIXSIZE__PIX_SIZE(3) // pixel shader stack frame size
       );
 
   T0V(US_CODE_RANGE
@@ -513,7 +520,7 @@ int indirect_buffer(float time)
     -1.0f,  1.0f, 0.0f
   };
   const int vertices_length = (sizeof (vertices)) / (sizeof (vertices[0]));
-  printf("vtx length %d\n", vertices_length);
+  //printf("vtx length %d\n", vertices_length);
   T3(_3D_DRAW_IMMD_2, (1 + vertices_length) - 1);
   ib[ix++].u32
     = VAP_VF_CNTL__PRIM_TYPE(4)
@@ -708,7 +715,7 @@ int main()
 #define D1GRPH_UPDATE__D1GRPH_SURFACE_UPDATE_PENDING (1 << 2)
 
     uint32_t d1crtc_double_buffer_control = rreg(rmmio, D1CRTC_DOUBLE_BUFFER_CONTROL);
-    printf("D1CRTC_DOUBLE_BUFFER_CONTROL: %08x\n", d1crtc_double_buffer_control);
+    //printf("D1CRTC_DOUBLE_BUFFER_CONTROL: %08x\n", d1crtc_double_buffer_control);
     assert(d1crtc_double_buffer_control == (1 << 8));
 
     // addresses were retrieved from /sys/kernel/debug/radeon_vram_mm
