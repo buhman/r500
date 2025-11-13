@@ -48,6 +48,7 @@ srcp.rgb = add       : -- (vec3(0.25, 0.40625, 0.5625) + 0.5)
 src0.rgb = temp[3] : -- v
   temp[3].rgb = FRC src0.rgb ;
 
+-- v = v - 0.5
 src0.rgb = temp[3]   , -- v
 src1.rgb = float(48) : -- 0.5
   temp[3].rgb = MAD src0.111 src0.rgb -src1.rgb ;

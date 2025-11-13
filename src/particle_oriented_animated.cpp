@@ -430,7 +430,7 @@ void _3d_particle(const shaders& shaders,
 
   mat4x4 local_to_view = world_to_view * local_to_world;
 
-  mat4x4 trans = world_to_clip * local_to_world;
+  mat4x4 local_to_clip = world_to_clip * local_to_world;
 
   //////////////////////////////////////////////////////////////////////////////
   // consts
@@ -446,27 +446,27 @@ void _3d_particle(const shaders& shaders,
     //const float position_consts[] = { position.x, position.y, position.z, scale };
     //ib_vap_pvs_const_offset(position_consts, (sizeof (position_consts)), 6);
 
-  const float consts[] = {
-    // 0
-    trans[0][0], trans[0][1], trans[0][2], trans[0][3],
-    trans[1][0], trans[1][1], trans[1][2], trans[1][3],
-    trans[2][0], trans[2][1], trans[2][2], trans[2][3],
-    trans[3][0], trans[3][1], trans[3][2], trans[3][3],
+    const float consts[] = {
+      // 0: local space to clip space transformation matrix
+      local_to_clip[0][0], local_to_clip[0][1], local_to_clip[0][2], local_to_clip[0][3],
+      local_to_clip[1][0], local_to_clip[1][1], local_to_clip[1][2], local_to_clip[1][3],
+      local_to_clip[2][0], local_to_clip[2][1], local_to_clip[2][2], local_to_clip[2][3],
+      local_to_clip[3][0], local_to_clip[3][1], local_to_clip[3][2], local_to_clip[3][3],
 
-    // 4: dx (right)
-    local_to_view[0][0], local_to_view[0][1], local_to_view[0][2], 0,
+      // 4: dx ("right" change of basis vector)
+      local_to_view[0][0], local_to_view[0][1], local_to_view[0][2], 0,
 
-    // 5: dy (up)
-    local_to_view[1][0], local_to_view[1][1], local_to_view[1][2], 0,
+      // 5: dy ("up" change of basis vector)
+      local_to_view[1][0], local_to_view[1][1], local_to_view[1][2], 0,
 
-    // 6: xyz:position w:scale
-    position.x, position.y, position.z, scale
-  };
-  ib_vap_pvs_const_cntl(consts, (sizeof (consts)));
+      // 6: particle position, scale
+      position.x, position.y, position.z, scale
+    };
+    ib_vap_pvs_const_cntl(consts, (sizeof (consts)));
 
     // plane_inner
 
-    _3d_plane_inner(trans);
+    _3d_plane_inner(local_to_clip);
   }
 }
 
