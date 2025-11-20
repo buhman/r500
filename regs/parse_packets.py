@@ -16,6 +16,17 @@ undocumented_registers = {
     0x2184: "VAP_VSM_VTX_ASSM",
 }
 
+def decode_print(register_name, value, paren=False, display_register_name=None):
+    if display_register_name is None:
+        display_register_name = register_name
+    decoded_value = decode_bits(register_name, value)
+    head = decoded_value[0][2:]
+    tail = indent('\n'.join([f"= {head}", *decoded_value[1:]]), '      ')
+    if paren:
+        print(f"  ({display_register_name})\n{tail}")
+    else:
+        print(f"  {display_register_name}\n{tail}")
+
 class Parser:
     def __init__(self, values):
         self.ix = 0
@@ -53,10 +64,7 @@ class Parser:
                 try:
                     if one_reg or value == 0:
                         assert False
-                    decoded_value = decode_bits(register_name, value)
-                    head = decoded_value[0][2:]
-                    tail = indent('\n'.join(decoded_value[1:]), '      ')
-                    print(f"  {register_name} = {head}\n{tail}")
+                    decode_print(register_name, value)
                 except AssertionError:
                     print(f"  {register_name} = 0x{value:08x}")
             else:
@@ -80,11 +88,83 @@ class Parser:
         it_opcode = (header >> 8) & 0xff
         count = (header >> 16) & 0x3fff
 
-        print(f"type 3: op:{it_opcode:02x} count:{count:04x}")
+        opcode_names = dict((v, k) for k, v in [
+            ("3D_DRAW_VBUF", 0x28),
+            ("3D_DRAW_IMMD", 0x29),
+            ("3D_DRAW_INDX", 0x2A),
+            ("LOAD_PALETTE", 0x2C),
+            ("3D_LOAD_VBPNTR", 0x2F),
+            ("INDX_BUFFER", 0x33),
+            ("3D_DRAW_VBUF_2", 0x34),
+            ("3D_DRAW_IMMD_2", 0x35),
+            ("3D_DRAW_INDX_2", 0x36),
+            ("3D_CLEAR_HIZ", 0x37),
+            ("3D_DRAW_128", 0x39),
+        ])
+        opcode_name = f"{it_opcode:02x}" if it_opcode not in opcode_names else opcode_names[it_opcode]
+
+        registers = {
+            "3D_DRAW_VBUF": ["VAP_VTX_FMT", "VAP_VF_CNTL"],
+            "3D_DRAW_IMMD": ["VAP_VTX_FMT", "VAP_VF_CNTL"],
+            "3D_DRAW_INDX": ["VAP_VTX_FMT", "VAP_VF_CNTL"],
+            "3D_LOAD_VBPNTR": ["VAP_VTX_NUM_ARRAYS",
+                               "VAP_VTX_AOS_ATTR01",
+                               "VAP_VTX_AOS_ADDR0",
+                               "VAP_VTX_AOS_ADDR1",
+                               "VAP_VTX_AOS_ATTR23",
+                               "VAP_VTX_AOS_ADDR2",
+                               "VAP_VTX_AOS_ADDR3",
+                               "VAP_VTX_AOS_ATTR45",
+                               "VAP_VTX_AOS_ADDR4",
+                               "VAP_VTX_AOS_ADDR5",
+                               "VAP_VTX_AOS_ATTR67",
+                               "VAP_VTX_AOS_ADDR6",
+                               "VAP_VTX_AOS_ADDR7",
+                               "VAP_VTX_AOS_ATTR89",
+                               "VAP_VTX_AOS_ADDR8",
+                               "VAP_VTX_AOS_ADDR9",
+                               "VAP_VTX_AOS_ATTR1011",
+                               "VAP_VTX_AOS_ADDR10",
+                               "VAP_VTX_AOS_ADDR11",
+                               "VAP_VTX_AOS_ATTR1213",
+                               "VAP_VTX_AOS_ADDR12",
+                               "VAP_VTX_AOS_ADDR13",
+                               "VAP_VTX_AOS_ATTR1415",
+                               "VAP_VTX_AOS_ADDR14",
+                               "VAP_VTX_AOS_ADDR15"],
+            "INDX_BUFFER": [(("ONE_REG_WR", (31, 31)), ("SKIP_COUNT", (18, 16)), ("DESTINATION", (12, 0))),
+                            (("BUFFER_BASE", (31, 0)),),
+                            (("BUFFER_SIZE", (31, 0)),)],
+            "3D_DRAW_VBUF_2": ["VAP_VF_CNTL"],
+            "3D_DRAW_IMMD_2": ["VAP_VF_CNTL"],
+            "3D_DRAW_INDX_2": ["VAP_VF_CNTL"],
+        }
+
+        print(f"type 3: op:{opcode_name} count:{count:04x}")
+        ix = 0
         while count >= 0:
             value = self.consume()
-            print(f"    {value:08x}")
+            if opcode_name in registers and ix < len(registers[opcode_name]):
+                register_name = registers[opcode_name][ix]
+                if type(register_name) is str:
+                    if "_AOS_ATTR" in register_name:
+                        decode_print(register_name[:-2], value, paren=True, display_register_name=register_name)
+                    elif "_AOS_ADDR" in register_name:
+                        decode_print(register_name[:-1], value, paren=True, display_register_name=register_name)
+                    else:
+                        decode_print(register_name, value, paren=True)
+                else:
+                    print(f"  ({opcode_name}__{ix})")
+                    for i, desc in enumerate(register_name):
+                        eq_bar = '=' if i == 0 else '|'
+                        d_name, (high, low) = desc
+                        mask = (1 << ((high - low) + 1)) - 1
+                        v = (value >> low) & mask
+                        print(f'      {eq_bar} {opcode_name}__{ix}__{d_name}({v})')
+            else:
+                print(f"    {value:08x}")
             count -= 1
+            ix += 1
 
     def packet(self):
         value = self.peek()
